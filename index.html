@@ -1,0 +1,1925 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1a55a0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="배구대회">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="config.js?v=1"></script>
+</head>
+<body>
+<title>학교 배구대회 운영판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: court-blue scoreboard header with scrolling tabs; one working column up to 1160px; times set large and bold so schedules scan at a glance */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --sunk:#e6ebf2; --ink:#131c2b; --muted:#566376; --line:#cfd7e2;
+  --court:#1a55a0; --court-soft:#e0eaf8; --on-court:#ffffff;
+  --ball:#f2b200; --ball-soft:#fff4d1; --ball-ink:#6b4e00;
+  --live:#cf3b24; --live-soft:#fde4df; --ok:#137a4a; --ok-soft:#dbf1e4; --on-ok:#ffffff;
+  --f-body:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e141d; --surface:#161f2c; --sunk:#1d2939; --ink:#e8edf4; --muted:#9dabbd; --line:#2e3b4d;
+  --court:#74aaf3; --court-soft:#1b2c45; --on-court:#0b1220;
+  --ball:#f5c84a; --ball-soft:#3a3016; --ball-ink:#f5d57a;
+  --live:#ff7c65; --live-soft:#3d1f1a; --ok:#52c78d; --ok-soft:#173327; --on-ok:#06210f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e141d; --surface:#161f2c; --sunk:#1d2939; --ink:#e8edf4; --muted:#9dabbd; --line:#2e3b4d;
+  --court:#74aaf3; --court-soft:#1b2c45; --on-court:#0b1220;
+  --ball:#f5c84a; --ball-soft:#3a3016; --ball-ink:#f5d57a;
+  --live:#ff7c65; --live-soft:#3d1f1a; --ok:#52c78d; --ok-soft:#173327; --on-ok:#06210f; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums;font-weight:700}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--court);color:var(--on-court);border-bottom:4px solid var(--ball)}
+.top-in{max-width:1160px;margin:0 auto;padding:14px 16px 0}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand h1{font-weight:800;font-size:clamp(19px,3vw,25px);margin:0;letter-spacing:-.01em;text-wrap:balance}
+.brand small{opacity:.85;font-size:13px}
+.tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none;border:0;color:var(--on-court);opacity:.8;padding:9px 13px 11px;font-weight:700;white-space:nowrap;cursor:pointer;border-radius:8px 8px 0 0}
+.tab[aria-current="page"]{opacity:1;background:var(--bg);color:var(--ink)}
+.tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.mcard:focus-visible,.slot:focus-visible,.mbox:focus-visible{outline:3px solid var(--ball);outline-offset:2px}
+main{max-width:1160px;margin:0 auto;grid-template-columns:minmax(0,1fr);padding-inline:16px;padding-block:20px 60px;display:grid;gap:18px}
+.banner{background:var(--ball-soft);color:var(--ball-ink);border:1px solid var(--ball);border-radius:10px;padding:10px 14px;font-size:14px}
+.banner b{font-weight:800}
+.hint{background:var(--court-soft);border-radius:10px;padding:10px 14px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.notice{background:var(--court-soft);border-radius:10px;padding:12px 14px;white-space:pre-wrap}
+@media (max-width:640px){.notice{padding:9px 52px 9px 12px;font-size:14px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;cursor:pointer;position:relative}.notice.open{white-space:pre-wrap}.notice::after{content:'더보기';position:absolute;right:10px;top:9px;font-size:12px;font-weight:700;color:var(--court)}.notice.open::after{content:'접기'}}
+@media (max-width:760px){.tabs{-webkit-mask-image:linear-gradient(90deg,#000 88%,rgba(0,0,0,.35));mask-image:linear-gradient(90deg,#000 88%,rgba(0,0,0,.35))}}
+.panel{--pp:18px;grid-template-columns:minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:14px;min-width:0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+h2{font-weight:800;font-size:21px;margin:0;letter-spacing:-.01em}
+h3{font-size:16px;margin:0;font-weight:800}
+.sub{color:var(--muted);margin:2px 0 0;font-size:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;cursor:pointer;font-weight:700;display:inline-flex;gap:6px;align-items:center}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cnt{font-size:12px;background:var(--sunk);color:var(--ink);border-radius:999px;padding:0 7px;font-weight:700}
+.chip[aria-pressed="true"] .cnt{background:var(--ball);color:#1b1400}
+.seg{display:flex;gap:4px;background:var(--sunk);padding:4px;border-radius:10px;width:max-content;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:7px;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer}
+.btn.primary{background:var(--court);color:var(--on-court);border-color:var(--court)}
+.btn.warn{color:var(--live);border-color:var(--live)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:top}
+th{background:var(--sunk);font-size:12px;color:var(--muted);font-weight:700}
+tr:last-child td{border-bottom:0}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:10px}
+.pill{display:inline-flex;gap:5px;align-items:center;font-size:12px;font-weight:800;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.pill.live{background:var(--live);color:#fff}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.wait{background:var(--sunk);color:var(--muted)}
+.pill.draft{background:var(--ball-soft);color:var(--ball-ink)}
+form.grid{display:grid;gap:14px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label.f{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0;display:flex;gap:6px 14px;flex-wrap:wrap}
+legend{font-size:13px;font-weight:700;color:var(--muted);padding:0 4px}
+fieldset label{display:inline-flex;gap:5px;align-items:center;font-size:14px}
+input[type=text],input[type=password],input[type=tel],input[type=number],input[type=time],input[type=datetime-local],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;color:var(--ink);font-weight:500}
+textarea{min-height:90px;resize:vertical}
+.players{display:grid;gap:6px}
+.prow{display:grid;grid-template-columns:22px minmax(0,1fr) 92px 84px 32px;gap:6px;align-items:center;min-width:0}
+.prow input,.prow select{padding:6px 8px}
+.prow .icon-btn{height:32px}
+#prows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(9,auto);grid-auto-flow:column;gap:5px 32px}
+@media (max-width:640px){#prows{gap:4px 8px}.prow{grid-template-columns:15px minmax(0,1fr) 38px 34px;gap:3px}.prow .icon-btn{display:none}.prow input,.prow select{padding:5px 4px;font-size:13px}.prow .pno{font-size:11px}.prow select{padding-right:0}}
+.pno{color:var(--muted);text-align:right;font-weight:700}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;height:36px;cursor:pointer}
+.consent{background:var(--sunk);border-radius:10px;padding:12px 14px;font-size:13px;display:grid;gap:6px}
+.err{color:var(--live);font-weight:700;margin:0;min-height:1em}
+.meta{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:14px;color:var(--muted);align-items:center}
+.meta b{color:var(--ink)}
+.t-big{font-weight:800;color:var(--court);font-variant-numeric:tabular-nums}
+.shift{font-size:12px;font-weight:800;white-space:nowrap}
+.shift.early{color:var(--ok)}.shift.late{color:var(--live)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.dot{animation:none}}
+/* bracket with connector lines */
+.bracket-wrap{overflow-x:auto;padding-bottom:6px}
+.bk-heads{display:flex;margin-bottom:8px}
+.bk-heads div{flex:none;text-align:center;font-size:13px;font-weight:800;color:var(--muted)}
+.bk{position:relative}
+.bk svg{position:absolute;inset:0;overflow:visible}
+.ln{fill:none;stroke:var(--line);stroke-width:2}
+.ln.win{stroke:var(--ok);stroke-width:3}
+.mbox{position:absolute;height:72px;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden;font-size:12.5px;display:grid;grid-template-rows:22px 25px 25px}
+.mbox.clk{cursor:pointer}
+.mbox.clk:hover{border-color:var(--court)}
+.mbox.live{border:2px solid var(--live)}
+.mbox.up,.vbox.up{border:2px solid var(--court)}
+.mbox.up.tbd2,.vbox.up.tbd2{border:1.5px dashed var(--court)}
+.mbox.done,.vbox.done{opacity:.5;border-color:var(--line)}
+.mbox.done:hover,.vbox.done:hover{opacity:.85}
+.slot.champ-s,.vsl.champ-s{background:var(--ball-soft)!important;color:var(--ball-ink)!important;font-weight:900}
+.mbox.ready,.vbox.ready,.mcard.ready{border:2px solid var(--ball)}
+.mbox.final,.mbox.final.up,.mbox.final.up.tbd2{border:2px solid var(--ball)}
+.drop{display:grid;gap:4px;place-items:center;text-align:center;border:2px dashed var(--court);border-radius:12px;padding:22px 14px;background:var(--court-soft);cursor:pointer;color:var(--court)}
+.drops{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.drop.photo{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.drop.over{background:var(--ball-soft);border-color:var(--ball)}
+.imp-list{display:grid;gap:10px}
+.imp-card{border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:10px;padding:12px 14px;display:grid;gap:6px}
+.imp-card.bad{border-left-color:var(--ball)}
+.xl-box{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;background:var(--sunk);border-radius:10px;padding:12px 14px}
+.dl{font-size:.68em;font-weight:800;background:var(--ball-soft);color:var(--ball-ink);border-radius:4px;padding:0 3px;margin-right:2px;vertical-align:1px}
+.tt-day{font-size:12px;font-weight:800;color:var(--muted);margin:10px 0 4px;letter-spacing:.02em}
+.tt-item.cur{border-left:4px solid var(--court)}
+.sch-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 18px}
+.sch.hd{border-bottom:2px solid var(--ink);padding-block:4px;font-size:12px;font-weight:800;color:var(--muted)}
+.sch.hd b{color:var(--muted);font-size:12px}
+@media (max-width:520px){.sch-grid{gap:0 10px}.sch{gap:3px;padding:7px 0;font-size:13px}.sch .i{display:none}.sch .n{font-size:11px}}
+.sch{display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--line);min-width:0}
+.sch .i{color:var(--muted);font-weight:700;min-width:20px;text-align:right;font-size:13px}
+.sch b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sch .n{color:var(--muted);font-size:13px;white-space:nowrap}
+.rv{display:grid;gap:6px}.rv-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.rv b.me{color:var(--court);background:var(--court-soft);border-radius:5px;padding:0 5px}
+.mine-item{cursor:pointer}.mine-item:hover{border-color:var(--court)}
+.ref-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sref-list{display:grid;gap:4px;font-size:13px;background:var(--ball-soft);border-radius:8px;padding:8px 10px}
+.off-tag{background:var(--live-soft);color:var(--live);border-radius:5px;padding:0 6px;font-size:12px;font-weight:800}
+.nohelp .sec-head .sub,.nohelp .bk-legend,.nohelp .help{display:none!important}
+.ttbox{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tt-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;background:var(--sunk);border:0;cursor:pointer;font-weight:800;font-size:15px}
+.tt-body{padding:12px 14px}
+.bk-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);align-items:center}
+.bk-legend i{display:inline-block;width:18px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px;background:var(--surface)}
+main.wide{max-width:none}
+
+.mhead{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:0 7px;background:var(--sunk);font-size:10.5px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden}
+.mhead .t-big{font-size:13px}
+.mhead .shift{font-size:10px}
+.mhead .row{flex-wrap:nowrap}
+.mhead>*:first-child{flex-shrink:0}.mhead>*:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mbox.live .mhead{background:var(--live);color:#fff}
+.mbox.live .mhead .t-big{color:#fff}
+.slot{display:flex;align-items:center;gap:5px;padding:0 7px;border-top:1px solid var(--line);font-weight:500;min-width:0}
+.slot .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pts{display:flex;gap:3px;font-size:10.5px;color:var(--muted);font-weight:500}
+.pts i{font-style:normal;min-width:15px;text-align:right}
+.pts i.w{color:var(--ink);font-weight:800}
+.slot b{min-width:10px;text-align:right}
+.slot.win{font-weight:800;background:var(--ok-soft);color:var(--ok)}
+.slot.tbd{color:var(--muted)}
+.slot.pick{cursor:pointer}
+.slot.pick:hover{background:var(--court-soft)}
+.slot.sel{outline:2px solid var(--ball);outline-offset:-2px;background:var(--ball-soft)}
+.champ{display:flex;gap:10px;align-items:center;background:var(--ball-soft);border:1px solid var(--ball);border-radius:10px;padding:10px 14px;color:var(--ball-ink);font-weight:700}
+.champ b{font-size:19px;font-weight:800;color:var(--ink)}
+.dtabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.dtab{border:1.5px solid var(--line);background:var(--sunk);border-radius:10px;padding:7px 4px;font:inherit;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px;color:var(--ink)}
+.dtab small{font-weight:600;font-size:11px;color:var(--muted)}
+.dtab.on{background:var(--court);border-color:var(--court);color:#fff}.dtab.on small{color:#dfe8f6}
+.dpane{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:10px}
+.dpane[hidden]{display:none}
+.tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;align-items:start}
+.tcol h4{margin:0 0 6px;font-size:15px}
+.tlist{display:grid;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.trow{display:grid;grid-template-columns:20px minmax(0,1fr) auto auto;grid-template-areas:"i s t n" "i s p n";column-gap:8px;align-items:center;text-align:left;font:inherit;background:var(--surface);border:0;border-top:1px solid var(--line);padding:5px 10px;cursor:pointer;color:var(--ink)}
+.trow:first-child{border-top:0}.trow:hover{background:var(--court-soft)}
+.trow .rti{grid-area:i;font-size:11px;color:var(--muted);font-weight:700}
+.trow b{grid-area:s;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow .rtt{grid-area:t;font-size:12px;color:var(--muted);text-align:right}
+.trow .rtp{grid-area:p;font-size:11.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.trow .rtn{grid-area:n;font-size:12px;font-weight:800;color:var(--court);min-width:30px;text-align:right}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.tbox{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;align-content:start}
+.trange{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.trange span{font-size:14px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.trange select.tsel,select.tsel{width:86px!important;min-width:0!important;flex:0 0 auto;padding:6px 8px}
+#e-exday{width:auto!important;justify-self:start}
+.trange{flex-wrap:nowrap!important}
+.pwbox{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pod{display:flex;align-items:center;gap:10px;border-radius:12px;padding:10px 14px;border:2px solid;min-width:0}
+.pod-e{font-size:30px;line-height:1}
+.pod-n{font-weight:800;font-size:14px;white-space:nowrap}
+.pod b{font-size:19px;font-weight:900;color:#1b2333;line-height:1.25;min-width:0}.pod b span{display:block}
+.pod.md-g{background:linear-gradient(135deg,#fff6cf,#ffe48a);border-color:#d4a017;color:#7a5600}
+.pod.md-s{background:linear-gradient(135deg,#f6f8fb,#dde3ea);border-color:#9aa6b4;color:#4b5563}
+.pod.md-b{background:linear-gradient(135deg,#fbede2,#f0cfb4);border-color:#b8733f;color:#7a4317}
+.slot.md-g,.vsl.md-g{background:#ffefb0!important;color:#6b4c00!important;font-weight:900}
+.slot.md-s,.vsl.md-s{background:#e6eaf0!important;color:#3f4a5a!important;font-weight:800}
+.slot.md-b,.vsl.md-b{background:#f6dfcc!important;color:#6e3d14!important;font-weight:800}
+@media (max-width:640px){.podium{grid-template-columns:1fr;gap:6px}.pod{padding:8px 12px}.pod-e{font-size:24px}.pod b{font-size:17px}.pod b span{display:inline}.pod b span+span::before{content:' · '}}
+
+/* court timetable */
+.tt{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.tt-col h4{margin:0 0 6px;font-size:14px;font-weight:800}
+.tt-item{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;cursor:pointer;background:var(--surface)}
+.tt-item .t-big{font-size:18px}
+.tt-item.live{border:2px solid var(--live)}
+.tt-item.done{background:var(--sunk)}
+.tt-item.done .t-big{color:var(--muted)}
+/* scoreboard */
+.board-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+@media (max-width:1000px){.board-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.board-cols{grid-template-columns:minmax(0,1fr)}}
+.more{border:1px dashed var(--line);background:var(--surface);border-radius:10px;padding:8px;font-weight:700;color:var(--court);cursor:pointer;width:100%}
+.mc-grid{display:grid;gap:2px 4px;align-items:center;font-variant-numeric:tabular-nums}
+.mc-grid .h{font-size:10.5px;color:var(--muted);font-weight:700;text-align:right}
+.mc-grid .p{font-size:13px;text-align:right;color:var(--muted);font-weight:500}
+.mc-grid .p.w{color:var(--ink);font-weight:800}
+.mc-grid .nm{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.mc-grid .st{font-size:21px;font-weight:800;text-align:right;line-height:1.1}
+.mc-grid .win{color:var(--ok)}.mc-grid .lose{color:var(--muted)}.mc-grid .tbd{font-weight:400;color:var(--muted)}
+.mc-total{font-size:12px;color:var(--muted);font-weight:700}
+.col h3{font-size:15px;display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.col .stack{display:grid;gap:10px}
+.mcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:6px;min-width:0;cursor:pointer}
+.mcard:hover{border-color:var(--court)}
+.mcard.live{border:2px solid var(--live)}
+.mcard.done{background:var(--sunk)}
+.mc-time{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.mc-time .t-big{font-size:21px;line-height:1.1}
+.mcard.live .mc-time .t-big{color:var(--live)}
+.mcard.done .mc-time .t-big{color:var(--muted);font-size:18px}
+.mc-top{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;font-weight:700}
+.tag{background:var(--court);color:var(--on-court);border-radius:5px;padding:1px 7px;font-weight:800}
+.court{margin-left:auto;font-weight:800;color:var(--ink)}
+.mc-team{display:flex;justify-content:space-between;gap:8px;font-size:17px;font-weight:700}
+.mc-team b{font-size:24px;line-height:1;font-weight:800}
+.mc-team.win{color:var(--ok)}
+.mc-team.lose{color:var(--muted)}
+.mc-team.tbd{font-weight:400;color:var(--muted)}
+.mc-sets{font-size:13px;color:var(--muted);font-weight:700}
+.mc-foot{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted);flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:6px}
+.go{font-weight:800;color:var(--court)}
+.clock{font-size:26px;font-weight:800;color:var(--court)}
+/* officials */
+.mine-list{display:grid;gap:8px}
+.mine-item{display:grid;grid-template-columns:70px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.mine-item.next{border:2px solid var(--ball);background:var(--ball-soft)}
+.mine-item .t-big{font-size:20px}
+.role-tag{display:inline-block;background:var(--court-soft);color:var(--court);border-radius:5px;padding:0 7px;font-size:12px;font-weight:800}
+.slots{display:grid;gap:4px}
+td select{min-width:118px;padding:5px 8px}
+.warn-sel{border-color:var(--live)!important;background:var(--live-soft)!important}
+.wtxt{color:var(--live);font-size:11px;font-weight:700;white-space:normal;max-width:150px}
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px 10px;max-height:180px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.ex-grid label{font-size:13px;display:flex;gap:5px;align-items:center}
+.ex-grid h5{grid-column:1/-1;margin:4px 0 0;font-size:12px;color:var(--muted)}
+details.team{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+details.team summary{cursor:pointer;font-weight:700;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+details.team[open] summary{margin-bottom:10px}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.admin-top{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;align-items:start}
+.panel.tight{padding:14px 16px;gap:10px}
+.kv{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted)}.kv b{color:var(--ink)}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px 12px}
+.set-grid .span2{grid-column:span 2}.set-grid .span-all{grid-column:1/-1}
+.set-grid input:not([type=checkbox]),.set-grid select{width:100%;min-width:0;box-sizing:border-box}
+@media (max-width:420px){.set-grid .span2{grid-column:1/-1}}
+.lbl{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.roles-set{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))!important}
+.checks{display:grid;gap:6px;font-size:14px}
+.roles-set{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+/* modal & toast */
+.modal{position:fixed;inset:0;background:rgba(10,16,26,.55);z-index:50;display:grid;place-items:center;padding:16px}
+.mx-row{display:flex;justify-content:flex-end;margin:-10px -8px -12px 0}
+.mx{border:0;background:var(--sunk);color:var(--ink);width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:800;cursor:pointer}
+.mdlg{background:var(--surface);color:var(--ink);border-radius:14px;padding:20px;width:min(600px,100%);max-height:88vh;overflow:auto;display:grid;gap:14px}
+.setrow{display:grid;grid-template-columns:60px 1fr 16px 1fr;gap:8px;align-items:center}
+.setrow span{font-size:13px;color:var(--muted);font-weight:700}
+.setrow input{font-size:18px;font-weight:800;text-align:center}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;font-weight:800;font-size:18px}
+.set-tbl{display:grid;grid-template-columns:1fr auto 1fr;gap:4px 10px;align-items:center;text-align:center;font-variant-numeric:tabular-nums;border-top:1px solid var(--line);padding-top:8px}
+.set-tbl span{font-size:20px;font-weight:600;color:var(--ink);justify-self:center;min-width:52px}
+.set-tbl span.w{color:var(--court);font-weight:900;font-size:22px}
+.set-tbl em{font-style:normal;font-size:12px;font-weight:700;color:var(--muted);min-width:56px}
+.set-tbl span.tot.w{font-size:20px}
+.set-tbl .tot{font-size:18px;border-top:1px dashed var(--line);padding-top:4px}
+.vs em{font-style:normal;color:var(--muted);font-size:14px}
+.big-score{font-size:40px;font-weight:900;color:var(--ink)!important;letter-spacing:.02em}
+.vs .wn{color:var(--court)}
+.vs em.big-score{font-size:44px;line-height:1.1}
+#sync{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--court);color:var(--on-court);font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;z-index:61}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;z-index:60;max-width:calc(100% - 32px)}
+@media (max-width:520px){.panel{padding:12px;--pp:12px}h2{font-size:19px}.hint{font-size:13px}.seg button{padding:6px 8px;font-size:13px}}
+/* mobile vertical bracket */
+.vb{position:relative;margin:0 auto}
+.vwrap{margin-inline:calc(2px - var(--pp))}
+.vbox{position:absolute;height:58px;border:1px solid var(--line);border-radius:7px;background:var(--surface);overflow:hidden;display:grid;grid-template-rows:16px 1fr 1fr;font-size:10.5px;cursor:pointer}
+.vbox.live{border:2px solid var(--live)}
+.vbox.final,.vbox.final.up,.vbox.final.up.tbd2{border:2px solid var(--ball)}
+.vh{display:flex;gap:3px;align-items:center;padding:0 4px;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden}
+.vbox.c0 .vh{background:var(--court-soft);color:var(--court)}
+.vbox.c1 .vh{background:var(--ball-soft);color:var(--ball-ink)}
+.vh b{font-size:11px;font-weight:800}
+.vh b.done{opacity:.6}
+.vh .shift{font-size:9px}
+.vn{font-size:9px;opacity:.8;flex:none}
+.vsl{display:flex;align-items:center;gap:3px;padding:0 3px 0 4px;border-top:1px solid var(--line);min-width:0}
+.vsl .nm{flex:1;min-width:0}
+.vsl b{min-width:7px;text-align:right}
+.vsl .vp{display:flex;gap:2px;font-size:8px;letter-spacing:-.3px;color:var(--muted);font-weight:500;flex:none;overflow:visible}
+.vsl .vp i{font-style:normal}.vsl .vp i.w{color:var(--ink);font-weight:800}
+.vsl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vsl b{font-weight:800}
+.vsl.win{background:var(--ok-soft);color:var(--ok);font-weight:800}
+.vsl.tbd{color:var(--muted);font-size:10px}
+.vsl.pick{background:var(--court-soft)}.vsl.sel{background:var(--ball-soft);outline:2px solid var(--ball);outline-offset:-2px}
+.vrail{position:absolute;left:0;width:13px;transform:translateY(-50%);font-size:10px;line-height:11px;font-weight:700;color:var(--muted);text-align:center;white-space:nowrap}
+.vlegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);align-items:center}
+.vlegend span{display:inline-flex;gap:4px;align-items:center}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid var(--line)}
+.sw.c0{background:var(--court-soft)}.sw.c1{background:var(--ball-soft)}.sw.fin{border:2px solid var(--ball)}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><h1 id="title">배구대회</h1></div>
+    <nav class="tabs" id="tabs" aria-label="메뉴"></nav>
+  </div>
+</header>
+<main id="main"></main>
+<div id="modal" class="modal" hidden><div class="mdlg" role="dialog" aria-modal="true" id="mbody"></div></div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+const DIVS=[['MF','여중'],['MM','남중'],['HF','여고'],['HM','남고']];
+const DN=Object.fromEntries(DIVS);
+const TABS=[['bracket','대진표'],['board','경기 현황판'],['apply','참가 신청'],['status','참가 현황'],['mine','신청 확인'],['ref','심판·운영'],['admin','관리자']];
+const DEFAULT_ROLES=[{k:'main',n:'주심',c:1},{k:'sub',n:'부심',c:1},{k:'scorer',n:'기록원',c:1},{k:'line',n:'선심',c:2},{k:'staff',n:'운영(점수판)',c:1}];
+const KEY='vb-cup-draft-v7';
+const BOX_H=72,PITCH=80,COURTS=['1코트','2코트'];
+const $=(s,el=document)=>el.querySelector(s);
+const $$=(s,el=document)=>[...el.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);
+const fmtT=ms=>{if(ms==null)return '-';const d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())};
+const fmtD=ms=>{const d=new Date(ms);return (d.getMonth()+1)+'/'+d.getDate()};
+const fmtDT=ms=>ms?fmtD(ms)+' '+fmtT(ms):'-';
+const toLocal=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes())};
+const sameDay=(a,b)=>new Date(a).toDateString()===new Date(b).toDateString();
+const atTime=(base,hhmm)=>{const d=new Date(base);const[h,m]=hhmm.split(':').map(Number);d.setHours(h,m,0,0);return d.getTime()};
+const minOf=ms=>{const d=new Date(ms);return d.getHours()*60+d.getMinutes()};
+const hm=s=>{if(!s)return null;const[h,m]=s.split(':').map(Number);return h*60+m};
+const mask=s=>{s=String(s||'');return s?s[0]+'*'.repeat(Math.max(1,s.length-1)):''};
+const norm=s=>String(s||'').replace(/\s|학교$/g,'');
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+const weakPw=pw=>pw.length<6?'비밀번호는 6자 이상이어야 해요.':(!/[A-Za-z가-힣]/.test(pw)||!/[0-9]/.test(pw))?'비밀번호는 글자와 숫자를 섞어 6자 이상으로 정해 주세요.':'';
+async function hashPw(pw,salt){
+  try{const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+pw));return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+  catch(e){let h=2166136261;for(const c of salt+':'+pw){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return 'f'+(h>>>0).toString(16)}
+}
+function save(){if(SERVER){if(ui.admin&&SV.token)adminPush();return}try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}pushShared()}
+/* ---------- 공유 저장소 (db) : 모든 사람이 같은 데이터를 봄 ---------- */
+let DB=null,dbReady=false,dbChain=Promise.resolve(),dbRO=false,pendingRender=false;
+const synced={core:null,teams:{},staff:{}};
+const coreOf=()=>({v:S.v||2,demo:!!S.demo,settings:S.settings,brackets:S.brackets,plan:S.plan||null});
+/* ---------- 서버 모드 (구글 앱스 스크립트) : config.js 의 VB_API 주소가 있으면 켜짐 ---------- */
+const SERVER=typeof window!=='undefined'&&!!window.VB_API;
+const SV={rev:0,token:null,core:null,teams:{},staff:{}};
+async function api(a,body){
+  let r;try{r=await fetch(window.VB_API,{method:'POST',body:JSON.stringify(Object.assign({a},body||{}))})}catch(e){const x=new Error('인터넷 연결을 확인해 주세요.');x.code='net';throw x}
+  let j;try{j=await r.json()}catch(e){const x=new Error('서버 응답이 이상해요. 잠시 뒤 다시 시도하세요.');x.code='server';throw x}
+  if(j.err){const x=new Error(j.msg||'오류가 났어요.');x.code=j.err;throw x}return j}
+async function apiPub(rev){const r=await fetch(window.VB_API+'?a=pub&rev='+(rev||0)+'&_='+Date.now());return r.json()}
+function blobDownload(filename,data){
+  const blob=new Blob([data],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename.replace(/[\\/:*?"<>|]/g,' ');document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);toast('엑셀 파일을 내려받았어요')}
+function pubToState(o){
+  S.v=o.v||2;S.demo=!!o.demo;S.settings=Object.assign(defaultState().settings,o.settings||{});S.brackets=o.brackets||{};S.plan=o.plan||null;
+  const mf=ui.mineFull;
+  S.teams=(o.teams||[]).map(t=>mf&&mf.id===t.id?Object.assign({},mf,{div:t.div,school:t.school}):{id:t.id,div:t.div,school:t.school,created:t.created,teacher:'',phone:'',players:Array.from({length:t.n||0},()=>({name:'',grade:'',num:''}))}).sort((a,b)=>(a.created||0)-(b.created||0));
+  S.staff=(o.staff||[]).map(p=>Object.assign({phone:'',school:'',roles:[],divs:[],exclude:[],max:0,from:'',to:'',days:[],blocks:[]},p));
+  if(ui.mineId&&!S.teams.some(t=>t.id===ui.mineId)){ui.mineId=null;ui.mineFull=null}
+}
+function snapAdmin(){SV.core=JSON.stringify(coreOf());SV.teams={};SV.staff={};for(const t of S.teams)SV.teams[t.id]=JSON.stringify(t);for(const p of S.staff)SV.staff[p.id]=JSON.stringify(p)}
+function applyCore(c){S.v=c.v||2;S.demo=!!c.demo;S.settings=Object.assign(defaultState().settings,c.settings||{});S.brackets=c.brackets||{};S.plan=c.plan||null}
+function adminLoad(o){applyCore(o.core);S.teams=o.teams.sort((a,b)=>(a.created||0)-(b.created||0));S.staff=o.staff.sort((a,b)=>(a.created||0)-(b.created||0));SV.rev=o.rev;snapAdmin()}
+// 다른 사람이 바꾼 내용 합치기: 내가 아직 저장하지 않은 것은 그대로 둠
+function adminMerge(o){
+  if(JSON.stringify(coreOf())===SV.core){applyCore(o.core);SV.core=JSON.stringify(coreOf())}
+  for(const kind of['teams','staff']){const srv={};for(const d of o[kind])srv[d.id]=d;
+    S[kind]=S[kind].filter(x=>{if(srv[x.id]||!(x.id in SV[kind]))return true;if(JSON.stringify(x)===SV[kind][x.id]){delete SV[kind][x.id];return false}return true});
+    for(const id in srv){const j=JSON.stringify(srv[id]),i=S[kind].findIndex(x=>x.id===id);
+      if(i<0){S[kind].push(srv[id]);SV[kind][id]=j}else if(JSON.stringify(S[kind][i])===SV[kind][id]){S[kind][i]=srv[id];SV[kind][id]=j}}
+    S[kind].sort((a,b)=>(a.created||0)-(b.created||0))}
+  SV.rev=o.rev}
+let pushT=null,pushing=false,pushAgain=false;
+function adminPush(){clearTimeout(pushT);pushT=setTimeout(()=>{pushT=null;doPush()},250)}
+async function doPush(){
+  if(pushing){pushAgain=true;return}
+  const body={token:SV.token},snap={teams:{},staff:{}};let n=0;
+  const c=JSON.stringify(coreOf());if(c!==SV.core){body.core=JSON.parse(c);snap.core=c;n++}
+  for(const kind of['teams','staff']){body[kind]={};const seen=new Set();
+    for(const x of S[kind]){seen.add(x.id);const j=JSON.stringify(x);if(SV[kind][x.id]!==j){body[kind][x.id]=JSON.parse(j);snap[kind][x.id]=j;n++}}
+    for(const id of Object.keys(SV[kind]))if(!seen.has(id)){body[kind][id]=null;snap[kind][id]=null;n++}}
+  if(!n)return;
+  pushing=true;setSync('저장 중…');
+  try{const r=await api('adminSave',body);
+    if(snap.core)SV.core=snap.core;
+    for(const kind of['teams','staff'])for(const id in snap[kind]){if(snap[kind][id]===null)delete SV[kind][id];else SV[kind][id]=snap[kind][id]}
+    for(const t of S.teams)if(t.newPw){delete t.newPw;if(SV.teams[t.id])SV.teams[t.id]=JSON.stringify(t)}
+    SV.rev=r.rev;setSync('')}
+  catch(x){setSync('');if(x.code==='auth'){adminExpired();return}toast('저장하지 못했어요: '+x.message+' 5초 뒤 다시 저장해요.');setTimeout(adminPush,5000)}
+  finally{pushing=false;if(pushAgain){pushAgain=false;adminPush()}}
+}
+async function adminLoginServer(pw,setup){
+  const r=await api(setup?'adminSetup':'adminLogin',{pw});SV.token=r.token;try{sessionStorage.setItem('vb-adm',r.token)}catch(e){}
+  const o=await api('adminState',{token:SV.token});adminLoad(o);ui.admin=true;ui.adminFails=0}
+async function adminLogoutServer(){try{await api('adminLogout',{token:SV.token})}catch(e){}SV.token=null;try{sessionStorage.removeItem('vb-adm')}catch(e){}
+  ui.admin=false;ui.swap=false;SV.rev=0;await pollNow();go('status')}
+function adminExpired(){SV.token=null;try{sessionStorage.removeItem('vb-adm')}catch(e){}if(ui.admin){ui.admin=false;toast('관리자 로그인 시간이 끝났어요. 다시 로그인해 주세요.')}SV.rev=0;pollNow().then(()=>render())}
+let polling=false;
+async function pollNow(){
+  if(polling)return;polling=true;
+  try{
+    if(ui.admin&&SV.token){if(pushing||pushT)return;const o=await api('adminState',{token:SV.token,rev:SV.rev});if(!o.same){adminMerge(o);softRender()}}
+    else{const o=await apiPub(SV.rev);if(o&&!o.same&&!o.err){SV.rev=o.rev;pubToState(o);try{localStorage.setItem('vb-pub',JSON.stringify(o))}catch(e){}softRender()}}
+    setSync('')}
+  catch(x){if(x.code==='auth')adminExpired();else setSync('연결이 끊겼어요. 다시 연결하는 중…')}
+  finally{polling=false}}
+function pollSoon(){setTimeout(pollNow,600)}
+async function startServer(){
+  try{const c=JSON.parse(localStorage.getItem('vb-pub')||'null');if(c){pubToState(c);render()}}catch(e){}
+  setSync('불러오는 중…');
+  let tok=null;try{tok=sessionStorage.getItem('vb-adm')}catch(e){}
+  if(tok){SV.token=tok;try{const o=await api('adminState',{token:tok});adminLoad(o);ui.admin=true}catch(e){SV.token=null;try{sessionStorage.removeItem('vb-adm')}catch(x){}}}
+  if(!ui.admin)await pollNow();
+  setSync('');render();
+  setInterval(()=>{if(!document.hidden)pollNow()},ui.tab==='board'?10000:12000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)pollNow()});
+}
+
+function pushShared(){
+  if(!DB||!dbReady||dbRO)return;
+  const jobs=[];
+  const c=JSON.stringify(coreOf());if(c!==synced.core){synced.core=c;const body=JSON.parse(c);jobs.push({run:()=>DB.doc('core/main').set(body),undo:()=>{if(synced.core===c)synced.core=null}})}
+  for(const kind of['teams','staff']){
+    const seen=new Set();
+    for(const x of S[kind]){seen.add(x.id);const j=JSON.stringify(x);if(synced[kind][x.id]!==j){synced[kind][x.id]=j;const body=JSON.parse(j);jobs.push({run:()=>DB.collection(kind).doc(x.id).set(body),undo:()=>{if(synced[kind][x.id]===j)delete synced[kind][x.id]}})}}
+    for(const id of Object.keys(synced[kind]))if(!seen.has(id)){const old=synced[kind][id];delete synced[kind][id];jobs.push({run:()=>DB.collection(kind).doc(id).delete(),undo:()=>{if(!(id in synced[kind]))synced[kind][id]=old}})}
+  }
+  if(jobs.length>3)setSync(`저장 중… (${jobs.length}건)`);
+  for(const job of jobs)dbChain=dbChain.then(()=>runJob(job));
+  dbChain=dbChain.then(()=>setSync(''));
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let retryTimer=null;
+async function runJob(job){
+  for(let t=0;t<6;t++){
+    try{await job.run();await sleep(40);return}
+    catch(e){const c=e&&e.code;
+      if(c==='invalid_argument'){job.undo();if(!dbRO){dbRO=true;toast('이 계정은 보기 권한만 있어요. 바꾼 내용은 저장되지 않아요.')}return}
+      if(c==='quota_exceeded'){job.undo();toast('저장 공간이 가득 찼어요.');return}
+      if(c==='revoked'||c==='not_granted'||c==='capability_disabled'){job.undo();return}
+      await sleep(600*(t+1)+Math.random()*400)}
+  }
+  job.undo();toast('저장이 늦어지고 있어요. 잠시 뒤 자동으로 다시 저장해요.');
+  clearTimeout(retryTimer);retryTimer=setTimeout(pushShared,8000);
+}
+function setSync(t){let el=$('#sync');if(!el){el=document.createElement('div');el.id='sync';document.body.appendChild(el)}el.textContent=t;el.hidden=!t
+}
+function softRender(){const a=document.activeElement;if(!$('#modal').hidden||(a&&a.closest&&a.closest('#main')&&/INPUT|SELECT|TEXTAREA/.test(a.tagName))){pendingRender=true;return}pendingRender=false;render()}
+async function initDb(){
+  try{DB=window.claude&&window.claude.use?await window.claude.use('db'):null}catch(e){DB=null}
+  if(!DB)return;
+  let got={core:false,teams:false,staff:false},first=true;
+  const maybeSeed=async()=>{
+    if(!first||!got.core||!got.teams||!got.staff)return;first=false;dbReady=true;
+    if(synced.core===null&&!Object.keys(synced.teams).length){pushShared()}
+    else softRender();
+  };
+  DB.doc('core/main').onSnapshot(sn=>{
+    got.core=true;
+    if(sn.exists){const d=sn.data();const j=JSON.stringify(d);if(j!==synced.core){synced.core=j;const o=JSON.parse(j);S.settings=o.settings;S.brackets=o.brackets||{};S.plan=o.plan||null;S.demo=!!o.demo;S.v=o.v;if(dbReady)softRender()}}
+    maybeSeed();
+  },e=>{});
+  for(const kind of['teams','staff'])DB.collection(kind).onSnapshot(q=>{
+    got[kind]=true;let changed=false;const next={};
+    for(const d of q.docs){const j=JSON.stringify(d.data());next[d.id]=j;if(synced[kind][d.id]!==j)changed=true}
+    if(Object.keys(synced[kind]).length!==Object.keys(next).length)changed=true;
+    if(changed&&(dbReady||q.docs.length)){synced[kind]=next;S[kind]=Object.values(next).map(j=>JSON.parse(j)).sort((a,b)=>(a.created||0)-(b.created||0));if(dbReady)softRender()}
+    maybeSeed();
+  },e=>{});
+}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(pendingRender)softRender()},50));
+function load(){try{const t=localStorage.getItem(KEY);return t?JSON.parse(t):null}catch(e){return null}}
+function defaultState(){return{v:2,demo:false,settings:{title:'2026 학교스포츠클럽 배구대회',notice:'',deadline:'',bestOf:3,adminHash:null,adminSalt:null,roles:DEFAULT_ROLES.map(r=>({...r})),avoidOwnSchool:true},teams:[],brackets:{},staff:[]}}
+
+let S=null;
+const ui={tab:'bracket',div:'MF',bdiv:'MF',boardDiv:'all',admin:false,mineId:null,editId:null,swap:false,sel:null,open:{},layout:'vertical',refMe:'',refView:'mine',fails:0,lockUntil:0,adminFails:0};
+const roles=()=>S.settings.roles.filter(r=>r.c>0);
+const roleN=k=>(S.settings.roles.find(r=>r.k===k)||{n:k}).n;
+
+/* ---------- bracket logic ---------- */
+const byId=(br,id)=>id?br.matches.find(m=>m.id===id)||null:null;
+const teamName=id=>{const t=S.teams.find(x=>x.id===id);return t?t.school:'기권'};
+const alive=id=>S.teams.some(t=>t.id===id);
+const started=m=>!!(m.actStart||m.winner);
+function winnerOf(m){return m?(m.winner||m.wo||null):null}
+function roundName(br,r){return (br.names&&br.names[r])||''}
+function resolve(br){
+  for(const m of br.matches.slice().sort((x,y)=>x.r-y.r)){
+    const fa=byId(br,m.fa),fb=byId(br,m.fb);
+    const gA=m.ta?!alive(m.ta):!!(fa&&fa.dead),gB=m.tb?!alive(m.tb):!!(fb&&fb.dead);
+    m.a=m.ta?(gA?null:m.ta):winnerOf(fa);m.b=m.tb?(gB?null:m.tb):winnerOf(fb);
+    m.goneA=gA;m.goneB=gB;m.dead=gA&&gB;
+    m.wo=!m.winner&&gA!==gB?(gA?m.b:m.a)||null:null;
+    if(m.winner&&m.winner!==m.a&&m.winner!==m.b){m.winner=null;m.sets=[];m.sa=m.sb=0;m.actStart=m.actEnd=null}
+  }
+}
+// 화면 배치: mirror = 양쪽에서 가운데로, single = 한쪽 방향
+function place(br,mode){
+  const fin=br.matches.reduce((x,y)=>y.r>x.r?y:x),R=br.rounds,P={},leaf={L:0,R:0};
+  const lay=(m,side)=>{const ch=[m.fa,m.fb].map(id=>byId(br,id)).filter(Boolean);let y;
+    if(!ch.length)y=leaf[side]++;else{const ys=ch.map(c=>lay(c,side));y=ys.reduce((a,b)=>a+b,0)/ys.length}
+    P[m.id]={side,y};return y};
+  let rows,cols;
+  if(mode==='mirror'&&fin.fa&&fin.fb){
+    lay(byId(br,fin.fa),'L');lay(byId(br,fin.fb),'R');
+    rows=Math.max(leaf.L,leaf.R);const off={L:(rows-leaf.L)/2,R:(rows-leaf.R)/2};
+    for(const id in P)P[id].y+=off[P[id].side];
+    P[fin.id]={side:'C',y:(P[fin.fa].y+P[fin.fb].y)/2};cols=2*(R-1)+1;
+  }else{lay(fin,'L');rows=leaf.L;cols=R}
+  for(const m of br.matches)P[m.id].col=P[m.id].side==='R'?cols-1-m.r:m.r;
+  return{P,rows:Math.max(rows,1),cols,mirror:cols>R};
+}
+function number(br){
+  const{P}=place(br,'mirror'),o={L:0,C:1,R:2};let k=0;
+  for(const m of br.matches.slice().sort((x,y)=>x.r-y.r||o[P[x.id].side]-o[P[y.id].side]||P[x.id].y-P[y.id].y)){m.no=++k}
+}
+/* ---------- 통합 일정: 모든 종별이 1·2코트를 함께 쓰고, 2일 동안 진행 ---------- */
+function schedCfg(){if(!S.settings.sched)S.settings.sched={days:['2026-10-17','2026-10-18'],start:'08:30',end:'',lunchFrom:'',lunchTo:'',avg:40,gap:10};if(S.settings.sched.gap==null)S.settings.sched.gap=0;return S.settings.sched}
+// 날짜마다 시작·끝·점심을 따로 (없으면 공통 값)
+function dayCfg(i){const c=schedCfg(),o=(c.dayCfg||[])[i]||{};return{start:o.start||c.start||'08:30',end:o.end!=null?o.end:(c.end||''),lunchFrom:o.lunchFrom!=null?o.lunchFrom:(c.lunchFrom||''),lunchTo:o.lunchTo!=null?o.lunchTo:(c.lunchTo||'')}}
+function dayWin(){const c=schedCfg();return c.days.filter(Boolean).map((d,i)=>{const k=dayCfg(i);return{d,s:Date.parse(d+'T'+k.start),e:k.end?Date.parse(d+'T'+k.end):Infinity,ls:k.lunchFrom&&k.lunchTo?Date.parse(d+'T'+k.lunchFrom):null,le:k.lunchFrom&&k.lunchTo?Date.parse(d+'T'+k.lunchTo):null}})}
+function fitSlot(t,dur,W){for(const w of W){let x=Math.max(t,w.s);if(w.ls!=null&&w.le!=null&&x>=w.ls&&x<w.le)x=w.le;if(x+dur<=w.e+5*60000)return x}return W.length?Math.max(t,W[W.length-1].s):t}
+const dayKey=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+function dayIdx(ms){return schedCfg().days.indexOf(dayKey(ms))}
+function dayName(ms){const i=dayIdx(ms);return i>=0?`${i+1}일차`:fmtD(ms)}
+function tLabel(ms){return (dayIdx(ms)>0?`<small class="dl">${dayIdx(ms)+1}일</small>`:'')+fmtT(ms)}
+function prioList(){
+  const di=Object.fromEntries(DIVS.map(([k],i)=>[k,i])),L=[];
+  for(const[d]of DIVS){const br=S.brackets[d];if(!br)continue;const cnt={};
+    for(const m of br.matches.slice().sort((a,b)=>(a.no||0)-(b.no||0))){const dep=br.rounds-1-m.r;cnt[dep]=(cnt[dep]||0)+1;L.push({d,br,m,dep,w:cnt[dep]})}}
+  return L.sort((a,b)=>b.dep-a.dep||a.w-b.w||di[a.d]-di[b.d]);
+}
+function scheduleAll(){
+  if(!S)return;
+  const W=dayWin(),avg=schedCfg().avg*60000,gap=(schedCfg().gap||0)*60000,now=Date.now();
+  const all={};for(const[d]of DIVS){const br=S.brackets[d];if(!br)continue;resolve(br);for(const m of br.matches)all[d+':'+m.id]={d,br,m}}
+  if(!S.plan||!S.plan.seq)S.plan={seq:{}};const seq=S.plan.seq;
+  for(const c of Object.keys(seq))if(!COURTS.includes(c)){(seq[COURTS[0]]=seq[COURTS[0]]||[]).push(...seq[c]);delete seq[c]}
+  COURTS.forEach(c=>{if(!seq[c])seq[c]=[]});
+  const have=new Set();for(const c of COURTS)seq[c]=seq[c].filter(k=>all[k]&&!have.has(k)&&(have.add(k),true));
+  for(const x of prioList()){const k=x.d+':'+x.m.id;if(!have.has(k)){const c=COURTS.slice().sort((a,b)=>seq[a].length-seq[b].length)[0];seq[c].push(k);have.add(k)}}
+  const start0=W.length?W[0].s:now,free={},end={},ptr={};COURTS.forEach(c=>{free[c]=start0;ptr[c]=0});
+  for(let g=0;g<5000;g++){
+    let pick=null;
+    for(const c of COURTS){const k=seq[c][ptr[c]];if(!k)continue;const m=all[k].m,fs=[m.fa,m.fb].filter(Boolean);
+      const ready=fs.every(f=>end[f]!=null);let dep=start0;for(const f of fs)if(end[f]!=null)dep=Math.max(dep,end[f]+gap);
+      const dk=S.plan.day&&S.plan.day[k];if(dk!=null&&W[dk])dep=Math.max(dep,W[dk].s);
+      const cand={c,k,ready,dep,s:m.actStart||Math.max(free[c],dep)};
+      if(!pick||(cand.ready&&!pick.ready)||(cand.ready===pick.ready&&cand.s<pick.s))pick=cand}
+    if(!pick)break;
+    const m=all[pick.k].m;ptr[pick.c]++;m.court=pick.c;
+    if((m.wo||m.dead)&&!m.winner){m.est=pick.dep;m.estEnd=pick.dep;end[m.id]=pick.dep;continue}
+    let st,en;
+    if(m.actStart){st=m.actStart;en=m.actEnd||Math.max(m.actStart+avg,(now>m.actStart+avg&&now-m.actStart<6*3600000)?now:0)}
+    else{st=fitSlot(Math.max(free[pick.c],pick.dep),avg,W);en=st+avg}
+    m.est=st;m.estEnd=en;end[m.id]=en;free[pick.c]=Math.max(free[pick.c],en+gap);
+  }
+}
+function schedule(){scheduleAll()}
+function overflow(){const W=dayWin();if(!W.length||W[W.length-1].e===Infinity)return[];const last=W[W.length-1].e,out=[];for(const[d]of DIVS){const br=S.brackets[d];if(br)for(const m of br.matches)if(!m.winner&&!m.wo&&!m.dead&&m.estEnd>last)out.push({d,m})}return out}
+function overflowBanner(){if(!ui.admin)return '';const o=overflow();if(!o.length)return '';const W=dayWin();
+  return `<div class="banner"><b>⚠ ${o.length}경기가 마지막 날 종료 시각(${fmtT(W[W.length-1].e)})을 넘어가요.</b> 마지막 경기 예상 종료 ${fmtT(Math.max(...o.map(x=>x.m.estEnd)))}. [대회 일정 설정]에서 끝나는 시각을 늦추거나, 경기 시간·쉬는 시간을 줄이거나, 날짜를 하루 늘려 주세요.</div>`}
+// 결과가 저장되면 그 코트(와 이어지는 코트)의 다음 경기를 자동으로 시작: 앞 경기가 끝났고 두 팀이 정해진 경우
+const isReady=m=>!!(m.ready&&!m.actStart&&!m.winner);
+// 결과가 저장되면 같은 코트의 다음 경기를 '준비 중'으로 올림. 실제 시작은 관리자가 [경기 시작]을 눌러 기록
+function autoStartNext(){
+  const all={};for(const[d]of DIVS){const b=S.brackets[d];if(b)for(const m of b.matches)all[d+':'+m.id]={d,m}}
+  for(const x of Object.values(all))if(x.m.ready&&(x.m.actStart||x.m.winner))delete x.m.ready;
+  if(S.settings.autoStart===false){for(const x of Object.values(all))delete x.m.ready;return []}
+  scheduleAll();const out=[];
+  for(const c of COURTS){const seq=(S.plan.seq[c]||[]).map(k=>all[k]).filter(x=>x&&!((x.m.wo||x.m.dead)&&!x.m.winner));
+    const i=seq.findIndex(x=>!x.m.actStart&&!x.m.winner);
+    let ok=null;
+    if(i>0&&!seq.some(x=>isLive(x.m))){const prev=seq[i-1].m,nx=seq[i];if(prev.winner&&nx.m.a&&nx.m.b&&dayIdx(nx.m.est)===dayIdx(prev.actEnd||prev.estEnd))ok=nx}
+    for(const x of seq)if(x!==ok&&x.m.ready&&!x.m.actStart)delete x.m.ready;
+    if(ok){if(!ok.m.ready)out.push(ok);ok.m.ready=true}}
+  return out;
+}
+function anyStarted(){return Object.values(S.brackets).some(br=>br.matches.some(started))}
+function renumber(br){br.matches.slice().sort((a,b)=>(a.est-b.est)||(COURTS.indexOf(a.court)-COURTS.indexOf(b.court))).forEach((m,i)=>m.no=i+1)}
+// 처음부터 일정을 짬: 결승에서 먼 경기부터, 종별을 번갈아 가며, 먼저 비는 코트에 넣음
+function buildPlan(){
+  const W=dayWin(),avg=schedCfg().avg*60000,gap=(schedCfg().gap||0)*60000,start0=W.length?W[0].s:Date.now();
+  const seq={},free={},end={};COURTS.forEach(c=>{seq[c]=[];free[c]=start0});
+  const PL=prioList(),split=W.length>1&&W.some(w=>w.e===Infinity),per=Math.ceil(PL.length/Math.max(1,W.length)),dayOf={};
+  PL.forEach((x,i)=>{if(split)dayOf[x.d+':'+x.m.id]=Math.min(W.length-1,Math.floor(i/per))});
+  for(const x of PL){let dep=start0;for(const f of[x.m.fa,x.m.fb])if(f&&end[f]!=null)dep=Math.max(dep,end[f]+gap);
+    const dk=dayOf[x.d+':'+x.m.id];if(dk!=null)dep=Math.max(dep,W[dk].s);
+    let best=null;for(const c of COURTS){let st=fitSlot(Math.max(free[c],dep),avg,W);const w=W.find(w=>w.ls!=null&&st<w.ls&&st+avg>w.ls);if(w)st=fitSlot(w.le,avg,W);if(!best||st<best.st)best={c,st}}
+    seq[best.c].push(x.d+':'+x.m.id);end[x.m.id]=best.st+avg;free[best.c]=best.st+avg+gap}
+  S.plan={seq,day:dayOf};scheduleAll();
+  for(const br of Object.values(S.brackets)){renumber(br);br.matches.forEach(m=>m.plan=m.est)}
+}
+// 대진표가 바뀐 뒤: 아직 시작한 경기가 없으면 처음부터, 있으면 새 경기만 뒤에 붙임
+function replan(){
+  if(!anyStarted()){buildPlan();return}
+  scheduleAll();
+  for(const br of Object.values(S.brackets)){if(!br.matches.some(started))renumber(br);br.matches.forEach(m=>{if(m.plan==null)m.plan=m.est})}
+}
+function moveCourt(d,m,c){
+  if(m.court===c)return;const k=d+':'+m.id,seq=S.plan.seq;
+  for(const x of COURTS)seq[x]=seq[x].filter(y=>y!==k);
+  const all={};for(const[dd]of DIVS){const br=S.brackets[dd];if(br)for(const mm of br.matches)all[dd+':'+mm.id]=mm}
+  let i=seq[c].findIndex(y=>all[y]&&all[y].est>m.est);if(i<0)i=seq[c].length;seq[c].splice(i,0,k);scheduleAll();
+}
+// n팀을 M(2의 거듭제곱) + e팀으로 나눔. pre = 예선 e경기 후 M강, post = M강(1라운드) 후 2라운드에서 e팀 합류
+function planOf(n){let M=1;while(M*2<=n)M*=2;const e=n-M;return{M,e,postOk:e>0&&e<=M/2}}
+function genBracket(div,start,avgMin,courts,mode){
+  const ids=shuffle(S.teams.filter(t=>t.div===div).map(t=>t.id));
+  const n=ids.length,{M,e,postOk}=planOf(n);
+  if(mode==='post'&&!postOk)mode='pre';
+  const br={start,avgMin,courts,mode:e?mode:'plain',confirmed:false,created:Date.now(),matches:[],names:[]};
+  const put=(m,s,src)=>{if(src.t)m['t'+s]=src.t;else{m['f'+s]=src.m;byId(br,src.m).next=m.id}};
+  const mk=(r,o)=>{const m={id:uid(),r,ta:null,tb:null,fa:null,fb:null,next:null,a:null,b:null,bye:false,sets:[],sa:0,sb:0,winner:null,actStart:null,actEnd:null,court:null,no:null,refs:{},plan:null};
+    br.matches.push(m);put(m,'a',o[0]);put(m,'b',o[1]);return{m:m.id}};
+  const build=(src,r)=>{while(src.length>1){const nx=[];for(let i=0;i<src.length;i+=2)nx.push(mk(r,[src[i],src[i+1]]));src=nx;r++}};
+  const std=L=>{const a=[];for(;L>=2;L/=2)a.push(L===2?'결승':L===4?'준결승':L+'강');return a};
+  const brev=k=>{const bits=Math.round(Math.log2(k));return Array.from({length:k},(_,i)=>{let x=0;for(let b=0;b<bits;b++)if(i>>b&1)x|=1<<(bits-1-b);return x})};
+  let k=0;const T=()=>({t:ids[k++]});
+  if(!e){build(Array.from({length:n},T),0);br.names=std(M)}
+  else if(mode==='pre'){const pos=new Set(brev(M).slice(0,e));const src=[];for(let i=0;i<M;i++)src.push(pos.has(i)?mk(0,[T(),T()]):T());build(src,1);br.names=['예선',...std(M)]}
+  else{const W=[];for(let i=0;i<M/2;i++)W.push(mk(0,[T(),T()]));const pos=new Set(brev(M/2).slice(0,e));build(W.map((w,i)=>pos.has(i)?mk(1,[T(),w]):w),2);br.names=[`1라운드 · ${M}강`,`2라운드 · ${e}팀 합류`,...std(M/2)]}
+  br.rounds=Math.max(...br.matches.map(m=>m.r))+1;br.names.length=br.rounds;br.names[br.rounds-1]='결승';
+  resolve(br);number(br);
+  return br;
+}
+function slotLabel(br,m,side){
+  if(m[side==='a'?'goneA':'goneB'])return{txt:'기권',tbd:true};
+  const id=m[side];if(id)return{txt:teamName(id),tbd:false};
+  const f=byId(br,m['f'+side]);
+  return{txt:f&&f.no?f.no+'경기 승자':'대기',tbd:true};
+}
+function ptsHtml(m,side){if(!m.sets.length)return '';const k=side==='a'?0:1;return `<span class="pts">${m.sets.map(s=>`<i${s[k]>s[1-k]?' class="w"':''}>${s[k]}</i>`).join('')}</span>`}
+// 세트 점수 규칙: 일반 세트 21점(2점 차, 듀스 최대 30점), 마지막 세트 15점(2점 차)
+function rules(){const r=S.settings.rules||{};return{pts:r.pts||21,cap:r.cap===0?0:(r.cap||30),fpts:r.fpts||15,fcap:r.fcap||0}}
+function setCheck(x,y,final){const R=rules(),t=final?R.fpts:R.pts,cap=final?R.fcap:R.cap,w=Math.max(x,y),l=Math.min(x,y);
+  if(cap&&w>cap)return `최대 ${cap}점을 넘을 수 없어요`;
+  if(w<t)return `${t}점을 먼저 내야 이겨요`;
+  if(w===t)return l<=t-2?'':`${t-1}:${t-1} 이후에는 2점을 앞서야 이겨요`;
+  if(cap&&w===cap&&l===cap-1)return '';
+  if(w-l===2)return '';
+  return w-l<2?'2점을 앞서야 끝나요':`${t}점을 넘긴 세트는 2점 차로만 끝나요`}
+function rulesText(){const R=rules();return `${R.pts}점 선취(2점 차, 듀스 ${R.cap?'최대 '+R.cap+'점':'제한 없음'}) · 마지막 세트 ${R.fpts}점 선취(2점 차${R.fcap?', 최대 '+R.fcap+'점':''})`}
+function totals(m){return m.sets.reduce((t,s)=>[t[0]+s[0],t[1]+s[1]],[0,0])}
+function shiftHtml(m,short){
+  if(m.winner||m.actStart||m.plan==null||m.est==null)return '';
+  const d=Math.round((m.est-m.plan)/60000);
+  if(Math.abs(d)<1)return '';
+  const dd=dayIdx(m.est)-dayIdx(m.plan);if(dd)return dd>0?`<span class="shift late">▼${short?'다음날':'다음 날로 밀림'}</span>`:`<span class="shift early">▲${short?'전날':'전날로 당겨짐'}</span>`;
+  return d<0?`<span class="shift early">▲${-d}분${short?'':' 당김'}</span>`:`<span class="shift late">▼${d}분${short?'':' 지연'}</span>`;
+}
+const isLive=m=>m.actStart&&!m.winner;
+
+/* ---------- officials logic ---------- */
+function refArr(m,k){const c=(S.settings.roles.find(r=>r.k===k)||{c:0}).c;if(!m.refs)m.refs={};let a=m.refs[k];if(!Array.isArray(a))a=a?[a]:[];while(a.length<c)a.push('');m.refs[k]=a;return a}
+const staffOk=()=>S.staff.filter(p=>p.approved);
+const staffName=id=>{const p=S.staff.find(x=>x.id===id);return p?p.name:''};
+function eachMatch(fn){for(const[d]of DIVS){const br=S.brackets[d];if(!br)continue;for(const m of br.matches)if(!m.bye&&!((m.wo||m.dead)&&!m.winner))fn(d,br,m)}}
+function assignedIn(m,pid){return roles().some(r=>refArr(m,r.k).includes(pid))||(m.setRefs?Object.values(m.setRefs).some(o=>Object.values(o).some(a=>a.includes(pid))):false)}
+// 세트별 교체: 기본 배정(모든 세트)에 세트마다 덮어쓰기
+function refFor(m,s,k){const o=m.setRefs&&m.setRefs[s]&&m.setRefs[s][k];return o||refArr(m,k)}
+function setRefDiff(m){const out=[];if(!m.setRefs)return out;
+  for(const s of Object.keys(m.setRefs).map(Number).sort((a,b)=>a-b))for(const r of roles()){const b=refArr(m,r.k),o=m.setRefs[s][r.k];if(o)o.forEach((id,k)=>{if(id!==b[k])out.push({s,r,from:b[k],to:id})})}
+  return out}
+function setRefHtml(m){const d=setRefDiff(m);if(!d.length)return '';const by={};for(const x of d)(by[x.s]=by[x.s]||[]).push(`${esc(x.r.n)} ${esc(staffName(x.from)||'-')} → <b>${esc(staffName(x.to)||'비움')}</b>`);
+  return `<div class="sref-list">${Object.keys(by).map(s=>`<div><span class="role-tag">${s}세트</span> ${by[s].join(', ')}</div>`).join('')}</div>`}
+function loadOf(pid){let n=0;eachMatch((d,br,m)=>{if(assignedIn(m,pid))n++});return n}
+function issuesFor(p,d,br,m,role){
+  const out=[];
+  if(!p.approved)out.push('승인 전');
+  if(p.off)out.push('배정 중지');
+  for(const b of p.blocks||[])if(m.est<b.e&&b.s<m.estEnd){out.push('불가 시간');break}
+  if(p.roles.length&&!p.roles.includes(role))out.push(roleN(role)+' 불가');
+  if(p.divs.length&&!p.divs.includes(d))out.push(DN[d]+' 제외');
+  if(p.exclude.includes(d+'-'+m.no))out.push('제외 경기');
+  if(p.days&&p.days.length&&!p.days.includes(dayKey(m.est)))out.push(dayName(m.est)+' 불가');
+  if(p.ex&&p.ex.from&&p.ex.to&&(!p.ex.day||p.ex.day===dayKey(m.est))&&minOf(m.est)<hm(p.ex.to)&&minOf(m.estEnd)>hm(p.ex.from))out.push(p.ex.from+'~'+p.ex.to+' 제외');
+  const f=hm(p.from),t=hm(p.to);
+  if(f!=null&&minOf(m.est)<f)out.push(p.from+' 이후 가능');
+  if(t!=null&&minOf(m.estEnd)>t)out.push(p.to+' 이전만 가능');
+  if(S.settings.avoidOwnSchool&&p.school&&[m.a,m.b].some(id=>id&&norm(teamName(id))===norm(p.school)))out.push('소속 학교 경기');
+  let clash=false;eachMatch((d2,br2,m2)=>{if(m2.id!==m.id&&assignedIn(m2,p.id)&&m2.est<m.estEnd&&m.est<m2.estEnd)clash=true});
+  if(clash)out.push('같은 시간 다른 경기');
+  if(p.max>0&&!assignedIn(m,p.id)&&loadOf(p.id)>=p.max)out.push('최대 '+p.max+'경기 초과');
+  return out;
+}
+function doAssign(mode){
+  if(!staffOk().length){toast('승인된 심판·운영진이 없어요');return}
+  const r=autoAssign(ui.refDiv||'all',mode);save();render();
+  toast(`${r.matches}경기에 ${r.filled}자리 배정${r.empty?` · ${r.empty}자리는 조건에 맞는 사람이 없어 비워 뒀어요`:''}`);
+}
+function conflicts(){const out=[];eachMatch((d,br,m)=>{if(m.winner||isLive(m))return;for(const r of roles())refArr(m,r.k).forEach((id,k)=>{if(!id)return;const p=S.staff.find(x=>x.id===id);if(!p)return;const iss=issuesFor(p,d,br,m,r.k);if(iss.length)out.push({m,r:r.k,k,txt:`${DN[d]} ${m.no}경기 ${r.n} ${p.name}(${iss[0]})`})})});return out}
+function autoAssign(scope,mode){
+  const list=[];eachMatch((d,br,m)=>{if((scope==='all'||scope===d)&&!m.winner)list.push({d,br,m})});
+  list.sort((a,b)=>a.m.est-b.m.est);
+  if(mode==='all')for(const x of list)if(!x.m.actStart){for(const r of roles())refArr(x.m,r.k).fill('');delete x.m.setRefs}
+  const load={};for(const p of S.staff)load[p.id]=loadOf(p.id);
+  let filled=0,empty=0;
+  for(const x of list)for(const r of roles()){
+    const arr=refArr(x.m,r.k);
+    for(let k=0;k<arr.length;k++){
+      if(arr[k])continue;
+      const c=staffOk().filter(p=>!assignedIn(x.m,p.id)&&issuesFor(p,x.d,x.br,x.m,r.k).length===0);
+      if(!c.length){empty++;continue}
+      const min=Math.min(...c.map(p=>load[p.id]));
+      const pick=shuffle(c.filter(p=>load[p.id]===min))[0];
+      arr[k]=pick.id;load[pick.id]++;filled++;
+    }
+  }
+  return{filled,empty,matches:list.length};
+}
+
+/* ---------- small UI helpers ---------- */
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,3000)}
+let modalHist=false,ignorePop=false;
+function openModal(html){const was=$('#modal').hidden;$('#mbody').innerHTML=`<div class="mx-row"><button class="mx" data-act="close" aria-label="닫기">✕</button></div>`+html;$('#modal').hidden=false;
+  if(was){try{history.pushState({vbModal:1},'');modalHist=true}catch(e){modalHist=false}}
+  const f=$('#mbody input,#mbody select');if(f&&!('ontouchstart' in window))f.focus()}
+function closeModal(fromPop){if($('#modal').hidden)return;$('#modal').hidden=true;$('#mbody').innerHTML='';
+  if(modalHist&&!fromPop){modalHist=false;ignorePop=true;try{history.back()}catch(e){ignorePop=false}}else modalHist=false;
+  if(pendingRender)setTimeout(softRender,0)}
+window.addEventListener('popstate',()=>{if(ignorePop){ignorePop=false;return}if(!$('#modal').hidden)closeModal(true)});
+let confirmFn=null;
+function askConfirm(msg,ok,fn){confirmFn=fn;openModal(`<h3>확인</h3><p style="margin:0">${msg}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">취소</button><button class="btn primary" data-act="confirm-ok">${esc(ok)}</button></div>`)}
+function chips(cur,act,all){
+  let h='<div class="chips">';
+  if(all)h+=`<button class="chip" data-act="${act}" data-k="all" aria-pressed="${cur==='all'}">전체</button>`;
+  for(const[k,n]of DIVS){const c=S.teams.filter(t=>t.div===k).length;h+=`<button class="chip" data-act="${act}" data-k="${k}" aria-pressed="${cur===k}">${n}<span class="cnt">${c}</span></button>`}
+  return h+'</div>';
+}
+const deadlinePassed=()=>S.settings.deadline&&Date.now()>Date.parse(S.settings.deadline);
+const divClosed=d=>!!S.brackets[d];
+function topBanners(){
+  let h='';
+  if(S.demo)h+=`<div class="banner"><b>시연용 초안</b> · 예시 학교·학생·심판 이름으로 채워져 있어요. 예시 학교 비밀번호는 <b>test1234</b>, 참가 신청 코드는 <b>2026</b>, 심판·운영 비밀번호는 <b>ref2026</b>. 시험용이니 실제 학생 정보는 넣지 마세요.</div>`;
+  if(S.settings.notice)h+=`<div class="notice${ui.noticeOpen?' open':''}" data-act="notice" role="button" tabindex="0"><b>공지</b> ${esc(S.settings.notice)}</div>`;
+  return h;
+}
+function adminHint(what){return ui.admin?'':`<div class="hint"><span>${what}은 관리자만 할 수 있어요. 관리자로 들어가면 경기를 눌러 바로 입력합니다.</span><button class="btn small primary" data-act="tab" data-k="admin">관리자 로그인</button></div>`}
+
+/* ---------- views ---------- */
+function vStatus(){
+  const teams=S.teams.filter(t=>t.div===ui.div).sort((a,b)=>a.created-b.created);
+  const br=S.brackets[ui.div];
+  const state=br?(br.confirmed?'<span class="pill ok">대진 확정</span>':'<span class="pill draft">대진 임시</span>'):(deadlinePassed()?'<span class="pill wait">신청 마감</span>':'<span class="pill ok">신청 받는 중</span>');
+  const first=br?Math.min(...br.matches.filter(m=>!m.wo&&!m.dead).map(m=>m.est)):null;
+  const items=teams.map((t,i)=>`<div class="sch"><span class="i">${i+1}</span><b>${esc(t.school)}</b><span class="n">${t.players.length}명</span></div>`).join('');
+  return topBanners()+`<section class="panel">
+    <div class="sec-head"><div><h2>참가 현황</h2><p class="sub">누구나 볼 수 있어요. 학생 명단은 신청 확인에서 비밀번호로 봅니다.</p></div>
+    <div class="row">${S.settings.deadline?`<div class="meta">신청 마감 <b class="t-big" style="font-size:17px">${fmtDT(Date.parse(S.settings.deadline))}</b></div>`:''}${ui.admin?'<button class="btn small" data-act="xl-status">📊 참가 현황 엑셀</button><button class="btn small" data-act="xl-all">📊 참가 명단 엑셀</button>':''}</div></div>
+    ${chips(ui.div,'div')}
+    <div class="row"><h3>${DN[ui.div]} · ${teams.length}팀</h3>${state}${first&&isFinite(first)?`<span class="meta">첫 경기 <b class="t-big">${dayName(first)} ${fmtT(first)}</b></span>`:''}</div>
+    ${teams.length?`<div class="sch-grid"${teams.length<3?` style="grid-template-columns:repeat(${teams.length},minmax(0,1fr));max-width:${teams.length*240}px"`:''}>${'<div class="sch hd"><span class="i">#</span><b>학교</b><span class="n">인원</span></div>'.repeat(Math.min(3,teams.length))}${items}</div>`:`<div class="empty">아직 ${DN[ui.div]} 신청이 없어요.</div>`}
+  </section>`;
+}
+function gradeOpts(div,sel){const max=3;let h='';for(let g=1;g<=max;g++)h+=`<option value="${g}"${String(sel)===String(g)?' selected':''}>${g}${narrow()?'':'학년'}</option>`;return h}
+const narrow=()=>typeof window!=='undefined'&&window.innerWidth>0&&window.innerWidth<=640;
+function prow(div,p,idx){p=p||{};return `<div class="prow"><span class="pno">${idx+1}</span><input type="text" class="p-name" id="pn${idx}" placeholder="이름" value="${esc(p.name)}" maxlength="20" aria-label="선수 이름"><select class="p-grade" id="pg${idx}" aria-label="학년">${gradeOpts(div,p.grade)}</select><input type="text" class="p-num" id="pu${idx}" inputmode="numeric" placeholder="${narrow()?'번호':'등번호'}" value="${esc(p.num)}" maxlength="3" aria-label="등번호"><button type="button" class="icon-btn" data-act="prow-del" aria-label="이 줄 지우기" title="이 줄 지우기">×</button></div>`}
+function formHtml(t0,pre){
+  const edit=!!t0;const t=pre?{...(t0||{}),...pre}:t0;const div=t?t.div:ui.div;
+  const players=t?t.players:[];const n=18;
+  let rows='';for(let i=0;i<n;i++)rows+=prow(div,players[i],i);
+  const opts=DIVS.map(([k,nm])=>`<option value="${k}"${k===div?' selected':''}${!edit&&divClosed(k)&&k!==div?' disabled':''}>${nm}${divClosed(k)?' (대진 확정, 신청 불가)':''}</option>`).join('');
+  return `${edit?`<div class="xl-box"><div><b>엑셀 신청서에서 명단 불러오기</b><p class="sub" style="margin:0">작성한 참가신청서(.xls, .xlsx)를 고르면 ${DN[t0.div]} 시트의 학교·감독·선수 명단으로 아래 칸을 채워요. 확인 후 [수정 저장]을 눌러야 반영됩니다.</p></div><label class="btn small">파일 고르기<input type="file" id="xl-edit" accept=".xls,.xlsx" hidden></label></div>`:''}${pre?`<div class="banner">엑셀에서 불러온 내용이에요. 확인하고 고친 뒤 저장하세요.</div>`:''}<form class="grid" id="apply-form" data-edit="${edit?t0.id:''}">
+    <div class="fields">
+      <label class="f">종별<select id="f-div"${edit&&divClosed(t0.div)?' disabled':''}>${opts}</select></label>
+      <label class="f">학교명<input type="text" id="f-school" maxlength="30" placeholder="예: 한빛중학교" value="${esc(t?.school)}" required></label>
+      <label class="f">담당 교사<input type="text" id="f-teacher" maxlength="20" value="${esc(t?.teacher)}" required></label>
+      <label class="f">연락처<input type="tel" id="f-phone" maxlength="20" placeholder="010-0000-0000" value="${esc(t?.phone)}" required></label>
+    </div>
+    <div class="fields">
+      <label class="f">${edit?'새 비밀번호 (바꿀 때만)':'비밀번호 (6자 이상)'}<input type="password" id="f-pw" autocomplete="new-password" ${edit?'':'required'}></label>
+      <label class="f">비밀번호 확인<input type="password" id="f-pw2" autocomplete="new-password"></label>
+    </div>
+    <div class="players"><div class="row" style="justify-content:space-between"><h3>선수 명단</h3><span class="sub">6~18명 · 이름이 빈 줄은 저장되지 않아요</span></div>
+      <div id="prows" class="players">${rows}</div>
+</div>
+    <div class="consent"><b>개인정보 수집·이용 동의</b>
+      <span>수집 항목: 담당 교사 이름·연락처, 학생 이름·학년·등번호 / 목적: 대회 참가 확인과 운영 / 보유 기간: 대회 종료 후 1개월 내 파기</span>
+      <label class="row"><input type="checkbox" id="f-agree" ${edit?'checked':''}> 위 내용에 동의하며, 학생·보호자 동의를 받았습니다.</label></div>
+    <p class="err" id="f-err"></p>
+    <div class="row">${edit?'<button type="button" class="btn" data-act="edit-cancel">취소</button>':''}<button class="btn primary">${edit?'수정 저장':'참가 신청하기'}</button></div>
+  </form>`;
+}
+function vApply(){
+  if(S.settings.applyHash&&!ui.applyOk&&!ui.admin){const locked=Date.now()<ui.lockUntil;
+    return topBanners()+`<section class="panel" style="max-width:480px"><h2>참가 신청</h2><p class="sub">참가 신청은 대회 안내 공문에 적힌 <b>신청 코드</b>를 입력해야 열려요.</p>
+      <form class="grid" id="code-form"><label class="f">신청 코드<input type="password" id="c-code" autocomplete="off"></label><p class="err" id="c-err">${locked?'여러 번 틀려 1분 동안 잠겼어요.':''}</p><div><button class="btn primary"${locked?' disabled':''}>확인</button></div></form>
+      <p class="sub">이미 신청했다면 <button class="btn small" data-act="tab" data-k="mine">신청 확인</button>에서 명단을 보고 고칠 수 있어요.</p></section>`}
+  if(deadlinePassed())return topBanners()+`<section class="panel"><h2>참가 신청</h2><div class="empty">신청이 마감되었어요. 문의는 대회 관리자에게 해 주세요.</div></section>`;
+  return topBanners()+importHtml()+`<section class="panel"><div class="sec-head"><div><h2>직접 입력해서 신청</h2><p class="sub">회원가입 없이 신청합니다. 정한 비밀번호로 나중에 명단을 확인하고 고칠 수 있어요.</p></div></div>${formHtml(null,ui.prefill)}</section>`;
+}
+/* ---------- 엑셀 신청서 ---------- */
+let xlsxP=null;
+function loadXLSX(){if(window.XLSX)return Promise.resolve(window.XLSX);if(!xlsxP)xlsxP=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';sc.onload=()=>ok(window.XLSX);sc.onerror=()=>{xlsxP=null;no(new Error('load'))};document.head.appendChild(sc)});return xlsxP}
+const SHEET_ORDER=['MF','MM','HF','HM'];
+function sheetDiv(name,idx){const n=name.replace(/\s/g,'');if(/여중/.test(n))return'MF';if(/남중/.test(n))return'MM';if(/여고/.test(n))return'HF';if(/남고/.test(n))return'HM';return SHEET_ORDER[idx]||null}
+function fixPhone(v){let d=String(v||'').replace(/[^0-9]/g,'');if(/^1[0-9]{8,9}$/.test(d))d='0'+d;if(d.length===11)return d.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3');if(d.length===10)return d.replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3');return String(v||'').trim()}
+function parseForm(X,wb){
+  const out=[];
+  wb.SheetNames.forEach((nm,idx)=>{
+    const div=sheetDiv(nm,idx);if(!div)return;
+    const rows=X.utils.sheet_to_json(wb.Sheets[nm],{header:1,raw:false,defval:'',blankrows:true});
+    const cell=(r,c)=>String(((rows[r]||[])[c])??'').trim();
+    const key=(r,c)=>cell(r,c).replace(/\s/g,'');
+    const find=re=>{for(let r=0;r<rows.length;r++)for(let c=0;c<(rows[r]||[]).length;c++)if(re.test(key(r,c)))return[r,c];return null};
+    const after=(r,c,stop)=>{for(let k=c+1;k<c+8;k++){const v=cell(r,k);if(!v)continue;if(stop.test(v.replace(/\s/g,'')))return '';return v}return ''};
+    let school='',teacher='',phone='';
+    const sL=find(/^학교$/);if(sL){const v=after(sL[0],sL[1],/^(소속|교장|연락처)$/);if(v&&v.replace(/\s/g,'')!=='학교')school=v}
+    const tL=find(/^감독$/);
+    if(tL){teacher=after(tL[0],tL[1],/^(사무실|휴대폰|코치)$/);
+      for(let c=0;c<(rows[tL[0]]||[]).length;c++)if(key(tL[0],c)==='휴대폰'){phone=fixPhone(after(tL[0],c,/^$/));break}}
+    const h=find(/^성명$/),players=[];
+    if(h){const hr=h[0],row=rows[hr]||[];let gc=-1,nc=-1;for(let c=0;c<row.length;c++){const k=key(hr,c);if(k==='학년')gc=c;if(k==='배번'||k==='등번호')nc=c}
+      for(let r=hr+1;r<rows.length;r++){const name=cell(r,h[1]);if(!name||/^(성명|감독|코치)$/.test(name))continue;
+        const g=(cell(r,gc).match(/[1-3]/)||[''])[0],num=(cell(r,nc).match(/\d+/)||[''])[0];players.push({name:name.slice(0,20),grade:g||'1',num})}}
+    if(school||teacher||players.length)out.push({div,sheet:nm,school:school.slice(0,30),teacher:teacher.slice(0,20),phone,players});
+  });
+  return out;
+}
+function importIssues(x){
+  const p=[];
+  if(!x.school)p.push('학교 이름이 비어 있어요');
+  if(!x.teacher)p.push('감독 이름이 비어 있어요');
+  if(!/^[0-9\-\s]{9,20}$/.test(x.phone||''))p.push('감독 휴대폰 번호를 확인하세요');
+  if(x.players.length<6)p.push(`선수가 ${x.players.length}명이에요 (6명 이상)`);
+  if(x.players.length>18)p.push('선수는 18명까지예요');
+  const nums=x.players.map(q=>q.num).filter(Boolean);if(new Set(nums).size!==nums.length)p.push('배번이 겹쳐요');
+  if(divClosed(x.div))p.push('대진표가 만들어져 신청이 마감된 종별이에요');
+  if(S.teams.some(t=>t.div===x.div&&norm(t.school)===norm(x.school)))p.push('이미 신청한 학교예요. 내 신청 확인에서 수정하세요');
+  return p;
+}
+function importHtml(){
+  const im=ui.imp;
+  let body='';
+  if(im){
+    const cards=im.map((x,i)=>{const iss=importIssues(x);return `<div class="imp-card${iss.length?' bad':''}">
+      <div class="row" style="justify-content:space-between"><div class="row"><span class="tag">${DN[x.div]}</span><b>${esc(x.school)||'(학교 이름 없음)'}</b><span class="sub" style="margin:0">${x.ocr?'사진에서 읽음':esc(x.sheet)+' 시트'}</span></div>
+        ${iss.length?'<span class="pill draft">고칠 곳 있음</span>':`<label class="row" style="font-weight:700"><input type="checkbox" class="imp-pick" data-i="${i}" checked> 신청에 포함</label>`}</div>
+      <div class="meta"><span>감독 <b>${esc(x.teacher)||'-'}</b></span><span>휴대폰 <b>${esc(x.phone)||'-'}</b></span><span>선수 <b>${x.players.length}명</b></span></div>
+      ${x.ocr?`<div class="row"><label class="f" style="max-width:180px">종별 (사진에서 읽은 값, 확인하세요)<select class="imp-div" data-i="${i}">${DIVS.map(([k,n])=>`<option value="${k}"${k===x.div?' selected':''}>${n}</option>`).join('')}</select></label><span class="sub" style="margin:0">사진에서 읽은 내용은 틀릴 수 있어요. 이름과 배번을 꼭 확인하고, 틀리면 아래 입력칸으로 불러와서 고치세요.</span></div>`:''}
+      <div class="sub" style="margin:0">${x.players.map(q=>`${esc(q.name)}(${esc(q.grade)}·${esc(q.num)||'-'})`).join(', ')||'선수 없음'}</div>
+      ${iss.length?`<p class="err" style="margin:0">${iss.map(esc).join(' · ')}</p>`:''}
+      <div><button class="btn small" data-act="imp-edit" data-i="${i}">아래 입력칸으로 불러와서 고치기</button></div></div>`}).join('');
+    const ok=im.filter(x=>!importIssues(x).length).length;
+    body=`<div class="imp-list">${cards||'<div class="empty">시트에서 학교·감독·선수 정보를 찾지 못했어요. 서식을 바꾸지 않고 작성했는지 확인하세요.</div>'}</div>
+      ${ok?`<form class="grid" id="imp-form"><div class="fields"><label class="f">비밀번호 (6자 이상, 이번에 신청하는 모든 종별에 같이 쓰여요)<input type="password" id="i-pw" autocomplete="new-password"></label><label class="f">비밀번호 확인<input type="password" id="i-pw2" autocomplete="new-password"></label></div>
+      <div class="consent"><b>개인정보 수집·이용 동의</b><span>수집 항목: 감독 이름·휴대폰, 학생 이름·학년·배번 / 목적: 대회 참가 확인과 운영 / 보유 기간: 대회 종료 후 1개월 내 파기</span><label class="row"><input type="checkbox" id="i-agree"> 위 내용에 동의하며, 학생·보호자 동의를 받았습니다.</label></div>
+      <p class="err" id="i-err"></p><div class="row"><button type="button" class="btn" data-act="imp-clear">다시 고르기</button><button class="btn primary">고른 종별 신청하기</button></div></form>`:'<div class="row"><button class="btn" data-act="imp-clear">다시 고르기</button></div>'}`;
+  }
+  return `<section class="panel"><div class="sec-head"><div><h2>엑셀 신청서로 신청</h2><p class="sub">대회 참가신청서 서식을 작성해서 올리면 학교명, 감독, 감독 휴대폰, 선수 이름·학년·배번을 자동으로 읽어요. 시트 순서대로 여중부, 남중부, 여고부, 남고부이며, 작성한 시트만 신청됩니다.${SAMPLE?' 작성한 신청서를 찍은 사진이나 스크린샷도 올릴 수 있어요.':''}</p></div></div>
+    ${im||ui.ocrBusy?'':`<div class="drops"><label class="drop" id="xl-drop"><input type="file" id="xl-file" accept=".xls,.xlsx" hidden><b>📄 엑셀 파일로 올리기</b><span class="sub" style="margin:0">.xls 또는 .xlsx · 여기로 끌어다 놓아도 돼요</span></label>
+      ${SAMPLE?`<label class="drop photo" id="ocr-drop"><input type="file" id="ocr-file" accept="${esc(ui.ocrTypes||'image/*')}" multiple hidden><b>📷 스크린샷·사진으로 올리기</b><span class="sub" style="margin:0">작성한 신청서를 찍은 사진이나 화면 캡처 · 최대 ${ui.ocrMax}장 · Claude가 읽어요</span></label>`:''}</div>`}
+    ${ui.ocrBusy?`<div class="hint"><span><span class="dot" style="color:var(--court)"></span> 사진에서 신청서를 읽는 중이에요. 보통 30초~1분 걸려요.</span><button class="btn small" data-act="ocr-stop">멈추기</button></div>`:''}
+    <p class="err" id="xl-err">${esc(ui.impErr||'')}</p>${body}</section>`;
+}
+/* 스크린샷·사진 → Claude가 읽기 (sample 기능) */
+let SAMPLE=null,ocrCtl=null;
+async function initSample(){try{const c=window.claude;if(!c||!c.use)return;const sm=await c.use('sample');if(!sm)return;const lim=await sm.limits().catch(()=>null);
+  if(lim&&lim.images){SAMPLE=sm;ui.ocrMax=lim.images.maxCount||1;ui.ocrTypes=(lim.images.mediaTypes||[]).join(',');if(ui.tab==='apply'&&!ui.imp)render()}}catch(e){}}
+const OCR_PROMPT=`첨부한 이미지는 학교 배구대회 "참가신청서" 서식을 작성한 것(사진, 스캔 또는 화면 캡처)입니다. 여러 장이면 같은 학교의 서로 다른 종별 시트일 수 있습니다.
+각 신청서에서 다음만 읽어 주세요: 학교 이름, 감독 이름, 감독 휴대폰 번호, 선수 표의 성명·학년·배번. 코치, 주무, 교장, 사무실 전화, 생년월일, 스포츠클럽 등록 여부는 무시하세요.
+종별(div)은 다음 중 하나로: "MF"(여중부), "MM"(남중부), "HF"(여고부), "HM"(남고부). 시트 탭 이름, 제목, 종별 칸의 남/여 표시, 학교 이름(중학교/고등학교)으로 판단하고, 알 수 없으면 null.
+글자가 흐려 확실하지 않으면 추측하지 말고 보이는 그대로 적으세요. 빈 줄의 선수는 넣지 마세요.
+JSON 배열만 답하세요. 형식: [{"div":"MF","school":"한라중학교","teacher":"김선생","phone":"010-1234-5678","players":[{"name":"박지민","grade":"2","num":"7"}]}]`;
+async function handleOcr(files){
+  if(!SAMPLE||!files||!files.length)return;
+  const list=[...files].slice(0,ui.ocrMax||1);
+  ui.impErr='';ui.ocrBusy=true;render();ocrCtl=new AbortController();
+  try{
+    const r=await SAMPLE.json(OCR_PROMPT,{images:list,modelTier:'complex',signal:ocrCtl.signal});
+    const arr=(Array.isArray(r)?r:[r]).filter(x=>x&&typeof x==='object');
+    ui.imp=arr.map(x=>({ocr:true,sheet:'',div:['MF','MM','HF','HM'].includes(x.div)?x.div:'MF',school:String(x.school||'').trim().slice(0,30),teacher:String(x.teacher||'').trim().slice(0,20),phone:fixPhone(x.phone),
+      players:(Array.isArray(x.players)?x.players:[]).map(q=>({name:String(q&&q.name||'').trim().slice(0,20),grade:(String(q&&q.grade||'').match(/[1-3]/)||['1'])[0],num:(String(q&&q.num||'').match(/\d+/)||[''])[0]})).filter(q=>q.name)}));
+    if(!ui.imp.length){ui.imp=null;ui.impErr='사진에서 신청서 내용을 찾지 못했어요. 표 전체가 잘 보이게 다시 찍어 주세요.'}
+  }catch(e){
+    const c=e&&e.code;ui.imp=null;
+    ui.impErr=c==='cancelled'?'':c==='not_granted'?'Claude 사용을 허락해야 사진을 읽을 수 있어요. 엑셀 파일로 올려 주세요.':c==='image_rejected'?'이미지 파일을 읽을 수 없어요. JPG나 PNG로 올려 주세요.':c==='rate_limited'?'요청이 많아요. 잠시 뒤 다시 시도하세요.':c==='invalid_json'?'사진을 제대로 읽지 못했어요. 더 선명한 사진으로 다시 시도하세요.':'사진을 읽지 못했어요. 엑셀 파일로 올리거나 잠시 뒤 다시 시도하세요.';
+  }finally{ui.ocrBusy=false;ocrCtl=null;render()}
+}
+async function readWorkbook(file){
+  if(!file)return null;
+  if(file.size>5*1024*1024)throw new Error('파일이 너무 커요 (5MB 이하).');
+  let X;try{X=await loadXLSX()}catch(e){throw new Error('엑셀 읽기 도구를 불러오지 못했어요. 인터넷 연결을 확인하고 다시 시도하세요.')}
+  const buf=await file.arrayBuffer();
+  try{return parseForm(X,X.read(buf,{type:'array'}))}catch(e){throw new Error('엑셀 파일을 읽지 못했어요. 참가신청서 서식(.xls, .xlsx)인지 확인하세요.')}
+}
+async function handleImport(file){
+  ui.impErr='';try{const r=await readWorkbook(file);ui.imp=r||[];if(!ui.imp.length)ui.impErr='작성된 시트를 찾지 못했어요.'}catch(e){ui.imp=null;ui.impErr=e.message}
+  render();
+}
+/* 엑셀 내려받기 */
+async function saveXlsx(filename,sheets){
+  let X;try{X=await loadXLSX()}catch(e){toast('엑셀 도구를 불러오지 못했어요. 잠시 뒤 다시 시도하세요.');return}
+  const wb=X.utils.book_new();
+  for(const sh of sheets){const ws=X.utils.aoa_to_sheet(sh.rows);if(sh.cols)ws['!cols']=sh.cols.map(w=>({wch:w}));if(sh.merges)ws['!merges']=sh.merges;X.utils.book_append_sheet(wb,ws,sh.name.slice(0,31))}
+  const data=new Uint8Array(X.write(wb,{type:'array',bookType:'xlsx'}));
+  let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+  if(!dl){blobDownload(filename,data);return}
+  try{await dl.save({filename,data});toast('엑셀 파일을 저장했어요')}
+  catch(e){if(e&&e.code==='declined')return;toast(e&&e.code==='rate_limited'?'저장 창이 이미 열려 있어요':'파일을 저장하지 못했어요')}
+}
+/* ---------- styled Excel export (ExcelJS) ---------- */
+let xjsP=null;
+function loadExcelJS(){if(window.ExcelJS)return Promise.resolve(window.ExcelJS);if(!xjsP)xjsP=new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';sc.onload=()=>ok(window.ExcelJS);sc.onerror=()=>{xjsP=null;no(new Error('load'))};document.head.appendChild(sc)});return xjsP}
+const XC={blue:'FF1A55A0',soft:'FFE0EAF8',line:'FFC9D3E0',zebra:'FFF6F8FB',ink:'FF131C2B',muted:'FF566376',win:'FF0B6B3A',winBg:'FFE3F4EA',live:'FFCF3B24',liveBg:'FFFDE4DF',gold:'FFFFE48A',silver:'FFDDE3EA',bronze:'FFF0CFB4',grp:'FFEEF3FA'};
+const XF='맑은 고딕';
+const xFill=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}});
+const xBorder=()=>{const s={style:'thin',color:{argb:XC.line}};return{top:s,left:s,bottom:s,right:s}};
+// 표 하나를 시트에 그림. cols:[{h:'제목',w:10,al:'left'?}], rows:[{v:[...], st?:{bold,color,fill}, cs?:{index:{bold,color,fill,size}}}]
+function xSheet(wb,name,o){
+  const n=o.cols.length,land=o.landscape!==false&&n>6;
+  const ws=wb.addWorksheet(name.slice(0,31),{pageSetup:{paperSize:9,orientation:land?'landscape':'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,horizontalCentered:true,margins:{left:.4,right:.4,top:.5,bottom:.5,header:.2,footer:.2}},headerFooter:{oddFooter:'&C&P / &N'}});
+  ws.columns=o.cols.map(c=>({width:c.w||10}));
+  let r=1;
+  ws.mergeCells(r,1,r,n);const t=ws.getCell(r,1);t.value=o.title;t.font={name:XF,size:16,bold:true,color:{argb:'FFFFFFFF'}};t.fill=xFill(XC.blue);t.alignment={horizontal:'center',vertical:'middle'};ws.getRow(r).height=32;r++;
+  ws.mergeCells(r,1,r,n);const sb=ws.getCell(r,1);sb.value=o.sub||'';sb.font={name:XF,size:10,color:{argb:XC.muted}};sb.alignment={horizontal:'right',vertical:'middle'};ws.getRow(r).height=18;r++;
+  for(const pre of o.pre||[]){ // 요약 줄
+    ws.mergeCells(r,1,r,n);const c=ws.getCell(r,1);c.value=pre;c.font={name:XF,size:11,bold:true,color:{argb:XC.ink}};c.alignment={horizontal:'left',vertical:'middle',indent:1};ws.getRow(r).height=20;r++}
+  const hr=r;const h=ws.getRow(r);o.cols.forEach((c,i)=>{const x=h.getCell(i+1);x.value=c.h;x.font={name:XF,size:11,bold:true,color:{argb:XC.blue}};x.fill=xFill(XC.soft);x.border=xBorder();x.alignment={horizontal:'center',vertical:'middle',wrapText:true}});h.height=24;r++;
+  const first=r;
+  o.rows.forEach((row,ri)=>{const R=ws.getRow(r);R.height=row.h||20;
+    row.v.forEach((v,i)=>{const x=R.getCell(i+1);x.value=v===''||v==null?'':v;const cs=(row.cs&&row.cs[i])||{},st=row.st||{};
+      x.font={name:XF,size:cs.size||st.size||11,bold:!!(cs.bold||st.bold),color:{argb:cs.color||st.color||XC.ink}};
+      const fill=cs.fill||st.fill||(o.zebra!==false&&ri%2?XC.zebra:null);if(fill)x.fill=xFill(fill);
+      x.border=xBorder();x.alignment={horizontal:(o.cols[i].al)||'center',vertical:'middle',wrapText:true,indent:o.cols[i].al==='left'?1:0}});
+    r++});
+  for(const m of o.merges||[])ws.mergeCells(first+m[0],m[1]+1,first+m[2],m[3]+1);
+  if(!o.rows.length){ws.mergeCells(r,1,r,n);const e=ws.getCell(r,1);e.value='자료 없음';e.font={name:XF,color:{argb:XC.muted}};e.alignment={horizontal:'center'};e.border=xBorder()}
+  ws.views=[{state:'frozen',ySplit:hr,showGridLines:false}];
+  ws.pageSetup.printTitlesRow=`${hr}:${hr}`;
+  return ws;
+}
+async function saveBook(filename,build){
+  let EX;try{EX=await loadExcelJS()}catch(e){toast('엑셀 도구를 불러오지 못했어요. 잠시 뒤 다시 시도하세요.');return}
+  const wb=new EX.Workbook();wb.creator=S.settings.title;wb.created=new Date();
+  build(wb);
+  const buf=await wb.xlsx.writeBuffer();
+  let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+  if(!dl){blobDownload(filename,buf);return}
+  try{await dl.save({filename:filename.replace(/[\\/:*?"<>|]/g,' '),data:new Uint8Array(buf)});toast('엑셀 파일을 저장했어요')}
+  catch(e){if(e&&e.code==='declined')return;toast(e&&e.code==='rate_limited'?'저장 창이 이미 열려 있어요':'파일을 저장하지 못했어요')}
+}
+const xStamp=()=>{const d=new Date();return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${fmtT(d.getTime())} 기준`};
+const xNum=v=>v===''||v==null?'':(isFinite(Number(v))&&String(v).trim()!==''?Number(v):v);
+const xFile=k=>`${S.settings.title}_${k}_${(()=>{const d=new Date();return `${d.getMonth()+1}월${d.getDate()}일`})()}.xlsx`;
+
+// 1) 참가 명단: 종별마다 시트, 학교별로 칸을 합쳐서
+function xRoster(wb,teams){
+  const divs=DIVS.filter(([k])=>teams.some(t=>t.div===k));
+  for(const[k,n]of divs){const ts=teams.filter(t=>t.div===k).sort((a,b)=>a.created-b.created),rows=[],merges=[];
+    ts.forEach((t,ti)=>{const start=rows.length,ps=t.players.length?t.players:[{name:'',grade:'',num:''}];
+      ps.forEach((p,i)=>rows.push({v:[ti+1,t.school,t.teacher,t.phone,i+1,p.name,p.grade?xNum(p.grade)+'학년':'',xNum(p.num)],cs:{1:{bold:true},5:{bold:true}},st:{fill:ti%2?XC.grp:null}}));
+      if(ps.length>1)for(const c of[0,1,2,3])merges.push([start,c,rows.length-1,c])});
+    xSheet(wb,`${n}부`,{title:`${S.settings.title} · ${n}부 참가 명단`,sub:xStamp(),pre:[`참가 ${ts.length}팀 · 선수 ${ts.reduce((a,t)=>a+t.players.length,0)}명`],
+      cols:[{h:'번호',w:6},{h:'학교',w:14},{h:'감독',w:10},{h:'감독 연락처',w:17},{h:'순서',w:6},{h:'성명',w:12},{h:'학년',w:8},{h:'배번',w:7}],rows,merges,zebra:false})}
+}
+// 2) 참가 현황: 종별 요약 + 학교 목록
+function xStatus(wb){
+  const sum=DIVS.map(([k,n])=>{const ts=S.teams.filter(t=>t.div===k);return{v:[n+'부',ts.length,ts.reduce((a,t)=>a+t.players.length,0),S.brackets[k]?(S.brackets[k].confirmed?'대진 확정':'대진 임시'):'대진 전'],cs:{0:{bold:true}}}});
+  const tot=S.teams.length,totP=S.teams.reduce((a,t)=>a+t.players.length,0);
+  sum.push({v:['합계',tot,totP,''],st:{bold:true,fill:XC.soft,color:XC.blue}});
+  xSheet(wb,'종별 요약',{title:`${S.settings.title} · 참가 현황`,sub:xStamp(),cols:[{h:'종별',w:12},{h:'팀 수',w:10},{h:'선수 수',w:10},{h:'대진',w:14}],rows:sum,landscape:false});
+  const rows=[];
+  for(const[k,n]of DIVS){const ts=S.teams.filter(t=>t.div===k).sort((a,b)=>a.created-b.created);
+    ts.forEach((t,i)=>rows.push({v:[n+'부',i+1,t.school,t.teacher,t.phone,t.players.length,fmtDT(t.created)],cs:{0:{bold:true,color:XC.blue}},st:{fill:DIVS.findIndex(x=>x[0]===k)%2?XC.grp:null},h:20}))}
+  rows.forEach(r=>{r.cs[2]={bold:true};r.cs[5]={bold:true,color:XC.blue}});
+  xSheet(wb,'학교 목록',{zebra:false,title:`${S.settings.title} · 참가 학교 목록`,sub:xStamp(),cols:[{h:'종별',w:8},{h:'번호',w:6},{h:'학교',w:16},{h:'감독',w:10},{h:'연락처',w:17},{h:'인원',w:7},{h:'신청 일시',w:13}],rows});
+}
+// 3) 대진표: 순위 + 종별 경기 목록 + 코트별 일정
+function xMatchRow(d,br,m){
+  const A=slotLabel(br,m,'a').txt,B=slotLabel(br,m,'b').txt,live=isLive(m),done=!!m.winner;
+  const sets=(m.sets||[]).map(s=>s[0]+':'+s[1]).join('  ');
+  const state=m.wo&&m.winner?'기권승':done?'종료':live?'경기 중':isReady(m)?'준비 중':'예정';
+  const wA=done&&m.winner===m.a,wB=done&&m.winner===m.b;
+  const cs={5:{bold:wA,color:wA?XC.win:(done?XC.muted:XC.ink),fill:wA?XC.winBg:null},9:{bold:wB,color:wB?XC.win:(done?XC.muted:XC.ink),fill:wB?XC.winBg:null},
+    7:{bold:true,size:13,color:live?XC.live:XC.ink},10:{bold:done||live,color:live?XC.live:done?XC.win:XC.muted,fill:live?XC.liveBg:null}};
+  const t=m.actStart||m.est;
+  return{v:[m.no,roundName(br,m.r),dayName(t),fmtT(t),m.court,A,sets,(done||live)?`${m.sa} : ${m.sb}`:'vs',done?fmtT(m.actEnd):'',B,state],cs};
+}
+function xBracket(wb){
+  const pod=[];for(const[k,n]of DIVS){const br=S.brackets[k];if(!br)continue;const fin=br.matches.find(m=>!m.next);
+    const lose=m=>m.winner===m.a?m.b:m.a;const th=fin&&fin.winner?br.matches.filter(m=>m.next===fin.id&&m.winner).map(lose).filter(Boolean):[];
+    pod.push({v:[n+'부',fin&&fin.winner?teamName(fin.winner):'-',fin&&fin.winner&&lose(fin)?teamName(lose(fin)):'-',th.length?th.map(teamName).join(', '):'-'],
+      cs:{0:{bold:true},1:{bold:true,fill:XC.gold},2:{bold:true,fill:XC.silver},3:{bold:true,fill:XC.bronze}},h:24})}
+  xSheet(wb,'순위',{title:`${S.settings.title} · 종별 순위`,sub:xStamp()+' · 3·4위전 없이 준결승 패자 공동 3위',cols:[{h:'종별',w:10},{h:'우승',w:18},{h:'준우승',w:18},{h:'3위',w:30}],rows:pod,landscape:false,zebra:false});
+  const cols=[{h:'경기',w:6},{h:'라운드',w:19},{h:'일차',w:7},{h:'시각',w:8},{h:'코트',w:7},{h:'팀 A',w:14},{h:'세트 점수',w:24},{h:'세트',w:9},{h:'종료',w:8},{h:'팀 B',w:14},{h:'상태',w:9}];
+  for(const[k,n]of DIVS){const br=S.brackets[k];if(!br)continue;schedule(br);
+    const ms=br.matches.filter(m=>!m.bye&&!((m.wo||m.dead)&&!m.winner)).sort((a,b)=>a.no-b.no);
+    xSheet(wb,`${n}부 대진`,{title:`${S.settings.title} · ${n}부 대진표`,sub:xStamp(),pre:[`${S.teams.filter(t=>t.div===k).length}팀 · ${ms.length}경기 · 경기 방식 ${rulesText()}`],cols,rows:ms.map(m=>xMatchRow(k,br,m))})}
+  // 코트별 일정
+  const all=[];eachMatch((d,br,m)=>all.push({d,br,m}));all.sort((a,b)=>(a.m.actStart||a.m.est)-(b.m.actStart||b.m.est)||COURTS.indexOf(a.m.court)-COURTS.indexOf(b.m.court));
+  xSheet(wb,'코트별 일정',{title:`${S.settings.title} · 전체 경기 일정`,sub:xStamp(),cols:[{h:'일차',w:7},{h:'시각',w:8},{h:'코트',w:7},{h:'종별',w:7},{h:'경기',w:6},{h:'라운드',w:19},{h:'팀 A',w:14},{h:'세트',w:9},{h:'팀 B',w:14},{h:'상태',w:9}],
+    rows:all.map(({d,br,m})=>{const x=xMatchRow(d,br,m);return{v:[x.v[2],x.v[3],x.v[4],DN[d],x.v[0],x.v[1],x.v[5],x.v[7],x.v[9],x.v[10]],cs:{1:{bold:true,size:12},2:{bold:true,color:COURTS.indexOf(m.court)===1?'FF8A5A00':XC.blue},6:x.cs[5],7:x.cs[7],8:x.cs[9],9:x.cs[10]}}})});
+}
+// 4) 심판 배정표: 경기별 + 사람별 (관리자만 연락처 포함)
+function xRefs(wb,admin){
+  const rs=roles(),cols=[{h:'일차',w:7},{h:'시각',w:8},{h:'코트',w:7},{h:'경기',w:12},{h:'대진',w:22}];
+  for(const r of rs)for(let k=0;k<r.c;k++)cols.push({h:r.n+(r.c>1?' '+(k+1):''),w:10});
+  cols.push({h:'세트별 변경',w:26,al:'left'});
+  const list=[];eachMatch((d,br,m)=>list.push({d,br,m}));list.sort((a,b)=>a.m.est-b.m.est||COURTS.indexOf(a.m.court)-COURTS.indexOf(b.m.court));
+  const rows=list.map(({d,br,m})=>{const v=[dayName(m.est),fmtT(m.est),m.court,`${DN[d]} ${m.no}경기`,`${slotLabel(br,m,'a').txt}\nvs ${slotLabel(br,m,'b').txt}`];
+    for(const r of rs)refArr(m,r.k).forEach(id=>v.push(staffName(id)||'-'));
+    v.push(setRefDiff(m).map(x=>`${x.s}세트 ${x.r.n}: ${staffName(x.from)||'-'}→${staffName(x.to)||'비움'}`).join('\n'));
+    const cs={1:{bold:true,size:12},3:{bold:true}};rs.forEach((r,ri)=>{});v.forEach((x,i)=>{if(i>=5&&x==='-')cs[i]={color:XC.live}});
+    if(m.winner)cs[1]={bold:true,size:12,color:XC.muted};
+    return{v,cs,h:34}});
+  const empty=rows.reduce((a,r)=>a+r.v.filter((x,i)=>i>=5&&i<r.v.length-1&&x==='-').length,0);
+  xSheet(wb,'경기별 배정',{title:`${S.settings.title} · 심판·운영 배정표`,sub:xStamp(),pre:[`${list.length}경기 · 빈 자리 ${empty}개`+(empty?' (빨간 - 표시)':'')],cols,rows});
+  const ppl=S.staff.filter(p=>p.approved).map(p=>{const ms=list.filter(x=>assignedIn(x.m,p.id)).map(x=>{const rn=rs.filter(r=>refArr(x.m,r.k).includes(p.id)).map(r=>r.n).join('·');return `${dayName(x.m.est)} ${fmtT(x.m.est)} ${x.m.court} ${DN[x.d]}${x.m.no} (${rn})`});return{p,ms}}).sort((a,b)=>a.p.name.localeCompare(b.p.name));
+  const pc=[{h:'이름',w:10},{h:'소속',w:12},{h:'구분',w:8}].concat(admin?[{h:'연락처',w:17}]:[]).concat([{h:'배정 수',w:8},{h:'배정 경기 (일차 시각 코트 경기 역할)',w:58,al:'left'}]);
+  xSheet(wb,'사람별 배정',{title:`${S.settings.title} · 사람별 배정`,sub:xStamp(),cols:pc,rows:ppl.map(({p,ms})=>({v:[p.name,p.school||'-',p.kind].concat(admin?[p.phone]:[]).concat([ms.length,ms.join('\n')]),cs:{0:{bold:true},[admin?4:3]:{bold:true,color:XC.blue}},h:Math.max(20,ms.length*15+6)}))});
+}
+
+function teamSheet(t){
+  const rows=[[S.settings.title],['참가 명단'],[],['종별',DN[t.div]+'부'],['학교',t.school],['감독',t.teacher,'휴대폰',t.phone],[],['순서','성명','학년','배번']];
+  t.players.forEach((p,i)=>rows.push([i+1,p.name,Number(p.grade)||p.grade,p.num?Number(p.num):'']));
+  return{name:`${DN[t.div]}부`,rows,cols:[8,14,8,14],merges:[{s:{r:0,c:0},e:{r:0,c:3}},{s:{r:1,c:0},e:{r:1,c:3}}]};
+}
+function allSheets(){
+  return DIVS.map(([k,n])=>{const rows=[['종별','학교','감독','감독 휴대폰','순서','성명','학년','배번']];
+    for(const t of S.teams.filter(x=>x.div===k))t.players.forEach((p,i)=>rows.push([n+'부',t.school,t.teacher,t.phone,i+1,p.name,Number(p.grade)||p.grade,p.num?Number(p.num):'']));
+    return{name:`참가명단(${n}부)`,rows,cols:[8,14,10,15,6,12,6,6]}});
+}
+function rosterHtml(t){
+  return `<div class="meta"><span>종별 <b>${DN[t.div]}</b></span><span>담당 <b>${esc(t.teacher)}</b></span><span>연락처 <b>${esc(t.phone)}</b></span><span>신청 <b>${fmtDT(t.created)}</b></span>${t.updated?`<span>수정 <b>${fmtDT(t.updated)}</b></span>`:''}</div>
+  <div class="tbl-wrap"><table><thead><tr><th>#</th><th>이름</th><th>학년</th><th>등번호</th></tr></thead><tbody>${t.players.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.name)}</td><td>${esc(p.grade)}학년</td><td>${esc(p.num)||'-'}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function vMine(){
+  if(ui.mineId){
+    const t=S.teams.find(x=>x.id===ui.mineId);
+    if(!t){ui.mineId=null;return vMine()}
+    if(ui.editId)return topBanners()+`<section class="panel"><h2>${esc(t.school)} 신청 수정</h2>${formHtml(t,ui.editPre)}</section>`;
+    return topBanners()+`<section class="panel"><div class="sec-head"><div><h2>${esc(t.school)}</h2><p class="sub">이 화면을 닫으면 다시 비밀번호를 입력해야 해요.</p></div>
+      <div class="row"><button class="btn primary" data-act="xl-team" data-id="${t.id}">엑셀 다운로드</button><button class="btn" data-act="mine-edit">수정하기</button><button class="btn warn" data-act="mine-del">신청 취소</button><button class="btn" data-act="mine-out">닫기</button></div></div>${rosterHtml(t)}</section>`;
+  }
+  const locked=Date.now()<ui.lockUntil;
+  return topBanners()+`<section class="panel"><div class="sec-head"><div><h2>신청 확인</h2><p class="sub">종별과 학교를 고르고, 신청할 때 정한 비밀번호를 입력하세요. 명단을 확인한 뒤 엑셀로 내려받을 수 있어요.</p></div></div>
+    <form class="grid" id="mine-form"><div class="fields">
+      <label class="f">종별<select id="m-div">${DIVS.map(([k,n])=>`<option value="${k}"${k===ui.div?' selected':''}>${n}</option>`).join('')}</select></label>
+      <label class="f">학교<select id="m-school">${schoolOpts(ui.div,ui.minePick)}</select></label>
+      <label class="f">비밀번호<input type="password" id="m-pw" autocomplete="current-password"></label></div>
+      <p class="err" id="m-err">${locked?'비밀번호를 여러 번 틀려 1분 동안 잠겼어요.':''}</p>
+      <div><button class="btn primary"${locked?' disabled':''}>명단 보기</button></div></form>
+    <p class="sub">비밀번호를 잊었다면 관리자에게 초기화를 요청하세요.</p></section>`;
+}
+function schoolOpts(div,sel){const ts=S.teams.filter(t=>t.div===div);return ts.length?ts.map(t=>`<option value="${t.id}"${t.id===sel?' selected':''}>${esc(t.school)}</option>`).join(''):'<option value="">신청한 학교 없음</option>'}
+
+function bracketHtml(br,div){
+  ui.layout='vertical';return bracketVHtml(br,div);
+  const{P,rows,cols,mirror}=place(br,ui.layout);const R=br.rounds;
+  const BW=mirror?150:190,G=mirror?16:30,W=cols*BW+(cols-1)*G,H=rows*PITCH;
+  const X=m=>P[m.id].col*(BW+G),CY=m=>(P[m.id].y+.5)*PITCH;
+  let lines='',boxes='';
+  for(const m of br.matches){
+    const x=X(m),cy=CY(m);
+    const par=byId(br,m.next);
+    if(par){const w=m.winner?' win':'';
+      if(P[m.id].side==='R'){const x2=X(par)+BW,xm=x2+G/2;lines+=`<path class="ln${w}" d="M${x} ${cy}H${xm}V${CY(par)}H${x2}"/>`}
+      else{const x1=x+BW,x2=X(par),xm=x2-G/2;lines+=`<path class="ln${w}" d="M${x1} ${cy}H${xm}V${CY(par)}H${x2}"/>`}}
+    const live=isLive(m);
+    const sl=side=>{const L=slotLabel(br,m,side);const id=m[side];const win=m.winner&&m.winner===id;const sc=m.winner||m.actStart?(side==='a'?m.sa:m.sb):'';const md=medalOf(br,m,id),champ=md==='g';if(md)L.txt=MEDAL[md].e+' '+L.txt;
+      const pick=ui.swap&&ui.admin&&m['t'+side]&&!started(m);const sel=ui.sel&&ui.sel.mid===m.id&&ui.sel.side===side;
+      return `<div class="slot${win?' win':''}${champ?' champ-s':''}${md?' md-'+md:''}${L.tbd?' tbd':''}${pick?' pick':''}${sel?' sel':''}"${pick?` data-act="swap" data-mid="${m.id}" data-side="${side}" tabindex="0" role="button"`:''}><span class="nm">${esc(L.txt)}</span>${ptsHtml(m,side)}<b class="num">${sc}</b></div>`};
+    const tag=`<span>${m.no}경기·${esc(m.court)}</span>`;
+    let head;
+    if(m.wo&&!m.winner)head=`<span>기권승</span>${tag}`;
+    else if(isReady(m))head=`<span class="row" style="gap:5px"><span class="t-big">${tLabel(m.est)}</span><b style="color:var(--ball-ink)">준비</b></span>${tag}`;
+    else if(live)head=`<span class="row" style="gap:5px" title="경기 중"><span class="dot"></span><span class="t-big">${tLabel(m.actStart)}~</span></span>${tag}`;
+    else if(m.winner)head=`<span title="종료"><span class="t-big" style="color:inherit">${tLabel(m.actEnd)}</span></span>${tag}`;
+    else head=`<span class="row" style="gap:5px"><span class="t-big">${tLabel(m.est)}</span>${shiftHtml(m,true)}</span>${tag}`;
+    const clk=!ui.swap;
+    const stc=m.winner?' done':live?'':isReady(m)?' ready':(m.a&&m.b?' up':' up tbd2');
+    boxes+=`<div class="mbox${stc}${live?' live':''}${clk?' clk':''}${P[m.id].side==='C'?' final':''}" style="left:${x}px;top:${cy-BOX_H/2}px;width:${BW}px"${clk?` data-act="open-m" data-div="${div}" data-mid="${m.id}" tabindex="0" role="button"`:''}><div class="mhead">${head}</div>${sl('a')}${sl('b')}</div>`;
+  }
+  const heads=Array.from({length:cols},(_,c)=>`<div style="width:${BW}px">${roundName(br,c<R?c:cols-1-c)}</div>`).join('');
+  const fin=br.matches.find(m=>m.r===R-1);
+  const champ=podiumHtml(br);
+  const lg=`<div class="bk-legend"><span><i style="border:2px solid var(--live)"></i>경기 중</span><span><i style="border:2px solid var(--court)"></i>예정</span><span><i style="border:1.5px dashed var(--court)"></i>상대 미정</span><span><i style="border:1px solid var(--line);opacity:.5"></i>종료</span><span><i style="border:2px solid var(--ball)"></i>결승</span></div>`;
+  return champ+lg+`<div class="bracket-wrap"><div style="width:${W}px;margin:0 auto"><div class="bk-heads" style="gap:${G}px">${heads}</div><div class="bk${mirror?' mir':''}" style="width:${W}px;height:${H}px"><svg width="${W}" height="${H}" aria-hidden="true">${lines}</svg>${boxes}</div></div></div>`;
+}
+// 모바일: 위 절반은 아래로, 아래 절반은 위로 모여 가운데 결승
+function bracketVHtml(br,div){
+  const{P,rows,cols}=place(br,'mirror');const R=br.rounds;
+  const cw=Math.min((document.documentElement&&document.documentElement.clientWidth)||400,1200);
+  const RAIL=14,G=3,BH=58,VG=20;
+  const mw=Math.min(($('#main')&&$('#main').clientWidth)||cw,cw);const BW=Math.max(68,Math.min(150,Math.floor((mw-40-RAIL-(rows-1)*G)/rows)));
+  const W=RAIL+rows*BW+(rows-1)*G,H=cols*BH+(cols-1)*VG;
+  const X=m=>RAIL+P[m.id].y*(BW+G),Y=m=>P[m.id].col*(BH+VG),CX=m=>X(m)+BW/2;
+  const rowCnt={};for(const id in P)rowCnt[P[id].col]=(rowCnt[P[id].col]||0)+1;
+  let lines='',boxes='',rail='';
+  for(let c=0;c<cols;c++){const nm=roundName(br,c<R?c:cols-1-c).split(' · ')[0];rail+=`<div class="vrail" style="top:${c*(BH+VG)+BH/2}px">${[...nm.replace(/\s/g,'')].map(esc).join('<br>')}</div>`}
+  for(const m of br.matches){
+    const par=byId(br,m.next),x=X(m),y=Y(m);
+    if(par){const w=m.winner?' win':'';
+      if(P[m.id].side==='R'){const ym=Y(par)+BH+VG/2;lines+=`<path class="ln${w}" d="M${CX(m)} ${y}V${ym}H${CX(par)}V${Y(par)+BH}"/>`}
+      else{const ym=Y(par)-VG/2;lines+=`<path class="ln${w}" d="M${CX(m)} ${y+BH}V${ym}H${CX(par)}V${Y(par)}"/>`}}
+    const live=isLive(m),ci=Math.max(0,COURTS.indexOf(m.court))%2;
+    const sl=side=>{const L=slotLabel(br,m,side);const id=m[side];const win=m.winner&&m.winner===id;const sc=m.winner||m.actStart?(side==='a'?m.sa:m.sb):'';const md=medalOf(br,m,id),champ=md==='g';if(md)L.txt=MEDAL[md].e+' '+L.txt;
+      const pick=ui.swap&&ui.admin&&m['t'+side]&&!started(m);const sel=ui.sel&&ui.sel.mid===m.id&&ui.sel.side===side;
+      return `<div class="vsl${win?' win':''}${champ?' champ-s':''}${md?' md-'+md:''}${L.tbd?' tbd':''}${pick?' pick':''}${sel?' sel':''}"${pick?` data-act="swap" data-mid="${m.id}" data-side="${side}" role="button" tabindex="0"`:''}>${'<span class="nm">'+esc(L.txt)+'</span>'}${m.sets.length?`<span class="vp">${m.sets.map(st=>{const k=side==='a'?0:1;return `<i${st[k]>st[1-k]?' class="w"':''}>${st[k]}</i>`}).join('')}</span>`:''}<b>${sc}</b></div>`};
+    const t=m.wo&&!m.winner?'<b>기권승</b>':isReady(m)?`<b>${tLabel(m.est)}</b><b style="color:var(--ball-ink)">준비</b>`:live?`<span class="dot" style="color:var(--live)"></span><b>${tLabel(m.actStart)}</b>`:m.winner?`<b class="done">${tLabel(m.actEnd)}</b>`:`<b>${tLabel(m.est)}</b>${shiftHtml(m,true)}`;
+    const clk=!ui.swap;
+    const stc=m.winner?' done':live?'':isReady(m)?' ready':(m.a&&m.b?' up':' up tbd2');
+    let bx=x,bw=BW;if(rowCnt[P[m.id].col]===1&&(P[m.id].side==='C'||(par&&P[par.id]&&P[par.id].side==='C'))){bw=Math.min(W-RAIL,2*BW+G,200);bx=Math.max(RAIL,Math.min(W-bw,CX(m)-bw/2))}
+    boxes+=`<div class="vbox c${ci}${stc}${live?' live':''}${P[m.id].side==='C'?' final':''}" style="left:${bx}px;top:${y}px;width:${bw}px"${clk?` data-act="open-m" data-div="${div}" data-mid="${m.id}" role="button" tabindex="0"`:''} title="${m.no}경기 · ${esc(m.court)} · ${esc(roundName(br,m.r))}"><div class="vh"><span class="vn">${m.no}</span>${t}</div>${sl('a')}${sl('b')}</div>`;
+  }
+  const fin=br.matches.find(m=>m.r===R-1);
+  const champ=podiumHtml(br);
+  const legend=`<div class="vlegend"><span><i class="sw c0"></i>1코트</span><span><i class="sw c1"></i>2코트</span><span><i class="sw" style="border:2px solid var(--court)"></i>예정</span><span><i class="sw" style="border:2px solid var(--live)"></i>경기 중</span><span><i class="sw" style="opacity:.5"></i>종료</span><span><i class="sw fin"></i>결승</span><span>칸 왼쪽 작은 숫자는 경기 번호 · 누르면 자세히</span></div>`;
+  return champ+legend+`<div class="bracket-wrap vwrap"><div class="vb" style="width:${W}px;height:${H}px"><svg width="${W}" height="${H}" aria-hidden="true" style="position:absolute;inset:0;overflow:visible">${lines}</svg>${rail}${boxes}</div></div>`;
+}
+function timetableHtml(br,div){
+  const all={};for(const[d]of DIVS){const b=S.brackets[d];if(b)for(const m of b.matches)all[d+':'+m.id]={d,br:b,m}}
+  const seq=(S.plan&&S.plan.seq)||{};
+  const cols=COURTS.map(c=>{const items=(seq[c]||[]).map(k=>all[k]).filter(x=>x&&!((x.m.wo||x.m.dead)&&!x.m.winner)).sort((a,b)=>a.m.est-b.m.est);
+    let lastDay=null,h='';
+    for(const x of items){const m=x.m,b=x.br,live=isLive(m),di=dayIdx(m.est);
+      if(di!==lastDay){lastDay=di;h+=`<div class="tt-day">${dayName(m.est)} · ${fmtD(m.est)}</div>`}
+      const A=slotLabel(b,m,'a'),B=slotLabel(b,m,'b');
+      const st=m.winner?`<span class="pill ok">종료 ${m.sa}:${m.sb}</span>`:live?'<span class="pill live"><span class="dot"></span>경기 중</span>':shiftHtml(m);
+      h+=`<div class="tt-item${live?' live':''}${m.winner?' done':''}${x.d===div?' cur':''}" data-act="open-m" data-div="${x.d}" data-mid="${m.id}" tabindex="0" role="button"><span class="t-big">${fmtT(live?m.actStart:m.winner?m.actEnd:m.est)}</span><div><div class="row" style="gap:6px"><span class="tag">${DN[x.d]}</span><b>${m.no}경기</b><span class="sub" style="margin:0">${roundName(b,m.r)}</span>${st}</div><div style="font-size:14px">${esc(A.txt)} vs ${esc(B.txt)}</div></div></div>`}
+    return `<div class="tt-col"><h4>${esc(c)}</h4>${h||'<p class="sub">경기 없음</p>'}</div>`});
+  return `<div class="tt">${cols.join('')}</div>`;
+}
+function dayEnds(){const W=dayWin(),out=W.map(()=>null);for(const br of Object.values(S.brackets))for(const m of br.matches){if(m.wo||m.dead)continue;const i=dayIdx(m.est);if(i>=0&&(out[i]==null||m.estEnd>out[i]))out[i]=m.estEnd}
+  return out.map((e,i)=>e?`${i+1}일차 ${fmtT(e)}`:'').filter(Boolean).join(' · ')}
+function schedText(){const c=schedCfg();return c.days.filter(Boolean).map((d,i)=>{const k=dayCfg(i);return `${i+1}일차 ${fmtD(Date.parse(d+'T12:00'))} ${k.start}~${k.end||''}${k.lunchFrom&&k.lunchTo?` (점심 ${k.lunchFrom}~${k.lunchTo})`:''}`}).join(' · ')+` · 경기당 ${c.avg}분 · 사이 ${c.gap||0}분`}
+function planText(br){const n=S.teams.filter(t=>br.matches.some(m=>m.ta===t.id||m.tb===t.id)).length,{M,e}=planOf(n);
+  if(br.mode==='post')return `${n}팀 · 1라운드 ${M}강 ${M/2}경기 → 2라운드 ${e}경기 (남은 ${e}팀 합류) → ${M/2}강`;
+  if(br.mode==='pre')return `${n}팀 · 예선 ${e}경기 → ${M}강`;return `${n}팀 토너먼트`}
+function vBracket(){
+  const d=ui.bdiv,br=S.brackets[d],n=S.teams.filter(t=>t.div===d).length;
+  let body;
+  if(!br){
+    body=`<div class="empty">${DN[d]} 참가 ${n}팀 · 아직 대진표가 없어요.${ui.admin?`<div style="margin-top:10px"><button class="btn primary" data-act="gen-open"${n<2?' disabled':''}>${DN[d]} 대진표 만들기</button> <button class="btn" data-act="gen-all">모든 종별 한 번에 만들기</button>${n<2?'<p class="sub">2팀 이상이어야 만들 수 있어요.</p>':''}</div>`:'<br>신청이 끝나면 관리자가 추첨합니다.'}</div>`;
+  }else{
+    resolve(br);schedule(br);
+    const played=br.matches.some(m=>started(m));
+    const inBr=new Set(br.matches.flatMap(m=>[m.ta,m.tb]).filter(Boolean)),cur=S.teams.filter(t=>t.div===d);
+    const gone=[...inBr].filter(id=>!alive(id)).length,added=cur.filter(t=>!inBr.has(t.id));
+    const diff=ui.admin&&(gone||added.length)?`<div class="banner">대진표를 만든 뒤 참가 팀이 바뀌었어요.${added.length?` 새로 신청: <b>${added.map(t=>esc(t.school)).join(', ')}</b> (대진표에 없음).`:''}${gone?` 빠진 팀 <b>${gone}</b>팀은 기권으로 처리돼 상대가 다음 라운드로 올라가요.`:''} ${played?'이미 결과가 있어 다시 추첨할 수 없어요. 대진 수정으로 자리를 바꿔 주세요.':'<button class="btn small primary" data-act="gen-open">현재 참가 팀으로 다시 추첨</button>'}</div>`:'';
+    const adminBar=ui.admin?`<div class="row">
+      <button class="btn${ui.swap?' primary':''}" data-act="swap-toggle">${ui.swap?'대진 수정 끝내기':'대진 수정'}</button>
+      <button class="btn" data-act="confirm-toggle">${br.confirmed?'확정 해제':'대진 확정'}</button>
+      <button class="btn" data-act="gen-open"${played?' disabled title="결과가 있어 다시 추첨할 수 없어요"':''}>다시 추첨</button>
+      <button class="btn warn" data-act="br-del">대진표 삭제</button><button class="btn" data-act="xl-bracket">📊 대진표 엑셀</button></div>
+      ${ui.swap?'<p class="sub">팀 이름이 적힌 칸 두 개를 차례로 누르면 두 팀의 자리가 바뀝니다. 나중 라운드에 바로 들어가는 팀도 바꿀 수 있어요. 이미 시작한 경기는 바꿀 수 없어요.</p>':''}`:'';
+    body=`${overflowBanner()}${diff}${adminBar}${bracketHtml(br,d)}<div class="ttbox"><button class="tt-toggle" data-act="tt" aria-expanded="${!!ui.ttOpen}"><span>🕘 코트별 시간표 (모든 종별)</span><span class="sub" style="margin:0">${ui.ttOpen?'▲ 접기':'▼ 펼치기'}</span></button>${ui.ttOpen?`<div class="tt-body"><p class="sub help" style="margin:0 0 8px">결과가 들어오면 뒤 경기의 예상 시각이 자동으로 다시 계산됩니다. ▲당김 ▼지연은 처음 계획과 비교한 값이에요.</p>${timetableHtml(br,d)}</div>`:''}</div>`;
+  }
+  return topBanners()+`<section class="panel"><div class="sec-head"><div><h2>대진표</h2><p class="sub">경기를 누르면 ${ui.admin?'결과를 입력할 수 있어요.':'자세히 볼 수 있어요. 결과 입력은 관리자만 할 수 있어요.'}</p></div>${ui.admin?'':'<button class="btn primary" data-act="tab" data-k="admin">관리자 로그인</button>'}</div><div class="row" style="justify-content:space-between">${chips(d,'bdiv')}</div>${body}</section>`;
+}
+function allMatches(filter){
+  const out=[];eachMatch((d,br,m)=>{if(filter==='all'||filter===d)out.push({d,br,m})});return out;
+}
+function teamGrid(m,A,B,cls,show){
+  const n=m.sets.length,cols=`minmax(0,1fr)${' 24px'.repeat(n)} 26px`;
+  const row=(side,L)=>{const k=side==='a'?0:1;return `<span class="nm${cls(side,L)}">${esc(L.txt)}</span>${m.sets.map(s=>`<span class="p${s[k]>s[1-k]?' w':''}">${s[k]}</span>`).join('')}<span class="st${cls(side,L)}">${show?(side==='a'?m.sa:m.sb):''}</span>`};
+  const head=n?`<span></span>${m.sets.map((_,i)=>`<span class="h">${i+1}S</span>`).join('')}<span class="h">세트</span>`:'';
+  return `<div class="mc-grid" style="grid-template-columns:${cols}">${head}${row('a',A)}${row('b',B)}</div>`;
+}
+function mcard(x){
+  const{d,br,m}=x;const live=isLive(m);const done=!!m.winner;
+  const A=slotLabel(br,m,'a'),B=slotLabel(br,m,'b');
+  const cls=(side,L)=>L.tbd?' tbd':done?(m.winner===m[side]?' win':' lose'):'';
+  const sets=m.sets.length?m.sets.map(s=>s.join('-')).join(' · '):'';
+  let time;
+  if(done)time=`<span class="t-big">${fmtT(m.actEnd)}</span><span class="pill ok">종료</span>`;
+  else if(live)time=`<span class="t-big">${fmtT(m.actStart)}</span><span class="pill live"><span class="dot"></span>경기 중</span><span class="sub" style="margin:0">종료 예상 ${fmtT(m.estEnd)}</span>`;
+  else if(isReady(m))time=`<span class="t-big">${fmtT(m.est)}</span><span class="pill draft">준비 중</span><span class="sub" style="margin:0">연습 후 시작 예정</span>`;
+  else time=`<span class="t-big">${fmtT(m.est)}</span>${shiftHtml(m)}<span class="sub" style="margin:0">${dayName(m.est)} · ${fmtD(m.est)} 예상</span>`;
+  const main=refArr(m,'main').filter(Boolean).map(staffName)[0];
+  const others=roles().reduce((n,r)=>n+refArr(m,r.k).filter(Boolean).length,0)-(main?1:0);
+  return `<article class="mcard${live?' live':''}${isReady(m)?' ready':''}${done?' done':''}" data-act="open-m" data-div="${d}" data-mid="${m.id}" tabindex="0">
+    <div class="mc-time">${time}</div>
+    <div class="mc-top"><span class="tag">${DN[d]}</span><span>${m.no}경기 · ${roundName(br,m.r)}</span><span class="court">${esc(m.court)}</span></div>
+    ${teamGrid(m,A,B,cls,done||live)}
+    ${m.sets.length?(()=>{const t=totals(m);return `<div class="mc-total">총 득점 ${t[0]} : ${t[1]} · ${Math.abs(t[0]-t[1])}점 차</div>`})():''}
+    <div class="mc-foot"><span>주심 ${esc(main||'미배정')}${others>0?` 외 ${others}명`:''}</span>${ui.admin&&A.tbd===false&&B.tbd===false?`<span class="go">${done?'결과 고치기':live?'결과 입력 ›':'시작·결과 입력 ›'}</span>`:''}</div></article>`;
+}
+function vBoard(){
+  const list=allMatches(ui.boardDiv);
+  const ci=c=>{const i=COURTS.indexOf(c);return i<0?99:i};
+  const live=list.filter(x=>isLive(x.m)||isReady(x.m)).sort((a,b)=>(ci(a.m.court)-ci(b.m.court))||((isReady(a.m)?1:0)-(isReady(b.m)?1:0))||((a.m.actStart||a.m.est)-(b.m.actStart||b.m.est)));
+  const pend=list.filter(x=>!x.m.actStart&&!x.m.winner&&!isReady(x.m)).sort((a,b)=>a.m.est-b.m.est);
+  const seen=new Set(),next=[],later=[];
+  for(const x of pend){const k=ui.boardDiv==='all'?x.m.court:x.d+'|'+x.m.court;if(!seen.has(k)&&x.m.a&&x.m.b){seen.add(k);next.push(x)}else later.push(x)}
+  const done=list.filter(x=>x.m.winner).sort((a,b)=>b.m.actEnd-a.m.actEnd);
+  const col=(t,arr,pre,all)=>{const open=ui.open[t]||all,shown=open?arr:arr.slice(0,2),rest=all?0:arr.length-2;
+    return `<div class="col"><h3>${pre}${t} <span class="cnt">${arr.length}</span></h3><div class="stack">${arr.length?shown.map(mcard).join(''):'<div class="empty">없음</div>'}${rest>0?`<button class="more" data-act="more" data-k="${t}">${open?'▲ 접기':`▼ ${rest}경기 더 보기`}</button>`:''}</div></div>`};
+  const body=list.length?`<div class="board-cols">${col('경기 중',live,'<span class="dot" style="color:var(--live)"></span>',true)}${col('다음 경기',next,'')}${col('이후 경기',later,'')}${col('종료',done,'')}</div>`:`<div class="empty">아직 만들어진 대진표가 없어요. 대진표가 생기면 여기에 경기가 올라옵니다.</div>`;
+  return topBanners()+`<section class="panel"><div class="sec-head"><div><h2>경기 현황판</h2><p class="sub">${ui.admin?'경기 카드를 눌러 시작을 기록하고, 끝나면 세트 점수를 입력하세요. 저장하면 대진표와 뒤 경기 시각이 바로 바뀝니다.':'30초마다 새로 고쳐져요.'}</p></div><div class="clock" id="clock">${fmtT(Date.now())}</div></div>${adminHint('경기 시작 기록과 결과 입력')}${chips(ui.boardDiv,'boarddiv',true)}${body}</section>`;
+}
+
+/* ---------- officials views ---------- */
+// 시간 드롭다운: 07:00~21:00, 10분 단위
+function timeSel(id,val,empty){let o=`<option value="">${empty}</option>`;for(let t=7*60;t<=21*60;t+=10){const v=pad(Math.floor(t/60))+':'+pad(t%60);o+=`<option${v===val?' selected':''}>${v}</option>`}
+  if(val&&!o.includes(`>${val}<`))o+=`<option selected>${esc(val)}</option>`;return `<select id="${id}" class="tsel">${o}</select>`}
+function availHtml(p){const days=schedCfg().days.filter(Boolean),pd=p.days||[],ex=p.ex||{};
+  const dayBox=days.length>1?`<fieldset><legend>참가 가능한 날</legend>${days.map((d,i)=>`<label><input type="checkbox" class="e-day" value="${d}"${!pd.length||pd.includes(d)?' checked':''}> ${i+1}일차 (${fmtD(Date.parse(d+'T12:00'))})</label>`).join('')}</fieldset>`:'';
+  return `${dayBox}<div class="tgrid">
+    <div class="tbox"><b>가능한 시간</b><div class="trange">${timeSel('e-from',p.from||'','처음')}<span>부터</span>${timeSel('e-to',p.to||'','끝')}<span>까지</span></div></div>
+    <div class="tbox"><label class="row" style="gap:6px"><input type="checkbox" id="e-exon"${ex.from&&ex.to?' checked':''}> <b>제외 시간</b> <span class="sub" style="margin:0">(선택)</span></label><div class="trange">${timeSel('e-exf',ex.from||'','--:--')}<span>부터</span>${timeSel('e-ext',ex.to||'','--:--')}<span>까지</span></div>
+      ${days.length>1?`<select id="e-exday" class="tsel">${['<option value="">모든 날</option>'].concat(days.map((d,i)=>`<option value="${d}"${ex.day===d?' selected':''}>${i+1}일차만</option>`)).join('')}</select>`:''}</div></div>`}
+function staffFormHtml(p,admin){
+  p=p||{name:'',phone:'',school:'',kind:'심판',roles:[],divs:[],from:'',to:'',memo:'',exclude:[],max:0,approved:admin};
+  const roleBox=S.settings.roles.map(r=>`<label><input type="checkbox" class="e-role" value="${r.k}"${p.roles.includes(r.k)?' checked':''}> ${esc(r.n)}</label>`).join('');
+  const divBox=DIVS.map(([k,n])=>`<label><input type="checkbox" class="e-div" value="${k}"${p.divs.includes(k)?' checked':''}> ${n}</label>`).join('');
+  let ex='';
+  if(admin){let any=false;for(const[d,n]of DIVS){const br=S.brackets[d];if(!br)continue;any=true;schedule(br);ex+=`<h5>${n}</h5>`+br.matches.filter(m=>!m.bye).map(m=>`<label><input type="checkbox" class="e-ex" value="${d}-${m.no}"${p.exclude.includes(d+'-'+m.no)?' checked':''}> ${m.no}경기 ${fmtT(m.est)}</label>`).join('')}
+    ex=any?`<div class="ex-grid">${ex}</div>`:'<p class="sub" style="margin:0">대진표가 만들어지면 경기 목록이 나타나요.</p>'}
+  return `<form class="grid" id="staff-form" data-id="${p.id||''}" data-admin="${admin}">
+    <div class="fields">
+      <label class="f">이름<input type="text" id="e-name" maxlength="20" value="${esc(p.name)}" required></label>
+      <label class="f">연락처<input type="tel" id="e-phone" maxlength="20" placeholder="010-0000-0000" value="${esc(p.phone)}"></label>
+      <label class="f">소속 (학교·기관)<input type="text" id="e-school" maxlength="30" placeholder="예: 한빛중" value="${esc(p.school)}"></label>
+      <label class="f">구분<select id="e-kind"><option${p.kind==='심판'?' selected':''}>심판</option><option${p.kind==='운영진'?' selected':''}>운영진</option></select></label>
+    </div>
+    <fieldset><legend>맡을 수 있는 역할 (선택 안 하면 모두 가능)</legend>${roleBox}</fieldset>
+    <fieldset><legend>배정 받을 종별 (선택 안 하면 모두 가능)</legend>${divBox}</fieldset>
+    ${availHtml(p)}
+    ${admin?`<div class="fields"><label class="f">최대 배정 경기 수 (0 = 제한 없음)<input type="number" id="e-max" min="0" max="30" value="${p.max||0}"></label></div>`:''}
+    <label class="f">메모 (자격, 참고 사항)<input type="text" id="e-memo" maxlength="80" value="${esc(p.memo)}"></label>
+    ${admin?`<div><h3 style="font-size:14px">배정에서 뺄 경기</h3><p class="sub" style="margin:0 0 6px">예: 여중 3경기에 들어가면 안 되는 경우 체크</p>${ex}</div>
+      <label class="row"><input type="checkbox" id="e-approved"${p.approved?' checked':''}> 승인 (체크해야 배정에 들어가요)</label>
+      <label class="row"><input type="checkbox" id="e-off"${p.off?' checked':''}> 배정 중지 (남은 경기에 넣지 않음)</label>
+      ${(p.blocks||[]).length?`<label class="row"><input type="checkbox" id="e-clrblk"> 불가 시간 ${p.blocks.length}개 지우기 (${p.blocks.map(b=>dayName(b.s)+' '+fmtT(b.s)+'~'+fmtT(b.e)).join(', ')})</label>`:''}`
+      :`<div class="consent"><b>개인정보 수집·이용 동의</b><span>이름·연락처·소속을 심판 배정과 연락에만 쓰고 대회 종료 후 1개월 안에 지웁니다. 이름은 배정표에 공개됩니다.</span><label class="row"><input type="checkbox" id="e-agree"> 동의합니다</label></div>`}
+    <p class="err" id="e-err"></p>
+    <div class="row" style="justify-content:flex-end">${admin?'<button type="button" class="btn" data-act="close">취소</button>':''}<button class="btn primary">${admin?'저장':'신청하기'}</button></div></form>`;
+}
+function vRef(){
+  if(S.settings.refHash&&!ui.refOk&&!ui.admin){const locked=Date.now()<ui.lockUntil;
+    return topBanners()+`<section class="panel" style="max-width:480px"><h2>심판·운영</h2><p class="sub">심판 명단과 배정표는 <b>심판·운영 비밀번호</b>를 입력해야 볼 수 있어요. 비밀번호는 관리자에게 받으세요.</p>
+      <form class="grid" id="refcode-form"><label class="f">심판·운영 비밀번호<input type="password" id="r-code" autocomplete="off"></label><p class="err" id="r-err">${locked?'여러 번 틀려 1분 동안 잠겼어요.':''}</p><div><button class="btn primary"${locked?' disabled':''}>확인</button></div></form></section>`}
+  const seg=[['mine','내 배정 확인'],['table','배정표'],['apply','심판·운영진 신청']].concat(ui.admin?[['people','인원 관리']]:[]);
+  if(!seg.some(s=>s[0]===ui.refView))ui.refView='mine';
+  const segH=`<div class="seg">${seg.map(([k,n])=>`<button data-act="refview" data-k="${k}" aria-pressed="${ui.refView===k}">${n}${k==='people'?` <span class="cnt">${S.staff.filter(p=>!p.approved).length} 대기</span>`:''}</button>`).join('')}</div>`;
+  let body='';
+  const list=allMatches('all').sort((a,b)=>a.m.est-b.m.est);
+  if(ui.refView==='mine'){
+    let mine='';
+    if(ui.refMe){
+      const my=list.filter(x=>assignedIn(x.m,ui.refMe));const firstOpen=my.find(x=>!x.m.winner);
+      mine=my.length?`<div class="mine-list">${my.map(x=>{const rs=roles().filter(r=>refArr(x.m,r.k).includes(ui.refMe)).map(r=>`<span class="role-tag">${esc(r.n)}</span>`).join(' ')+setRefDiff(x.m).filter(z=>z.to===ui.refMe||z.from===ui.refMe).map(z=>` <span class="off-tag">${z.s}세트 ${z.to===ui.refMe?esc(z.r.n)+' 투입':'빠짐'}</span>`).join('');
+        const st=x.m.winner?'<span class="pill ok">종료</span>':isLive(x.m)?'<span class="pill live"><span class="dot"></span>경기 중</span>':x===firstOpen?'<span class="pill draft">다음 차례</span>':'<span class="pill wait">대기</span>';
+        return `<div class="mine-item${x===firstOpen?' next':''}" data-act="ref-view" data-div="${x.d}" data-mid="${x.m.id}" role="button" tabindex="0"><span class="t-big">${tLabel(x.m.est)}</span><div><b>${DN[x.d]} ${x.m.no}경기 · ${esc(x.m.court)}</b> ${rs}<br><span class="sub">${esc(slotLabel(x.br,x.m,'a').txt)} vs ${esc(slotLabel(x.br,x.m,'b').txt)} ${shiftHtml(x.m)}</span></div>${st}</div>`}).join('')}</div>`:'<div class="empty">배정된 경기가 아직 없어요.</div>';
+    }
+    body=`<p class="sub help" style="margin:0">이름을 고르면 들어갈 경기, 맡을 역할, 예상 시각이 순서대로 보여요. 노란 칸이 다음 차례이고, 경기를 누르면 함께 들어가는 심판·운영진이 보여요.</p>
+      <label class="f" style="max-width:260px">이름<select id="ref-me"><option value="">선택하세요</option>${staffOk().map(r=>`<option value="${r.id}"${r.id===ui.refMe?' selected':''}>${esc(r.name)} (${esc(r.kind)})</option>`).join('')}</select></label>${mine}`;
+  }else if(ui.refView==='table'){
+    const rs=roles(),rd=ui.refDiv||'all';
+    const rows=list.filter(x=>rd==='all'||x.d===rd).map(x=>{const cells=rs.map(r=>{const arr=refArr(x.m,r.k);return `<td><div class="slots">${arr.map((id,k)=>{
+        if(!ui.admin)return `<span>${esc(staffName(id))||'-'}</span>`;
+        const p=S.staff.find(s=>s.id===id);const iss=p?issuesFor(p,x.d,x.br,x.m,r.k):[];
+        return `<select class="ref-sel${iss.length?' warn-sel':''}" data-div="${x.d}" data-mid="${x.m.id}" data-role="${r.k}" data-k="${k}" aria-label="${esc(r.n)} ${k+1}"${x.m.winner?' disabled':''}>${staffOpts(x.d,x.br,x.m,r.k,id)}</select>${iss.length?`<span class="wtxt">⚠ ${esc(iss.join(', '))}</span>`:''}`}).join('')}</div></td>`}).join('');
+      return `<tr><td><span class="t-big" style="font-size:17px">${fmtT(x.m.est)}</span><br><span class="sub">${dayName(x.m.est)}</span></td><td><b>${DN[x.d]} ${x.m.no}경기</b><br><span class="sub">${esc(x.m.court)}</span>${ui.admin&&!x.m.winner?`<br><button class="btn small primary" style="margin-top:4px" data-act="refs-open" data-div="${x.d}" data-mid="${x.m.id}">✎ 교체</button>`:''}</td><td>${esc(slotLabel(x.br,x.m,'a').txt)}<br>${esc(slotLabel(x.br,x.m,'b').txt)}</td>${cells}<td>${x.m.winner?'<span class="pill ok">종료</span>':isLive(x.m)?'<span class="pill live">경기 중</span>':'<span class="pill wait">대기</span>'}</td></tr>`}).join('');
+    const bad=conflicts();
+    const fix=ui.admin?`<div class="${bad.length?'banner':'hint'}" style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap"><span>${bad.length?`<b>⚠ 시간이 바뀌어 문제가 생긴 배정 ${bad.length}건</b> · ${bad.slice(0,4).map(b=>esc(b.txt)).join(' / ')}${bad.length>4?' 외':''}`:'✓ 지금 시각 기준으로 겹치거나 조건에 어긋나는 배정이 없어요.'}</span>${bad.length?'<button class="btn small primary" data-act="fix-refs">문제 있는 자리만 다시 뽑기</button>':''}</div>
+      <p class="sub help" style="margin:0">표의 각 칸을 눌러 사람을 직접 바꿀 수 있어요. 목록에서 ✓는 들어갈 수 있는 사람, ⚠는 겹치거나 조건에 맞지 않는 사람입니다. 경기 현황판에서 경기를 눌러도 바꿀 수 있어요.</p>`:`<div class="hint"><span>심판 교체와 무작위 배정은 관리자만 할 수 있어요. 관리자로 들어오면 표의 칸이나 [교체] 버튼으로 바로 바꿀 수 있어요.</span><button class="btn small primary" data-act="tab" data-k="admin">관리자 로그인</button></div>`;
+    const tools=`<div class="row" style="justify-content:space-between">${chips(rd,'refdiv',true)}<button class="btn small" data-act="xl-refs">📊 배정표 엑셀</button></div>`+fix+(ui.admin?`<div class="panel" style="background:var(--sunk);border:0;padding:14px"><h3>무작위 배정 · ${rd==='all'?'전체 종별':DN[rd]}</h3>
+      <p class="sub help" style="margin:0">승인된 인원 중에서 각자의 조건(역할, 종별, 제외 경기, 가능 시간, 불가 시간, 최대 경기 수)을 지키고, 같은 시간 두 경기에 겹치지 않게, 배정 횟수가 고르게 되도록 뽑습니다.${S.settings.avoidOwnSchool?' 자기 소속 학교 경기에는 넣지 않아요.':''} 위 종별 탭을 고르면 그 종별만 뽑아요.</p>
+      <div class="ref-tools"><button class="btn primary" data-act="aa-fill">빈 자리만 채우기</button><button class="btn" data-act="aa-all">전체 다시 배정</button><button class="btn warn" data-act="unav-open">심판 빠짐 처리</button></div>
+      <p class="sub help" style="margin:0">갑자기 못 들어가는 심판이 생기면 [심판 빠짐 처리]에서 그 사람과 못 들어가는 시간을 고르세요. 조건을 바꾸고 그 사람 자리만 다른 사람으로 다시 채워요.</p></div>`:'');
+    body=tools+(list.length?`<div class="tbl-wrap"><table><thead><tr><th>예상 시각</th><th>경기</th><th>대진</th>${rs.map(r=>`<th>${esc(r.n)}${r.c>1?' ×'+r.c:''}</th>`).join('')}<th>상태</th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">대진표가 만들어지면 경기 목록이 나타나요.</div>')+(ui.admin?'<p class="sub help">빨간 칸은 그 사람의 조건과 맞지 않는 배정이에요. 서로 합의했다면 그대로 두어도 됩니다.</p>':'');
+  }else if(ui.refView==='apply'){
+    body=`<p class="sub" style="margin:0">심판이나 운영진으로 참여할 분은 신청해 주세요. 관리자가 승인하면 배정표에 들어갑니다.</p>${staffFormHtml(null,false)}`;
+  }else if(ui.refView==='people'){
+    const rows=S.staff.slice().sort((a,b)=>(a.approved-b.approved)||a.name.localeCompare(b.name)).map(p=>{
+      const cond=[(p.blocks||[]).map(b=>`${dayName(b.s)} ${fmtT(b.s)}~${fmtT(b.e)} 불가`).join(', '),(p.days&&p.days.length)?p.days.map(d=>dayName(Date.parse(d+'T12:00'))).join('·')+'만':'',p.divs.length?p.divs.map(k=>DN[k]).join('·')+'만':'',(p.from||p.to)?`${p.from||''}~${p.to||''} 가능`:'',p.ex&&p.ex.from?`${p.ex.day?dayName(Date.parse(p.ex.day+'T12:00'))+' ':''}${p.ex.from}~${p.ex.to} 제외`:'',p.exclude.length?p.exclude.map(k=>{const[d,n]=k.split('-');return DN[d]+n+'경기'}).join(', ')+' 제외':'',p.max?'최대 '+p.max+'경기':''].filter(Boolean).join(' / ')||'조건 없음';
+      return `<tr><td><b>${esc(p.name)}</b><br><span class="sub">${esc(p.kind)}</span></td><td>${esc(p.school)||'-'}<br><span class="sub">${esc(p.phone)}</span></td><td>${p.roles.length?p.roles.map(k=>`<span class="role-tag">${esc(roleN(k))}</span>`).join(' '):'모든 역할'}</td><td style="white-space:normal;min-width:180px">${esc(cond)}${p.memo?`<br><span class="sub">${esc(p.memo)}</span>`:''}</td><td>${loadOf(p.id)}경기</td>
+        <td>${p.approved?'<span class="pill ok">승인</span>':'<span class="pill draft">대기</span>'}${p.off?' <span class="off-tag">배정 중지</span>':''}${(p.blocks||[]).length?' <span class="off-tag">불가 시간 '+p.blocks.length+'</span>':''}</td><td><div class="row">${p.off||(p.blocks||[]).length?`<button class="btn small" data-act="staff-resume" data-id="${p.id}">다시 배정 가능</button>`:''}${p.approved?'':`<button class="btn small primary" data-act="staff-ok" data-id="${p.id}">승인</button>`}<button class="btn small" data-act="staff-edit" data-id="${p.id}">조건 편집</button><button class="btn small warn" data-act="staff-del" data-id="${p.id}">삭제</button></div></td></tr>`}).join('');
+    body=`<div class="row" style="justify-content:space-between"><p class="sub help" style="margin:0">조건을 걸어 두면 무작위 배정이 그 조건을 지킵니다. 예: 여중만 배정, 여중 3경기 제외, 11:00 이후 가능.</p><button class="btn primary" data-act="staff-new">+ 직접 추가</button></div>
+      ${S.staff.length?`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>소속·연락처</th><th>가능 역할</th><th>배정 조건</th><th>배정</th><th>상태</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">등록된 사람이 없어요.</div>'}`;
+  }
+  return topBanners()+`<section class="panel"><div class="sec-head"><div><h2>심판·운영</h2><p class="sub">경기마다 ${roles().map(r=>r.n+(r.c>1?' '+r.c+'명':'')).join(', ')}이 들어갑니다. 인원은 관리자 설정에서 바꿀 수 있어요.</p></div></div>${segH}${body}</section>`;
+}
+function vAdmin(){
+  if(!ui.admin){
+    const setup=!S.settings.adminHash;
+    return topBanners()+`<section class="panel" style="max-width:460px"><h2>${setup?'관리자 비밀번호 만들기':'관리자 로그인'}</h2>
+      <p class="sub">${setup?'처음 한 번만 설정합니다. 10자 이상, 다른 곳에서 쓰지 않는 비밀번호를 권장해요.':'관리자는 모든 명단과 대진·결과·심판 배정을 다룰 수 있어요.'}</p>
+      <form class="grid" id="admin-form" data-setup="${setup}"><label class="f">비밀번호<input type="password" id="a-pw" autocomplete="${setup?'new-password':'current-password'}"></label>
+      ${setup?'<label class="f">비밀번호 확인<input type="password" id="a-pw2" autocomplete="new-password"></label>':''}
+      <p class="err" id="a-err"></p><div><button class="btn primary">${setup?'설정하고 들어가기':'들어가기'}</button></div></form></section>`;
+  }
+  const st=S.settings;
+  const teamsBy=`<div class="tcols">`+DIVS.map(([k,n])=>{const ts=S.teams.filter(t=>t.div===k);return `<div class="tcol"><h4>${n} <span class="cnt">${ts.length}</span></h4>`+(ts.length?`<div class="tlist">`+ts.map((t,i)=>`<button class="trow" data-act="team-open" data-id="${t.id}"><span class="rti">${i+1}</span><b>${esc(t.school)}</b><span class="rtt">${esc(t.teacher)}</span><span class="rtp">${esc(t.phone)}</span><span class="rtn">${t.players.length}명</span></button>`).join('')+`</div>`:'<p class="sub">신청 없음</p>')+`</div>`}).join('')+`</div>`;
+  return topBanners()+`<div class="row" style="justify-content:space-between"><h2>관리자</h2><div class="row"><button class="btn" data-act="tab" data-k="board">경기 현황판에서 결과 입력</button><button class="btn" data-act="logout">로그아웃</button></div></div>
+  <div class="admin-top">
+  <section class="panel tight"><div class="row" style="justify-content:space-between"><h3>대회 일정</h3><button class="btn small primary" data-act="sched-open">일정 설정</button></div>
+    <div class="kv"><span>${esc(schedText())}</span><span>예상 종료 <b>${dayEnds()||'-'}</b></span></div>${overflowBanner()}</section>
+  <section class="panel tight"><h3>데이터</h3>
+    <div class="row"><button class="btn small primary" data-act="xl-all">참가 명단 엑셀</button><button class="btn small primary" data-act="xl-status">참가 현황 엑셀</button><button class="btn small primary" data-act="xl-bracket">대진표 엑셀</button><button class="btn small primary" data-act="xl-refs">심판 배정표 엑셀</button><button class="btn small" data-act="csv">CSV 복사</button><button class="btn small" data-act="backup">백업 복사</button><button class="btn small" data-act="restore">백업 붙여넣기</button></div>
+    <div class="row"><button class="btn small warn" data-act="purge">개인정보 파기</button><button class="btn small warn" data-act="reset-keep">대회 기록만 비우기</button><button class="btn small warn" data-act="reset">전체 비우기</button><button class="btn small" data-act="demo">예시 데이터 다시 넣기</button></div></section>
+  </div>
+  <section class="panel tight"><h3>대회 설정</h3><form class="grid" id="set-form" style="gap:12px">
+    <div class="set-grid">
+      <label class="f span2">대회 이름<input type="text" id="s-title" maxlength="60" value="${esc(st.title)}"></label>
+      <label class="f">신청 마감<input type="datetime-local" id="s-deadline" value="${esc(st.deadline)}"></label>
+      <label class="f">경기 방식<select id="s-bestof"><option value="3"${st.bestOf==3?' selected':''}>3세트 2선승</option><option value="5"${st.bestOf==5?' selected':''}>5세트 3선승</option></select></label>
+      <label class="f span-all">공지 (모든 화면 위에 표시)<textarea id="s-notice" maxlength="400" style="min-height:56px">${esc(st.notice)}</textarea></label>
+    </div>
+    <div class="set-grid">
+      <label class="f">세트 점수<input type="number" id="s-pts" min="5" max="50" value="${rules().pts}"></label>
+      <label class="f">듀스 최대 (0=없음)<input type="number" id="s-cap" min="0" max="60" value="${rules().cap}"></label>
+      <label class="f">마지막 세트 점수<input type="number" id="s-fpts" min="5" max="50" value="${rules().fpts}"></label>
+      <label class="f">마지막 세트 듀스 최대<input type="number" id="s-fcap" min="0" max="60" value="${rules().fcap}"></label>
+    </div>
+    <div><span class="lbl">경기당 심판·운영 인원</span><div class="roles-set">${st.roles.map(r=>`<label class="f">${esc(r.n)}<input type="number" class="s-role" data-k="${r.k}" min="0" max="4" value="${r.c}"></label>`).join('')}</div></div>
+    <div class="set-grid">
+      <label class="f">참가 신청 코드 ${st.applyHash?'(설정됨)':'(없음)'}<input type="text" id="s-code" maxlength="30" placeholder="바꿀 때만 입력" autocomplete="off">${st.applyHash?'<span class="row" style="font-weight:500"><input type="checkbox" id="s-code-off"> 코드 없애기</span>':''}</label>
+      <label class="f">심판·운영 비밀번호 ${st.refHash?'(설정됨)':'(없음)'}<input type="text" id="s-rcode" maxlength="30" placeholder="바꿀 때만 입력" autocomplete="off">${st.refHash?'<span class="row" style="font-weight:500"><input type="checkbox" id="s-rcode-off"> 비밀번호 없애기</span>':''}</label>
+      <label class="f">새 관리자 비밀번호 (8자 이상)<input type="password" id="s-apw" autocomplete="new-password" placeholder="바꿀 때만 입력"></label>
+      <label class="f">새 관리자 비밀번호 확인<input type="password" id="s-apw2" autocomplete="new-password"></label>
+    </div>
+    <div class="checks">
+      <label class="row"><input type="checkbox" id="s-own"${st.avoidOwnSchool?' checked':''}> 심판을 자기 소속 학교 경기에 배정하지 않기</label>
+      <label class="row"><input type="checkbox" id="s-auto"${st.autoStart!==false?' checked':''}> 결과 저장 시 같은 코트 다음 경기를 '준비 중'으로 올리기</label>
+      <label class="row"><input type="checkbox" id="s-help"${st.showHelp===true?' checked':''}> 안내 문구 보이기</label>
+    </div>
+    <div><button class="btn primary">설정 저장</button></div></form></section>
+  <section class="panel tight"><h3>전체 참가 명단 <span class="cnt">${S.teams.length}</span></h3>${teamsBy}</section>`;
+}
+
+/* ---------- render ---------- */
+function render(){
+  try{document.body.classList.toggle('nohelp',S.settings.showHelp!==true)}catch(e){}
+  scheduleAll();
+  $('#title').textContent=S.settings.title;
+  $('#tabs').innerHTML=TABS.map(([k,n])=>`<button class="tab" data-act="tab" data-k="${k}" aria-current="${ui.tab===k?'page':'false'}">${n}${k==='admin'&&ui.admin?' ●':''}</button>`).join('');
+  $('#main').className=ui.tab==='bracket'?'wide':'';
+  $('#main').innerHTML=({status:vStatus,apply:vApply,mine:vMine,bracket:vBracket,board:vBoard,ref:vRef,admin:vAdmin})[ui.tab]();
+  fitBrackets();
+}
+// 화면이 조금 좁으면 대진표를 살짝 줄여 한 화면에 (80%까지), 그보다 좁으면 옆으로 넘기기
+function fitBrackets(){for(const w of document.querySelectorAll('.bracket-wrap:not(.vwrap)')){const inner=w.firstElementChild;if(!inner)continue;inner.style.zoom='';const need=inner.scrollWidth,have=w.clientWidth;inner.style.zoom=need>have?String(Math.max(.8,(have-2)/need)):''}}
+window.addEventListener('resize',()=>{clearTimeout(window.__fitT);window.__fitT=setTimeout(fitBrackets,120)});
+function go(tab){ui.tab=tab;if(tab!=='bracket'){ui.swap=false;ui.sel=null}try{history.replaceState(null,'','#'+tab)}catch(e){}render();window.scrollTo(0,0)}
+
+/* ---------- modals ---------- */
+const MAXDAYS=4;
+function schedFields(){const c=schedCfg();
+  const tabs=Array.from({length:MAXDAYS},(_,i)=>`<button type="button" class="dtab${i===0?' on':''}" data-act="sched-tab" data-k="${i}">${i+1}일차<small id="g-lab${i}">${c.days[i]?fmtD(Date.parse(c.days[i]+'T12:00')):'안 함'}</small></button>`).join('');
+  const panes=Array.from({length:MAXDAYS},(_,i)=>{const k=dayCfg(i);return `<div class="dpane" id="g-p${i}"${i?' hidden':''}><div class="fields">
+    <label class="f">${i+1}일차 날짜${i?' (안 하면 비우기)':''}<input type="date" id="g-d${i}" value="${esc(c.days[i]||'')}" data-i="${i}" class="g-date"></label>
+    <label class="f">첫 경기 시각<input type="time" id="g-st${i}" value="${esc(c.days[i]?k.start:(dayCfg(0).start))}"></label>
+    <label class="f">마지막 경기 끝나는 시각 (비우면 제한 없음)<input type="time" id="g-en${i}" value="${esc(c.days[i]?k.end:'')}"></label>
+    <label class="f">점심 시작 (없으면 비우기)<input type="time" id="g-ls${i}" value="${esc(c.days[i]?k.lunchFrom:'')}"></label>
+    <label class="f">점심 끝<input type="time" id="g-le${i}" value="${esc(c.days[i]?k.lunchTo:'')}"></label></div>
+    ${i?'':`<div class="row"><button type="button" class="btn small" data-act="sched-copy">1일차 시각을 다른 날에도 똑같이</button></div>`}</div>`}).join('');
+  return `<div class="dtabs">${tabs}</div>${panes}
+    <div class="fields"><label class="f">경기당 평균 시간 (분)<input type="number" id="g-avg" min="10" max="180" value="${c.avg}"></label>
+    <label class="f">경기 사이 쉬는 시간 (분)<input type="number" id="g-gap" min="0" max="60" value="${c.gap||0}"></label></div>
+    <p class="sub" style="margin:0">날짜를 넣은 날까지만 일정을 짜요. 끝나는 시각을 비운 날이 있으면 경기를 날짜별로 고르게 나눠요.</p>`}
+function readSched(){
+  const days=[],dayCfgs=[];let gapDay=false;
+  for(let i=0;i<MAXDAYS;i++){const d=$('#g-d'+i).value;if(!d){gapDay=true;continue}
+    if(gapDay)return `${i+1}일차 앞의 날짜가 비어 있어요. 1일차부터 차례로 넣어 주세요.`;
+    if(days.length&&d<=days[days.length-1])return `${i+1}일차 날짜는 ${i}일차 뒤여야 해요.`;
+    const st=$('#g-st'+i).value,en=$('#g-en'+i).value,ls=$('#g-ls'+i).value,le=$('#g-le'+i).value;
+    if(!st)return `${i+1}일차 첫 경기 시각을 넣어 주세요.`;
+    if(en&&hm(en)<=hm(st))return `${i+1}일차 끝나는 시각이 시작보다 늦어야 해요.`;
+    if((ls&&!le)||(!ls&&le)||(ls&&le&&hm(le)<=hm(ls)))return `${i+1}일차 점심시간은 시작과 끝을 함께 넣거나 둘 다 비워 주세요.`;
+    days.push(d);dayCfgs.push({start:st,end:en,lunchFrom:ls,lunchTo:le})}
+  if(!days.length)return '1일차 날짜를 넣어 주세요.';
+  const avg=Number($('#g-avg').value);if(!(avg>=10&&avg<=180))return '평균 시간은 10~180분 사이로 입력하세요.';
+  const gp=Math.max(0,Math.min(60,Number($('#g-gap').value)||0));
+  S.settings.sched={days,dayCfg:dayCfgs,start:dayCfgs[0].start,end:'',lunchFrom:'',lunchTo:'',avg,gap:gp};return ''}
+function openGen(all){
+  const d=ui.bdiv,old=S.brackets[d];
+  const n=S.teams.filter(t=>t.div===d).length,{M,e,postOk}=planOf(n),cur=old&&old.mode!=='plain'?old.mode:(postOk?'post':'pre');
+  const modeSel=!all&&e?`<label class="f">진행 방식<select id="g-mode">
+      <option value="post"${cur==='post'?' selected':''}${postOk?'':' disabled'}>라운드 방식 · 1라운드 ${M}강(${M/2}경기) → 2라운드 ${e}경기(남은 ${e}팀 합류) → ${M/2}강${postOk?'':' (이 인원에선 불가)'}</option>
+      <option value="pre"${cur==='pre'?' selected':''}>예선 방식 · 예선 ${e}경기(${2*e}팀) → ${M}강</option></select></label>`:'';
+  const what=all?`모든 종별 (${DIVS.map(([k,nm])=>`${nm} ${S.teams.filter(t=>t.div===k).length}팀`).join(', ')})`:`${DN[d]} ${n}팀`;
+  openModal(`<h3>${all?'모든 종별':DN[d]} 대진표 만들기</h3><p class="sub" style="margin:0">${what}을 무작위로 추첨합니다. 모든 팀이 최소 한 경기는 치르며, 부전승 칸은 따로 보이지 않아요.${all?' 진행 방식은 가능한 종별은 라운드 방식, 아니면 예선 방식으로 정해요.':''}</p>${modeSel}
+    ${schedFields()}
+    ${anyStarted()?'<p class="sub" style="margin:0">이미 시작한 경기가 있어서, 새 경기는 기존 일정 뒤에 이어 붙어요.</p>':''}
+    <p class="err" id="g-err"></p>
+    <div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">취소</button><button class="btn primary" data-act="gen-go" data-all="${all?1:''}">무작위 추첨</button></div>`);
+}
+function openSched(){
+  openModal(`<h3>대회 일정 설정</h3>${schedFields()}
+    <p class="sub" style="margin:0">${anyStarted()?'이미 시작한 경기가 있어서 순서는 그대로 두고 시각만 다시 계산해요.':'저장하면 모든 종별의 경기 순서와 코트를 처음부터 다시 짜요.'}</p>
+    <p class="err" id="g-err"></p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">취소</button><button class="btn primary" data-act="sched-go">저장하고 일정 다시 짜기</button></div>`);
+}
+function staffOpts(d,br,m,role,sel){
+  return `<option value="">- 비움 -</option>`+staffOk().map(p=>{const iss=p.id===sel?issuesFor(p,d,br,m,role):issuesFor(p,d,br,m,role).concat(assignedIn(m,p.id)?['이 경기 다른 역할']:[]);
+    return `<option value="${p.id}"${p.id===sel?' selected':''}>${esc(p.name)}${iss.length?' ⚠ '+esc(iss[0]):' ✓'}</option>`}).join('');
+}
+function officialsEditHtml(d,br,m){
+  return `<div><h3 style="font-size:14px;margin-bottom:6px">심판·운영 바꾸기</h3><div class="fields">${roles().map(r=>refArr(m,r.k).map((id,k)=>{const p=S.staff.find(x=>x.id===id);const iss=p?issuesFor(p,d,br,m,r.k):[];
+    return `<label class="f">${esc(r.n)}${refArr(m,r.k).length>1?' '+(k+1):''}<select class="ref-sel${iss.length?' warn-sel':''}" data-div="${d}" data-mid="${m.id}" data-role="${r.k}" data-k="${k}">${staffOpts(d,br,m,r.k,id)}</select>${iss.length?`<span class="wtxt">⚠ ${esc(iss.join(', '))}</span>`:''}</label>`}).join('')).join('')}</div>
+    <p class="sub" style="margin:4px 0 0">✓ 표시는 지금 시각 기준으로 들어갈 수 있는 사람이에요. 고르면 바로 저장됩니다.</p></div>`;
+}
+function openUnav(){
+  const c=schedCfg();
+  openModal(`<h3>심판 빠짐 처리</h3><p class="sub" style="margin:0">못 들어가게 된 사람과 시간을 고르면, 그 조건을 저장하고 걸리는 자리만 다른 사람으로 다시 채워요. 진행 중이거나 끝난 경기는 바꾸지 않아요.</p>
+    <form class="grid" id="unav-form">
+      <label class="f">사람<select id="u-who">${staffOk().map(p=>`<option value="${p.id}">${esc(p.name)} (${esc(p.kind)}) · ${loadOf(p.id)}경기</option>`).join('')}</select></label>
+      <fieldset><legend>언제 못 들어가나요?</legend>
+        <label><input type="radio" name="u-kind" value="all" checked> 지금부터 남은 경기 모두</label>
+        <label><input type="radio" name="u-kind" value="range"> 특정 시간대만</label></fieldset>
+      <div class="fields"><label class="f">날짜<select id="u-day">${c.days.filter(Boolean).map((d,i)=>`<option value="${d}">${i+1}일차 (${fmtD(Date.parse(d+'T12:00'))})</option>`).join('')}</select></label>
+        <label class="f">부터<input type="time" id="u-from" value="${fmtT(Date.now())}"></label><label class="f">까지<input type="time" id="u-to" value="${dayCfg(0).end}"></label></div>
+      <p class="err" id="u-err"></p>
+      <div class="row" style="justify-content:flex-end"><button type="button" class="btn" data-act="close">취소</button><button class="btn primary">적용하고 그 자리만 다시 배정</button></div></form>`);
+}
+function submitUnav(f){
+  const p=S.staff.find(x=>x.id===$('#u-who').value);if(!p){$('#u-err').textContent='사람을 고르세요.';return}
+  const kind=($('input[name="u-kind"]:checked')||{}).value;
+  if(kind==='all')p.off=true;
+  else{const d=$('#u-day').value,a=$('#u-from').value,b=$('#u-to').value;if(!a||!b||hm(b)<=hm(a)){$('#u-err').textContent='시간을 확인하세요.';return}
+    p.blocks=(p.blocks||[]).concat([{s:Date.parse(d+'T'+a),e:Date.parse(d+'T'+b)}])}
+  let cleared=0;eachMatch((d,br,m)=>{if(m.actStart||m.winner)return;if(m.setRefs)for(const o of Object.values(m.setRefs))for(const a of Object.values(o))a.forEach((id,i)=>{if(id===p.id)a[i]=''});for(const r of roles()){const arr=refArr(m,r.k);arr.forEach((id,k)=>{if(id===p.id&&issuesFor(p,d,br,m,r.k).length){arr[k]='';cleared++}})}});
+  const r=autoAssign('all','empty');save();closeModal();render();
+  toast(`${p.name} 님 ${cleared}자리를 비우고 다시 채웠어요${r.empty?` · ${r.empty}자리는 맞는 사람이 없어 비어 있어요`:''}`);
+}
+function openRefView(div,mid){
+  const br=S.brackets[div],m=byId(br,mid);ui.refModal=false;
+  const live=isLive(m);
+  const rows=roles().map(r=>`<div class="rv-row"><span class="role-tag">${esc(r.n)}</span><span>${refArr(m,r.k).map(id=>id?`<b class="${id===ui.refMe?'me':''}">${esc(staffName(id))}${id===ui.refMe?' (나)':''}</b>`:'<span class="sub" style="margin:0">미배정</span>').join(', ')}</span></div>`).join('');
+  openModal(`<div class="row" style="justify-content:space-between"><h3>${DN[div]} ${m.no}경기 · ${esc(roundName(br,m.r))} · ${esc(m.court)}</h3>${m.winner?'<span class="pill ok">종료</span>':live?'<span class="pill live"><span class="dot"></span>경기 중</span>':'<span class="pill wait">시작 전</span>'}</div>
+    <div class="meta"><span>${dayName(m.est)} 예상 <b class="t-big" style="font-size:18px">${fmtT(m.est)}</b> ${shiftHtml(m)}</span><span>${esc(slotLabel(br,m,'a').txt)} vs ${esc(slotLabel(br,m,'b').txt)}</span></div>
+    <div class="rv">${rows}</div>${setRefHtml(m)}
+    <div class="row" style="justify-content:flex-end">${ui.admin&&!m.winner?`<button class="btn" data-act="refs-open" data-div="${div}" data-mid="${mid}">✎ 교체</button>`:''}<button class="btn primary" data-act="close">닫기</button></div>`);
+}
+function officialsSetEditHtml(d,br,m,s){
+  return `<div class="fields">${roles().map(r=>refFor(m,s,r.k).map((id,k)=>{const base=refArr(m,r.k)[k],ch=id!==base;
+    return `<label class="f"><span>${esc(r.n)}${refArr(m,r.k).length>1?' '+(k+1):''}${ch?' <span class="off-tag">교체</span>':''}</span><select class="sref-sel${ch?' warn-sel':''}" data-div="${d}" data-mid="${m.id}" data-role="${r.k}" data-k="${k}" data-set="${s}">${staffOpts(d,br,m,r.k,id)}</select>${ch?`<span class="wtxt" style="color:var(--muted)">기본: ${esc(staffName(base)||'-')}</span>`:''}</label>`}).join('')).join('')}</div>`;
+}
+function openRefs(div,mid){
+  const br=S.brackets[div],m=byId(br,mid);schedule(br);ui.refModal=true;
+  const bo=Number(S.settings.bestOf)||3,cur=ui.refSet||0;
+  const seg=`<div class="seg"><button data-act="ref-set" data-div="${div}" data-mid="${mid}" data-k="0" aria-pressed="${cur===0}">모든 세트 (기본)</button>${Array.from({length:bo},(_,i)=>`<button data-act="ref-set" data-div="${div}" data-mid="${mid}" data-k="${i+1}" aria-pressed="${cur===i+1}">${i+1}세트${m.setRefs&&m.setRefs[i+1]?' •':''}</button>`).join('')}</div>`;
+  const body=cur===0?officialsEditHtml(div,br,m):`<div><h3 style="font-size:14px;margin-bottom:6px">${cur}세트 심판·운영</h3>${officialsSetEditHtml(div,br,m,cur)}
+    <label class="row" style="margin-top:8px"><input type="checkbox" id="sr-later"${ui.refLater!==false?' checked':''}> ${cur}세트부터 마지막 세트까지 같이 바꾸기</label>
+    ${m.setRefs&&m.setRefs[cur]?`<div style="margin-top:6px"><button class="btn small" data-act="sref-reset" data-div="${div}" data-mid="${mid}" data-k="${cur}">${cur}세트를 기본 배정으로 되돌리기</button></div>`:''}</div>`;
+  openModal(`<div class="row" style="justify-content:space-between"><h3>${DN[div]} ${m.no}경기 · ${esc(m.court)} 심판·운영 교체</h3><span class="t-big">${fmtT(m.actStart||m.est)}</span></div>
+    <p class="sub" style="margin:0">${esc(slotLabel(br,m,'a').txt)} vs ${esc(slotLabel(br,m,'b').txt)} · 예상 ${fmtT(m.est)}~${fmtT(m.estEnd)} ${shiftHtml(m)}</p>
+    ${seg}<p class="sub help" style="margin:0">기본은 모든 세트를 같은 사람이 맡아요. 경기 중에 사정이 생겨 바꿔야 하면 해당 세트를 골라 그 세트부터 바꾸세요.</p>
+    ${body}${setRefHtml(m)}
+    <div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="close">완료</button></div>`);
+}
+function setTable(m){
+  if(!m.sets.length)return '';
+  const t=totals(m);
+  const row=(a,lab,b,cls)=>`<span class="${cls||''}${a>b?' w':''}">${a}</span><em>${lab}</em><span class="${cls||''}${b>a?' w':''}">${b}</span>`;
+  return `<div class="set-tbl">${m.sets.map((st,i)=>row(st[0],(i+1)+'세트',st[1])).join('')}</div>`;
+}
+function officialsHtml(m){
+  return `<div class="meta">${roles().map(r=>`<span>${esc(r.n)} <b>${refArr(m,r.k).map(staffName).filter(Boolean).map(esc).join(', ')||'-'}</b></span>`).join('')}</div>${setRefHtml(m)}`;
+}
+function openMatch(div,mid){
+  ui.refModal=false;
+  const br=S.brackets[div],m=br.matches.find(x=>x.id===mid);schedule(br);
+  const A=slotLabel(br,m,'a').txt,B=slotLabel(br,m,'b').txt,both=m.a&&m.b,live=isLive(m);
+  const bo=Number(S.settings.bestOf)||3;
+  const head=`<div class="row" style="justify-content:space-between"><h3>${DN[div]} ${m.no}경기 · ${roundName(br,m.r)} · ${esc(m.court)}</h3>${m.winner?'<span class="pill ok">종료</span>':live?'<span class="pill live"><span class="dot"></span>경기 중</span>':'<span class="pill wait">시작 전</span>'}</div>
+    <div class="meta"><span>예상 시작 <b class="t-big" style="font-size:18px">${fmtT(m.est)}</b> ${shiftHtml(m)}</span>${m.actStart?`<span>실제 시작 <b>${fmtT(m.actStart)}</b></span>`:''}${m.actEnd?`<span>종료 <b>${fmtT(m.actEnd)}</b></span>`:''}</div>`;
+  if(!ui.admin){
+    openModal(head+`<div class="vs"><span class="${m.winner&&m.winner===m.a?'wn':''}">${esc(A)}</span><em class="big-score">${m.winner||live?m.sa+' : '+m.sb:'vs'}</em><span class="${m.winner&&m.winner===m.b?'wn':''}">${esc(B)}</span></div>
+      ${setTable(m)}${officialsHtml(m)}
+      <div class="hint"><span>결과 입력은 관리자만 할 수 있어요.</span><button class="btn small primary" data-act="to-admin">관리자 로그인</button></div>
+      <div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">닫기</button></div>`);return;
+  }
+  const today=sameDay(Date.now(),m.est);
+  const defEnd=m.actEnd||(today?Date.now():m.estEnd);
+  const defStart=m.actStart||(today?Date.now():m.est);
+  let sets='';for(let k=0;k<bo;k++){const s=m.sets[k]||['',''];sets+=`<div class="setrow"><span>${k+1}세트</span><input type="number" id="s${k}a" min="0" max="99" value="${s[0]}" aria-label="${k+1}세트 ${esc(A)}"><span>:</span><input type="number" id="s${k}b" min="0" max="99" value="${s[1]}" aria-label="${k+1}세트 ${esc(B)}"></div>`}
+  openModal(head+`<div class="vs"><span>${esc(A)}</span><em>vs</em><span>${esc(B)}</span></div>
+    ${both?`<div style="display:grid;gap:6px">${sets}</div><p class="sub" style="margin:0">점수 규칙: ${rulesText()}. 세트가 끝날 때마다 끝난 세트까지 입력하고 [저장]을 누르세요. 한 팀이 ${Math.ceil(bo/2)}세트를 먼저 이기면 경기가 끝나고, 그 전까지는 경기 중으로 보여요.</p>`:'<p class="sub" style="margin:0">아직 두 팀이 정해지지 않았어요. 코트만 바꿀 수 있어요.</p>'}
+    <div class="fields"><label class="f">실제 시작 시각<input type="time" id="x-start" value="${fmtT(defStart)}"></label><label class="f">종료 시각 (대회 당일이 아니면 직접 고쳐서 시험할 수 있어요)<input type="time" id="x-end" value="${fmtT(defEnd)}"></label>
+      <label class="f">코트<select id="x-court">${COURTS.map(c=>`<option${c===m.court?' selected':''}>${esc(c)}</option>`).join('')}</select></label></div>
+    ${officialsHtml(m)}
+    <div class="row"><button class="btn small" data-act="refs-open" data-div="${div}" data-mid="${mid}" data-set="${Math.min(bo,(m.sets.length||0)+(m.winner?0:1))||1}">세트별 심판·운영 바꾸기</button><button class="btn small" data-act="refs-open" data-div="${div}" data-mid="${mid}" data-set="0">기본 배정 바꾸기</button></div>
+    <p class="err" id="x-err"></p>
+    <div class="row" style="justify-content:flex-end">
+      ${m.winner||m.actStart?`<button class="btn warn" data-act="x-clear" data-div="${div}" data-mid="${mid}">기록 지우기</button>`:''}
+      <button class="btn" data-act="x-meta" data-div="${div}" data-mid="${mid}">코트만 저장</button>
+      ${both&&!m.winner&&!m.actStart?`<button class="btn${isReady(m)?' primary':''}" data-act="x-start" data-div="${div}" data-mid="${mid}">경기 시작</button>`:''}
+      ${both?`<button class="btn primary" data-act="x-save" data-div="${div}" data-mid="${mid}">저장</button>`:''}</div>`);
+}
+const nextOf=(br,m)=>byId(br,m.next);
+const MEDAL={g:{e:'🥇',n:'우승'},s:{e:'🥈',n:'준우승'},b:{e:'🥉',n:'3위'}};
+// 결승 승자=금, 결승 패자=은, 준결승 패자=동(3·4위전 없이 공동 3위)
+function medalOf(br,m,id){
+  if(!id||!m.winner)return null;
+  if(!m.next)return m.winner===id?'g':'s';
+  const par=byId(br,m.next);
+  if(par&&!par.next&&m.winner!==id)return 'b';
+  return null;
+}
+function podiumHtml(br){
+  const fin=br.matches.find(m=>!m.next);if(!fin||!fin.winner)return '';
+  const lose=m=>m.winner===m.a?m.b:m.a;
+  const third=br.matches.filter(m=>m.next===fin.id&&m.winner&&lose(m)).map(lose);
+  const card=(k,ids)=>`<div class="pod md-${k}"><span class="pod-e">${MEDAL[k].e}</span><span class="pod-n">${MEDAL[k].n}</span><b>${ids.map(i=>`<span>${esc(teamName(i))}</span>`).join('')}</b></div>`;
+  return `<div class="podium">${card('g',[fin.winner])}${lose(fin)?card('s',[lose(fin)]):''}${third.length?card('b',third):''}</div>`;
+}
+
+
+/* ---------- actions ---------- */
+const ACT={
+  tab:t=>{closeModal();go(t.dataset.k)},
+  'to-admin':()=>{closeModal();go('admin')},
+  div:t=>{ui.div=t.dataset.k;render()},
+  bdiv:t=>{ui.bdiv=t.dataset.k;ui.swap=false;ui.sel=null;render()},
+  boarddiv:t=>{ui.boardDiv=t.dataset.k;render()},
+  refview:t=>{ui.refView=t.dataset.k;render()},
+  close:()=>closeModal(),
+  notice:()=>{ui.noticeOpen=!ui.noticeOpen;render()},
+  'confirm-ok':()=>{const f=confirmFn;confirmFn=null;closeModal();f&&f()},
+  'prow-add':()=>{const box=$('#prows');const n=$$('.prow',box).length;if(n>=18){toast('최대 18명까지 입력할 수 있어요');return}box.insertAdjacentHTML('beforeend',prow($('#f-div').value,null,n));renumber()},
+  'prow-del':t=>{const r=t.closest('.prow');r.querySelector('.p-name').value='';r.querySelector('.p-num').value='';r.querySelector('.p-grade').selectedIndex=0},
+  'mine-edit':()=>{ui.editId=ui.mineId;ui.editPre=null;render()},
+  'edit-cancel':()=>{ui.editId=null;ui.editPre=null;render()},
+  'mine-out':()=>{ui.mineId=null;ui.editId=null;render()},
+  'mine-del':()=>{const t=S.teams.find(x=>x.id===ui.mineId);if(divClosed(t.div)){toast('대진표가 만들어져 취소할 수 없어요. 관리자에게 연락하세요.');return}
+    if(SERVER&&!ui.admin){askConfirm(`${esc(t.school)}의 신청을 취소할까요? 명단도 함께 지워집니다.`,'신청 취소',async()=>{try{await api('teamDelete',{id:t.id,pw:ui.minePw})}catch(x){toast(x.message);return}ui.mineId=null;ui.mineFull=null;ui.minePw=null;toast('신청을 취소했어요');await pollNow();render()});return}
+    askConfirm(`${esc(t.school)}의 신청을 취소할까요? 명단도 함께 지워집니다.`,'신청 취소',()=>{S.teams=S.teams.filter(x=>x.id!==t.id);ui.mineId=null;save();toast('신청을 취소했어요');render()})},
+  'gen-open':()=>openGen(false),
+  'gen-all':()=>openGen(true),
+  'sched-open':()=>openSched(),
+  'sched-tab':t=>{const k=+t.dataset.k;$$('.dtab').forEach((b,i)=>b.classList.toggle('on',i===k));for(let i=0;i<MAXDAYS;i++){const p=$('#g-p'+i);if(p)p.hidden=i!==k}},
+  'sched-copy':()=>{for(let i=1;i<MAXDAYS;i++)for(const f of['st','en','ls','le'])$('#g-'+f+i).value=$('#g-'+f+'0').value;toast('1일차 시각을 2~4일차에 넣었어요')},
+  'sched-go':()=>{const er=readSched();if(er){$('#g-err').textContent=er;return}replan();save();closeModal();toast('일정을 다시 짰어요');render()},
+  'gen-go':t=>{
+    const er=readSched();if(er){$('#g-err').textContent=er;return}
+    const all=!!t.dataset.all,made=[];
+    for(const[d]of DIVS){if(!all&&d!==ui.bdiv)continue;const n=S.teams.filter(x=>x.div===d).length;if(n<2)continue;
+      if(all&&S.brackets[d]&&S.brackets[d].matches.some(started))continue;
+      S.brackets[d]=genBracket(d,0,0,COURTS,all?'post':(($('#g-mode')||{}).value||'pre'));made.push(DN[d])}
+    if(!made.length){$('#g-err').textContent='추첨할 수 있는 종별이 없어요 (2팀 이상 필요).';return}
+    replan();save();closeModal();toast(`${made.join(', ')} 대진표를 추첨하고 일정을 짰어요`);render()},
+  'swap-toggle':()=>{ui.swap=!ui.swap;ui.sel=null;render()},
+  swap:t=>{
+    const cur={mid:t.dataset.mid,side:t.dataset.side};
+    if(!ui.sel){ui.sel=cur;render();return}
+    if(ui.sel.mid===cur.mid&&ui.sel.side===cur.side){ui.sel=null;render();return}
+    const br=S.brackets[ui.bdiv],m1=byId(br,ui.sel.mid),m2=byId(br,cur.mid),k1='t'+ui.sel.side,k2='t'+cur.side;ui.sel=null;
+    if(started(m1)||started(m2)){toast('이미 시작한 경기의 팀은 바꿀 수 없어요');render();return}
+    const v=m1[k1];m1[k1]=m2[k2];m2[k2]=v;
+    const any=br.matches.some(started);
+    scheduleAll();if(!any)br.matches.forEach(m=>m.plan=m.est);
+    save();toast('자리를 바꿨어요');render()},
+  layout:t=>{ui.layout=t.dataset.k;render()},
+  tt:()=>{ui.ttOpen=!ui.ttOpen;render()},
+  'see-roster':t=>{const tm=S.teams.find(x=>x.id===t.dataset.id);if(ui.admin){go('admin');return}ui.div=tm.div;ui.minePick=tm.id;go('mine');setTimeout(()=>{const i=$('#m-pw');if(i)i.focus()},50)},
+  'xl-team':t=>{const tm=S.teams.find(x=>x.id===t.dataset.id);if(!tm)return;if(!ui.admin&&ui.mineId!==tm.id){toast('관리자만 받을 수 있어요');return}saveBook(`${DN[tm.div]}부_${tm.school}_참가명단.xlsx`,wb=>xRoster(wb,[tm]))},
+  'xl-all':()=>{if(!ui.admin){toast('관리자만 받을 수 있어요');return}saveBook(xFile('참가명단'),wb=>xRoster(wb,S.teams))},
+  'xl-status':()=>{if(!ui.admin){toast('관리자만 받을 수 있어요');return}saveBook(xFile('참가현황'),wb=>xStatus(wb))},
+  'xl-bracket':()=>{if(!ui.admin){toast('관리자만 받을 수 있어요');return}if(!Object.keys(S.brackets).length){toast('아직 대진표가 없어요');return}saveBook(xFile('대진표'),wb=>xBracket(wb))},
+  'xl-refs':()=>{if(!ui.admin&&!ui.refOk){toast('관리자와 심판만 받을 수 있어요');return}if(!Object.keys(S.brackets).length){toast('아직 대진표가 없어요');return}saveBook(xFile('심판배정표'),wb=>xRefs(wb,ui.admin))},
+  'ocr-stop':()=>{if(ocrCtl)ocrCtl.abort()},
+  'imp-clear':()=>{ui.imp=null;ui.impErr='';render()},
+  'imp-edit':t=>{const x=ui.imp[+t.dataset.i];ui.prefill={div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players};render();setTimeout(()=>{const f=$('#apply-form');if(f)f.scrollIntoView({behavior:'smooth',block:'start'})},30)},
+  more:t=>{ui.open[t.dataset.k]=!ui.open[t.dataset.k];render()},
+  'confirm-toggle':()=>{const br=S.brackets[ui.bdiv];br.confirmed=!br.confirmed;save();toast(br.confirmed?'대진표를 확정했어요':'확정을 해제했어요');render()},
+  'br-del':()=>askConfirm(`${DN[ui.bdiv]} 대진표와 경기 결과, 심판 배정을 모두 지울까요?`,'삭제',()=>{delete S.brackets[ui.bdiv];ui.swap=false;replan();save();toast('대진표를 지웠어요');render()}),
+  'open-m':t=>{if(ui.swap)return;openMatch(t.dataset.div,t.dataset.mid)},
+  'x-meta':t=>{const br=S.brackets[t.dataset.div],m=br.matches.find(x=>x.id===t.dataset.mid);moveCourt(t.dataset.div,m,$('#x-court').value);save();closeModal();toast('저장했어요');render()},
+  'x-start':t=>{const br=S.brackets[t.dataset.div],m=br.matches.find(x=>x.id===t.dataset.mid),court=$('#x-court').value;
+    const busy=allMatches('all').find(x=>x.m!==m&&x.m.court===court&&isLive(x.m));
+    if(busy){$('#x-err').textContent=`${court}에서 ${DN[busy.d]} ${busy.m.no}경기가 아직 진행 중이에요. 그 경기 결과를 먼저 저장하세요.`;return}
+    moveCourt(t.dataset.div,m,court);
+    m.actStart=atTime(sameDay(Date.now(),m.est)?Date.now():m.est,$('#x-start').value||fmtT(Date.now()));schedule(br);autoStartNext();save();closeModal();toast(`${m.no}경기 시작을 기록했어요`);render()},
+  'x-save':t=>{
+    const br=S.brackets[t.dataset.div],m=br.matches.find(x=>x.id===t.dataset.mid);const bo=Number(S.settings.bestOf)||3,need=Math.ceil(bo/2);
+    const sets=[];let sa=0,sb=0,bad='';
+    for(let k=0;k<bo;k++){const a=$('#s'+k+'a').value,b=$('#s'+k+'b').value;if(a===''&&b==='')continue;if(a===''||b===''){bad=`${k+1}세트 점수를 모두 입력하세요.`;break}
+      const x=Number(a),y=Number(b);if(x===y){bad=`${k+1}세트가 동점이에요.`;break}if(sa===need||sb===need){bad='승부가 난 뒤의 세트가 입력되어 있어요.';break}
+      const ck=setCheck(x,y,k===bo-1);if(ck){bad=`${k+1}세트 ${x}:${y}는 끝난 점수가 아니에요. ${ck}. (규칙: ${rulesText()})`;break}
+      sets.push([x,y]);x>y?sa++:sb++}
+    if(!bad&&!sets.length)bad='끝난 세트의 점수를 입력하세요.';
+    if(bad){$('#x-err').textContent=bad;return}
+    const nx=nextOf(br,m);
+    if(sa!==need&&sb!==need){
+      if(m.winner&&nx&&started(nx)){$('#x-err').textContent='다음 경기가 이미 시작되어 이 경기를 진행 중으로 되돌릴 수 없어요.';return}
+      moveCourt(t.dataset.div,m,$('#x-court').value);
+      const base=sameDay(Date.now(),m.est)?Date.now():m.est,st=$('#x-start').value;
+      m.sets=sets;m.sa=sa;m.sb=sb;m.winner=null;m.actEnd=null;m.actStart=m.actStart||(st?atTime(base,st):base);
+      resolve(br);schedule(br);save();closeModal();toast(`${m.no}경기 ${sets.length}세트까지 저장 · 경기 중 ${sa}:${sb}`);render();return}
+    const win=sa>sb?m.a:m.b;
+    if(nx&&started(nx)&&m.winner&&m.winner!==win){$('#x-err').textContent='다음 경기가 이미 시작되어 승자를 바꿀 수 없어요. 다음 경기 기록부터 지우세요.';return}
+    moveCourt(t.dataset.div,m,$('#x-court').value);
+    const base=sameDay(Date.now(),m.est)?Date.now():m.est;
+    const before=nx?nx.est:null;
+    m.sets=sets;m.sa=sa;m.sb=sb;m.winner=win;
+    const st=$('#x-start').value;m.actStart=m.actStart||(st?atTime(base,st):null);
+    m.actEnd=atTime(base,$('#x-end').value||fmtT(Date.now()));
+    if(m.actStart&&m.actEnd<m.actStart)m.actStart=null;
+    resolve(br);schedule(br);const auto=autoStartNext();save();closeModal();
+    toast(`${m.no}경기 결과 저장 · ${esc(teamName(win))} 승`+(auto.length?` · ${auto.map(x=>`${DN[x.d]} ${x.m.no}경기 준비 중 (시작은 [경기 시작]으로)`).join(', ')}`:(before!=null&&nx&&!nx.actStart?` · 다음 경기 예상 ${fmtT(nx.est)}`:'')));render()},
+  'x-clear':t=>{const br=S.brackets[t.dataset.div],m=br.matches.find(x=>x.id===t.dataset.mid);const nx=nextOf(br,m);
+    if(nx&&started(nx)){$('#x-err').textContent='다음 경기가 이미 시작되어 지울 수 없어요.';return}
+    m.sets=[];m.sa=m.sb=0;m.winner=null;m.actStart=m.actEnd=null;resolve(br);schedule(br);autoStartNext();save();closeModal();toast('기록을 지웠어요');render()},
+  'refs-open':t=>{ui.refSet=t.dataset.set?+t.dataset.set:0;openRefs(t.dataset.div,t.dataset.mid)},
+  'ref-set':t=>{const l=$('#sr-later');if(l)ui.refLater=l.checked;ui.refSet=+t.dataset.k;openRefs(t.dataset.div,t.dataset.mid)},
+  'sref-reset':t=>{const br=S.brackets[t.dataset.div],m=byId(br,t.dataset.mid);if(m.setRefs){delete m.setRefs[+t.dataset.k];if(!Object.keys(m.setRefs).length)delete m.setRefs}save();openRefs(t.dataset.div,t.dataset.mid);toast('기본 배정으로 되돌렸어요')},
+  'ref-view':t=>openRefView(t.dataset.div,t.dataset.mid),
+  refdiv:t=>{ui.refDiv=t.dataset.k;render()},
+  'unav-open':()=>openUnav(),
+  'staff-resume':t=>{const p=S.staff.find(x=>x.id===t.dataset.id);p.off=false;p.blocks=[];save();toast(`${p.name} 님을 다시 배정에 넣었어요`);render()},
+  'aa-fill':()=>doAssign('empty'),
+  'aa-all':()=>askConfirm(`${ui.refDiv&&ui.refDiv!=='all'?DN[ui.refDiv]:'전체 종별'}의 아직 시작하지 않은 경기 배정을 모두 지우고 처음부터 다시 뽑을까요? 진행 중이거나 끝난 경기는 그대로 둡니다.`,'전체 다시 배정',()=>doAssign('all')),
+  'fix-refs':()=>{const bad=conflicts();for(const b of bad)refArr(b.m,b.r)[b.k]='';const r=autoAssign('all','empty');save();render();
+    toast(`${bad.length}자리를 비우고 다시 뽑았어요${r.empty?` · ${r.empty}자리는 맞는 사람이 없어 비어 있어요`:''}`)},
+
+  'staff-new':()=>openModal(`<h3>심판·운영진 직접 추가</h3>`+staffFormHtml(null,true)),
+  'staff-edit':t=>{const p=S.staff.find(x=>x.id===t.dataset.id);openModal(`<h3>${esc(p.name)} 조건 편집</h3>`+staffFormHtml(p,true))},
+  'staff-ok':t=>{const p=S.staff.find(x=>x.id===t.dataset.id);p.approved=true;save();toast(`${p.name} 님을 승인했어요`);render()},
+  'staff-del':t=>{const p=S.staff.find(x=>x.id===t.dataset.id);askConfirm(`${esc(p.name)} 님을 명단과 모든 배정에서 지울까요?`,'삭제',()=>{
+    S.staff=S.staff.filter(x=>x.id!==p.id);eachMatch((d,br,m)=>{for(const r of S.settings.roles){const a=refArr(m,r.k);for(let i=0;i<a.length;i++)if(a[i]===p.id)a[i]=''}});
+    if(ui.refMe===p.id)ui.refMe='';save();render()})},
+  logout:()=>{if(SERVER){adminLogoutServer();return}ui.admin=false;ui.swap=false;go('status')},
+  'team-open':t=>{const tm=S.teams.find(x=>x.id===t.dataset.id);if(!tm)return;
+    openModal(`<h3>${DN[tm.div]} · ${esc(tm.school)}</h3><p class="sub" style="margin:0">${esc(tm.teacher)} · ${esc(tm.phone)} · ${tm.players.length}명</p>${rosterHtml(tm)}
+    <div class="pwbox"><b>비밀번호를 잊어버렸을 때</b><div class="row"><button class="btn small primary" data-act="team-tmp" data-id="${tm.id}">임시 비밀번호 만들기</button><span class="sub" style="margin:0">또는</span><input type="text" id="rp-${tm.id}" placeholder="새 비밀번호 직접 입력 (6자 이상)" style="max-width:230px"><button class="btn small" data-act="team-pw" data-id="${tm.id}">이걸로 바꾸기</button></div><p class="sub" style="margin:0" id="tmp-${tm.id}"></p></div>
+    <div class="row" style="justify-content:space-between"><div class="row"><button class="btn small" data-act="xl-team" data-id="${tm.id}">엑셀</button><button class="btn small warn" data-act="team-del" data-id="${tm.id}">팀 삭제</button></div><button class="btn" data-act="close">닫기</button></div>`)},
+  'team-tmp':async t=>{const id=t.dataset.id,tm=S.teams.find(x=>x.id===id);if(!tm)return;
+    const L='abcdefghjkmnpqrstuvwxyz',pw=Array.from({length:2},()=>L[Math.floor(Math.random()*L.length)]).join('')+String(1000+Math.floor(Math.random()*9000));if(SERVER)tm.newPw=pw;else{tm.salt=uid();tm.pwHash=await hashPw(pw,tm.salt)}save();
+    const o=$('#tmp-'+id);if(o)o.innerHTML=`임시 비밀번호: <b style="font-size:20px;letter-spacing:2px;color:var(--ink)">${pw}</b> · 선생님께 알려 주고, [신청 확인]에서 새 비밀번호로 바꾸도록 안내하세요.`;toast(`${tm.school} 비밀번호를 바꿨어요`)},
+  'team-pw':async t=>{const id=t.dataset.id,inp=$('#rp-'+id),pw=inp.value;{const w=weakPw(pw);if(w){toast(w);return}}
+    const tm=S.teams.find(x=>x.id===id);if(SERVER)tm.newPw=pw;else{tm.salt=uid();tm.pwHash=await hashPw(pw,tm.salt)}save();inp.value='';toast(`${tm.school} 비밀번호를 바꿨어요. 선생님께 따로 알려 주세요.`)},
+  'team-del':t=>{const tm=S.teams.find(x=>x.id===t.dataset.id);if(divClosed(tm.div)){toast('대진표가 있는 종별이에요. 대진표를 먼저 지워 주세요.');return}
+    askConfirm(`${esc(tm.school)} 신청을 지울까요?`,'삭제',()=>{S.teams=S.teams.filter(x=>x.id!==tm.id);save();render()})},
+  csv:()=>{const lines=[['종별','학교','담당교사','연락처','번호','이름','학년','등번호']];
+    for(const t of S.teams)t.players.forEach((p,i)=>lines.push([DN[t.div],t.school,t.teacher,t.phone,i+1,p.name,p.grade,p.num]));
+    const txt=lines.map(r=>r.map(v=>{v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')).join('\n');
+    openModal(`<h3>명단 CSV</h3><p class="sub" style="margin:0">복사해서 메모장에 붙여 넣고 .csv로 저장하면 엑셀에서 열 수 있어요. 개인정보가 들어 있으니 공유에 주의하세요.</p><textarea id="csv-txt" readonly style="min-height:220px">${esc(txt)}</textarea><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">닫기</button><button class="btn primary" data-act="copy" data-src="csv-txt">복사</button></div>`)},
+  backup:()=>openModal(`<h3>백업</h3><p class="sub" style="margin:0">아래 내용을 안전한 곳에 보관하세요. 비밀번호는 암호화된 값만 들어 있어요.</p><textarea id="bk-txt" readonly style="min-height:220px">${esc(JSON.stringify(S))}</textarea><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">닫기</button><button class="btn primary" data-act="copy" data-src="bk-txt">복사</button></div>`),
+  restore:()=>openModal(`<h3>백업 붙여넣기</h3><p class="sub" style="margin:0">지금 데이터가 백업 내용으로 바뀝니다.</p><textarea id="rs-txt" style="min-height:200px"></textarea><p class="err" id="rs-err"></p><div class="row" style="justify-content:flex-end"><button class="btn" data-act="close">취소</button><button class="btn primary" data-act="restore-go">복원</button></div>`),
+  'restore-go':()=>{try{const d=JSON.parse($('#rs-txt').value);if(!d||!Array.isArray(d.teams)||!d.settings)throw 0;d.staff=d.staff||[];d.settings.roles=d.settings.roles||DEFAULT_ROLES.map(r=>({...r}));S=d;save();closeModal();toast('복원했어요');render()}catch(e){$('#rs-err').textContent='백업 형식이 아니에요. 전체 내용을 그대로 붙여 넣으세요.'}},
+  copy:async t=>{const ta=$('#'+t.dataset.src);try{await navigator.clipboard.writeText(ta.value);toast('복사했어요')}catch(e){ta.focus();ta.select();toast('선택해 두었어요. Ctrl+C로 복사하세요')}},
+  purge:()=>askConfirm('모든 학생 이름, 교사 이름·연락처, 심판 연락처를 지울까요? 학교 이름과 경기 결과는 남습니다.','개인정보 파기',()=>{for(const t of S.teams){t.players=t.players.map(()=>({name:'(파기됨)',grade:'',num:''}));t.teacher='(파기됨)';t.phone=''}for(const p of S.staff)p.phone='';save();toast('개인정보를 파기했어요');render()}),
+  'reset-keep':()=>askConfirm('참가 신청, 대진표, 경기 결과, 심판 명단을 모두 지울까요? 대회 이름·일정·점수 규칙·신청 코드·관리자 비밀번호 같은 설정은 그대로 둡니다.','대회 기록만 비우기',()=>{S.teams=[];S.brackets={};S.staff=[];S.plan=null;S.demo=false;ui.swap=false;ui.sel=null;save();toast('대회 기록을 비웠어요. 설정은 그대로예요.');render()}),
+  reset:()=>askConfirm('신청, 대진표, 결과, 심판, 관리자 비밀번호까지 모두 지웁니다.','전체 비우기',async()=>{if(SERVER){try{await api('adminResetAll',{token:SV.token})}catch(x){toast(x.message);return}try{sessionStorage.removeItem('vb-adm');localStorage.removeItem('vb-pub')}catch(e){}location.reload();return}S=defaultState();ui.admin=false;save();go('status')}),
+  demo:()=>askConfirm('지금 데이터를 지우고 예시 데이터를 넣을까요? 관리자 비밀번호는 유지됩니다.','예시 넣기',async()=>{
+    if(SERVER){const f={a:S.settings.applyHash,r:S.settings.refHash};await seed();S.settings.applyHash=f.a;S.settings.refHash=f.r;delete S.settings.adminHash;S.settings.adminHash=true;
+      const sec={};if(!f.a)sec.applyCode='2026';if(!f.r)sec.refCode='ref2026';if(Object.keys(sec).length){try{await api('adminSecrets',{token:SV.token,...sec});S.settings.applyHash=true;S.settings.refHash=true}catch(x){}}
+      save();toast('예시 데이터를 넣고 있어요');render();return}const a=[S.settings.adminHash,S.settings.adminSalt,S.settings.applyHash,S.settings.applySalt];await seed();S.settings.adminHash=a[0];S.settings.adminSalt=a[1];if(a[2]){S.settings.applyHash=a[2];S.settings.applySalt=a[3]}save();render()})
+};
+function renumber(){$$('#prows .prow').forEach((r,i)=>{r.querySelector('.pno').textContent=i+1})}
+
+document.addEventListener('click',e=>{
+  if(e.target.id==='modal'){closeModal();return}
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const f=ACT[t.dataset.act];if(f){e.preventDefault();f(t,e)}
+});
+document.addEventListener('dragover',e=>{const d=e.target.closest&&e.target.closest('#xl-drop,#ocr-drop');if(d){e.preventDefault();d.classList.add('over')}});
+document.addEventListener('dragleave',e=>{const d=e.target.closest&&e.target.closest('#xl-drop,#ocr-drop');if(d)d.classList.remove('over')});
+document.addEventListener('drop',e=>{const d=e.target.closest&&e.target.closest('#xl-drop,#ocr-drop');if(d){e.preventDefault();const fs=e.dataTransfer&&e.dataTransfer.files;if(!fs||!fs.length)return;if(d.id==='ocr-drop')handleOcr(fs);else handleImport(fs[0])}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('#modal').hidden){closeModal();return}
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('.mcard,.slot.pick,.mbox.clk,.tt-item,.mine-item')){e.preventDefault();e.target.click()}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='e-exf'||e.target.id==='e-ext'){const c=$('#e-exon');if(c&&e.target.value)c.checked=true}
+  if(e.target.classList&&e.target.classList.contains('g-date')){const l=$('#g-lab'+e.target.dataset.i);if(l)l.textContent=e.target.value?fmtD(Date.parse(e.target.value+'T12:00')):'안 함'}
+  const t=e.target;
+  if(t.id==='m-div'){$('#m-school').innerHTML=schoolOpts(t.value)}
+  if(t.id==='xl-file'&&t.files[0])handleImport(t.files[0]);
+  if(t.id==='ocr-file'&&t.files.length)handleOcr(t.files);
+  if(t.classList.contains('imp-div')){ui.imp[+t.dataset.i].div=t.value;render()}
+  if(t.id==='xl-edit'&&t.files[0]){const tm=S.teams.find(x=>x.id===ui.editId);readWorkbook(t.files[0]).then(r=>{const x=(r||[]).find(y=>y.div===tm.div);
+    if(!x){toast(`파일에서 ${DN[tm.div]}부 시트 내용을 찾지 못했어요`);return}ui.editPre={school:x.school||tm.school,teacher:x.teacher||tm.teacher,phone:x.phone||tm.phone,players:x.players};render();toast('엑셀 내용을 불러왔어요. 확인 후 저장하세요')}).catch(e=>toast(e.message))}
+  if(t.id==='f-div'){$$('.p-grade').forEach(s=>{const v=s.value;s.innerHTML=gradeOpts(t.value,v)})}
+  if(t.id==='ref-me'){ui.refMe=t.value;render()}
+  if(t.classList.contains('sref-sel')){const br=S.brackets[t.dataset.div],m=byId(br,t.dataset.mid),role=t.dataset.role,k=+t.dataset.k,s0=+t.dataset.set,bo=Number(S.settings.bestOf)||3;
+    const l=$('#sr-later');ui.refLater=l?l.checked:true;
+    if(t.value&&roles().some(r=>r.k!==role&&refFor(m,s0,r.k).includes(t.value))){toast('이 세트에 이미 다른 역할로 들어간 사람이에요');openRefs(t.dataset.div,t.dataset.mid);return}
+    m.setRefs=m.setRefs||{};
+    for(let x=s0;x<=(ui.refLater?bo:s0);x++){const cur=refFor(m,x,role).slice();cur[k]=t.value;m.setRefs[x]=m.setRefs[x]||{};m.setRefs[x][role]=cur;
+      if(JSON.stringify(cur)===JSON.stringify(refArr(m,role)))delete m.setRefs[x][role];if(!Object.keys(m.setRefs[x]).length)delete m.setRefs[x]}
+    if(!Object.keys(m.setRefs).length)delete m.setRefs;
+    save();render();openRefs(t.dataset.div,t.dataset.mid);toast(`${s0}세트${ui.refLater&&s0<bo?'부터':''} 교체를 저장했어요`);return}
+  if(t.classList.contains('ref-sel')){const br=S.brackets[t.dataset.div],m=br.matches.find(x=>x.id===t.dataset.mid);const arr=refArr(m,t.dataset.role);
+    if(t.value&&assignedIn(m,t.value)&&arr[+t.dataset.k]!==t.value){toast('이미 이 경기에 다른 역할로 배정된 사람이에요');render();return}
+    arr[+t.dataset.k]=t.value;save();render();toast('배정을 저장했어요');
+    if(t.closest('#mbody')){if(ui.refModal)openRefs(t.dataset.div,t.dataset.mid);else openMatch(t.dataset.div,t.dataset.mid)}}
+});
+document.addEventListener('submit',async e=>{
+  e.preventDefault();const f=e.target;
+  if(f.id==='apply-form')return submitApply(f);
+  if(f.id==='staff-form')return submitStaff(f);
+  if(f.id==='imp-form')return submitImport(f);
+  if(f.id==='mine-form'){
+    const err=$('#m-err');if(Date.now()<ui.lockUntil){err.textContent='잠시 뒤 다시 시도하세요.';return}
+    const t=S.teams.find(x=>x.id===$('#m-school').value);if(!t){err.textContent='학교를 고르세요.';return}
+    if(SERVER){try{const r=await api('teamLogin',{id:t.id,pw:$('#m-pw').value});ui.mineFull=r.team;ui.minePw=$('#m-pw').value;Object.assign(t,r.team);ui.mineId=t.id;ui.editId=null;render()}catch(x){err.textContent=x.message}return}
+    const h=await hashPw($('#m-pw').value,t.salt);
+    if(h!==t.pwHash){ui.fails++;if(ui.fails>=5){ui.lockUntil=Date.now()+60000;ui.fails=0;render();return}err.textContent=`비밀번호가 맞지 않아요. (${ui.fails}/5)`;return}
+    ui.fails=0;ui.mineId=t.id;ui.editId=null;render();return;
+  }
+  if(f.id==='admin-form'){
+    const pw=$('#a-pw').value,err=$('#a-err');
+    if(SERVER){const setup=f.dataset.setup==='true';if(setup){if(pw.length<8){err.textContent='8자 이상으로 정해 주세요.';return}if(pw!==$('#a-pw2').value){err.textContent='두 비밀번호가 달라요.';return}}
+      err.textContent='확인 중…';try{await adminLoginServer(pw,setup);toast(setup?'관리자 비밀번호를 설정했어요':'관리자로 들어왔어요');render()}catch(x){err.textContent=x.message}return}
+    if(f.dataset.setup==='true'){if(pw.length<8){err.textContent='8자 이상으로 정해 주세요.';return}if(pw!==$('#a-pw2').value){err.textContent='두 비밀번호가 달라요.';return}
+      S.settings.adminSalt=uid();S.settings.adminHash=await hashPw(pw,S.settings.adminSalt);save();ui.admin=true;toast('관리자 비밀번호를 설정했어요');render();return}
+    if(Date.now()<ui.lockUntil){err.textContent='잠시 뒤 다시 시도하세요.';return}
+    if(await hashPw(pw,S.settings.adminSalt)!==S.settings.adminHash){ui.adminFails++;if(ui.adminFails>=5){ui.lockUntil=Date.now()+60000;ui.adminFails=0}err.textContent='비밀번호가 맞지 않아요.';return}
+    ui.adminFails=0;ui.admin=true;toast('관리자로 들어왔어요. 경기 현황판이나 대진표에서 경기를 누르면 결과를 입력할 수 있어요.');render();return;
+  }
+  if(f.id==='code-form'){const err=$('#c-err');
+    if(SERVER){const c=$('#c-code').value.trim();err.textContent='확인 중…';try{await api('applyCheck',{code:c});ui.applyCode=c;ui.applyOk=true;render()}catch(x){err.textContent=x.message}return}
+    if(Date.now()<ui.lockUntil){err.textContent='잠시 뒤 다시 시도하세요.';return}
+    if(await hashPw($('#c-code').value.trim(),S.settings.applySalt)!==S.settings.applyHash){ui.fails++;if(ui.fails>=5){ui.lockUntil=Date.now()+60000;ui.fails=0;render();return}err.textContent=`신청 코드가 맞지 않아요. (${ui.fails}/5)`;return}
+    ui.fails=0;ui.applyOk=true;render();return}
+  if(f.id==='refcode-form'){const err=$('#r-err');
+    if(SERVER){const c=$('#r-code').value.trim();err.textContent='확인 중…';try{await api('refCheck',{code:c});ui.refCode=c;ui.refOk=true;render()}catch(x){err.textContent=x.message}return}
+    if(Date.now()<ui.lockUntil){err.textContent='잠시 뒤 다시 시도하세요.';return}
+    if(await hashPw($('#r-code').value.trim(),S.settings.refSalt)!==S.settings.refHash){ui.fails++;if(ui.fails>=5){ui.lockUntil=Date.now()+60000;ui.fails=0;render();return}err.textContent=`비밀번호가 맞지 않아요. (${ui.fails}/5)`;return}
+    ui.fails=0;ui.refOk=true;render();return}
+  if(f.id==='unav-form')return submitUnav(f);
+  if(f.id==='set-form'){const s=S.settings;s.title=$('#s-title').value.trim()||s.title;s.notice=$('#s-notice').value.trim();s.deadline=$('#s-deadline').value;s.bestOf=Number($('#s-bestof').value);
+    {const n=id=>Math.max(0,Number($(id).value)||0),pts=n('#s-pts')||21,cap=n('#s-cap'),fpts=n('#s-fpts')||15,fcap=n('#s-fcap');if((cap&&cap<=pts)||(fcap&&fcap<=fpts)){toast('듀스 최대 점수는 세트 점수보다 커야 해요');return}s.rules={pts,cap,fpts,fcap}}s.avoidOwnSchool=$('#s-own').checked;s.showHelp=$('#s-help').checked;s.autoStart=$('#s-auto').checked;
+    if(SERVER){const sec={};const nc=$('#s-code').value.trim(),rc=$('#s-rcode').value.trim(),ap=$('#s-apw').value;
+      if(nc){if(nc.length<4){toast('신청 코드는 4자 이상으로 정해 주세요');return}sec.applyCode=nc}else if($('#s-code-off')&&$('#s-code-off').checked)sec.applyCode='';
+      if(rc){if(rc.length<4){toast('심판·운영 비밀번호는 4자 이상으로 정해 주세요');return}sec.refCode=rc}else if($('#s-rcode-off')&&$('#s-rcode-off').checked)sec.refCode='';
+      if(ap){if(ap.length<8){toast('관리자 비밀번호는 8자 이상이어야 해요');return}if(ap!==$('#s-apw2').value){toast('새 관리자 비밀번호 확인이 달라요');return}sec.adminPw=ap}
+      if(Object.keys(sec).length){try{await api('adminSecrets',{token:SV.token,...sec});if('applyCode' in sec)s.applyHash=!!sec.applyCode;if('refCode' in sec)s.refHash=!!sec.refCode;toast('비밀번호·코드를 바꿨어요')}catch(x){toast(x.message);return}}
+      $$('.s-role').forEach(i=>{const r=s.roles.find(x=>x.k===i.dataset.k);r.c=Math.max(0,Math.min(4,Number(i.value)||0))});
+      eachMatch((d,br,m)=>{for(const r of s.roles){const a=refArr(m,r.k);a.length=r.c}});
+      save();toast('설정을 저장했어요');render();return}
+    const nc=$('#s-code').value.trim();if(nc){if(nc.length<4){toast('신청 코드는 4자 이상으로 정해 주세요');return}s.applySalt=uid();s.applyHash=await hashPw(nc,s.applySalt);$('#s-code').value=''}
+    if($('#s-code-off')&&$('#s-code-off').checked){s.applyHash=null;s.applySalt=null}
+    const rc=$('#s-rcode').value.trim();if(rc){if(rc.length<4){toast('심판·운영 비밀번호는 4자 이상으로 정해 주세요');return}s.refSalt=uid();s.refHash=await hashPw(rc,s.refSalt);$('#s-rcode').value=''}
+    if($('#s-rcode-off')&&$('#s-rcode-off').checked){s.refHash=null;s.refSalt=null}
+    const ap=$('#s-apw').value;if(ap){if(ap.length<8){toast('관리자 비밀번호는 8자 이상이어야 해요');return}if(ap!==$('#s-apw2').value){toast('새 관리자 비밀번호 확인이 달라요');return}s.adminSalt=uid();s.adminHash=await hashPw(ap,s.adminSalt);toast('관리자 비밀번호를 바꿨어요')}
+    $$('.s-role').forEach(i=>{const r=s.roles.find(x=>x.k===i.dataset.k);r.c=Math.max(0,Math.min(4,Number(i.value)||0))});
+    eachMatch((d,br,m)=>{for(const r of s.roles){const a=refArr(m,r.k);a.length=r.c}});
+    save();toast('설정을 저장했어요');render();return}
+});
+function submitStaff(f){
+  const admin=f.dataset.admin==='true',id=f.dataset.id,err=$('#e-err');
+  const name=$('#e-name').value.trim(),phone=$('#e-phone').value.trim();
+  if(!name){err.textContent='이름을 입력하세요.';return}
+  if(!admin&&!phone){err.textContent='연락처를 입력하세요.';return}
+  if(phone&&!/^[0-9\-\s]{9,20}$/.test(phone)){err.textContent='연락처는 숫자와 - 만 써 주세요.';return}
+  if(!admin&&!$('#e-agree').checked){err.textContent='개인정보 수집·이용에 동의해야 신청할 수 있어요.';return}
+  const from=$('#e-from').value,to=$('#e-to').value;
+  if(from&&to&&hm(from)>=hm(to)){err.textContent='가능한 시간의 시작이 끝보다 늦어요.';return}
+  const dayEls=$$('.e-day',f),days=dayEls.filter(i=>i.checked).map(i=>i.value);
+  if(dayEls.length&&!days.length){err.textContent='참가 가능한 날을 하루 이상 골라 주세요.';return}
+  let ex=null;if($('#e-exon').checked){const a=$('#e-exf').value,b=$('#e-ext').value;if(!a||!b){err.textContent='제외 시간의 시작과 끝을 모두 골라 주세요.';return}if(hm(a)>=hm(b)){err.textContent='제외 시간의 시작이 끝보다 늦어요.';return}ex={from:a,to:b,day:($('#e-exday')||{}).value||''}}
+  const data={name,phone,school:$('#e-school').value.trim(),kind:$('#e-kind').value,roles:$$('.e-role:checked',f).map(i=>i.value),divs:$$('.e-div:checked',f).map(i=>i.value),from,to,days:days.length===dayEls.length?[]:days,ex,memo:$('#e-memo').value.trim()};
+  if(admin){data.exclude=$$('.e-ex:checked',f).map(i=>i.value);data.max=Math.max(0,Number($('#e-max').value)||0);data.approved=$('#e-approved').checked;data.off=$('#e-off').checked;if($('#e-clrblk')&&$('#e-clrblk').checked)data.blocks=[]}
+  const old=id?S.staff.find(x=>x.id===id):null;
+  if(old){Object.assign(old,data);if(!old.approved)eachMatch((d,br,m)=>{for(const r of S.settings.roles){const a=refArr(m,r.k);for(let i=0;i<a.length;i++)if(a[i]===old.id)a[i]=''}})}
+  else if(SERVER&&!admin){err.textContent='보내는 중…';api('staffCreate',{code:ui.refCode||'',staff:data}).then(()=>{f.outerHTML=`<div class="empty"><b>${esc(name)}</b> 님, 신청이 접수되었어요. 관리자가 승인하면 '내 배정 확인'에서 이름을 고를 수 있어요.</div>`;pollSoon()}).catch(x=>{err.textContent=x.message});return}
+  else{if(!admin&&S.staff.some(p=>p.name===name&&p.phone===phone)){err.textContent='같은 이름과 연락처로 이미 신청했어요.';return}
+    S.staff.push({id:uid(),exclude:[],max:0,approved:admin,created:Date.now(),...data})}
+  save();
+  if(admin){closeModal();toast(old?'조건을 저장했어요':'추가했어요');render()}
+  else{f.outerHTML=`<div class="empty"><b>${esc(name)}</b> 님, 신청이 접수되었어요. 관리자가 승인하면 '내 배정 확인'에서 이름을 고를 수 있어요.</div>`}
+}
+async function submitImport(f){
+  const err=$('#i-err'),pw=$('#i-pw').value;
+  const picks=$$('.imp-pick:checked').map(i=>ui.imp[+i.dataset.i]).filter(x=>!importIssues(x).length);
+  if(!picks.length){err.textContent='신청할 종별을 하나 이상 고르세요.';return}
+  {const w=weakPw(pw);if(w){err.textContent=w;return}}
+  if(pw!==$('#i-pw2').value){err.textContent='비밀번호 확인이 달라요.';return}
+  if(!$('#i-agree').checked){err.textContent='개인정보 수집·이용에 동의해야 신청할 수 있어요.';return}
+  if(deadlinePassed()){err.textContent='신청이 마감되었어요.';return}
+  if(SERVER&&!ui.admin){err.textContent='보내는 중…';try{await api('teamCreate',{code:ui.applyCode||'',pw,teams:picks.map(x=>({div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players,via:'excel'}))})}catch(x){err.textContent=x.message;return}
+    ui.imp=null;ui.div=picks[0].div;toast(`${picks.map(x=>DN[x.div]).join(', ')} ${picks.length}개 종별 신청 완료! 비밀번호를 꼭 기억해 두세요.`);await pollNow();go('status');return}
+  for(const x of picks){const salt=uid();S.teams.push({id:uid(),div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players,salt,pwHash:await hashPw(pw,salt),created:Date.now(),agreed:Date.now(),via:'excel'})}
+  save();ui.imp=null;ui.div=picks[0].div;toast(`${picks.map(x=>DN[x.div]).join(', ')} ${picks.length}개 종별 신청 완료! 비밀번호를 꼭 기억해 두세요.`);go('status');
+}
+async function submitApply(f){
+  const err=$('#f-err'),editId=f.dataset.edit;
+  const old=editId?S.teams.find(t=>t.id===editId):null;
+  const div=old&&divClosed(old.div)?old.div:$('#f-div').value;
+  const school=$('#f-school').value.trim(),teacher=$('#f-teacher').value.trim(),phone=$('#f-phone').value.trim(),pw=$('#f-pw').value,pw2=$('#f-pw2').value;
+  const players=$$('.prow',f).map(r=>({name:r.querySelector('.p-name').value.trim(),grade:r.querySelector('.p-grade').value,num:r.querySelector('.p-num').value.trim()})).filter(p=>p.name);
+  const fail=m=>{err.textContent=m;err.scrollIntoView({block:'center',behavior:'smooth'})};
+  if(!school||!teacher||!phone)return fail('학교명, 담당 교사, 연락처를 모두 입력하세요.');
+  if(!/^[0-9\-\s]{9,20}$/.test(phone))return fail('연락처는 숫자와 - 만 써 주세요.');
+  if(!old||pw){const w=weakPw(pw);if(w)return fail(w);if(pw!==pw2)return fail('비밀번호 확인이 달라요.')}
+  if(players.length<6)return fail(`선수는 6명 이상이어야 해요. (지금 ${players.length}명)`);
+  if(players.length>18)return fail('선수는 18명까지 등록할 수 있어요.');
+  const nums=players.map(p=>p.num).filter(Boolean);if(new Set(nums).size!==nums.length)return fail('등번호가 겹치는 선수가 있어요.');
+  if(!$('#f-agree').checked)return fail('개인정보 수집·이용에 동의해야 신청할 수 있어요.');
+  if(S.teams.some(t=>t.div===div&&norm(t.school)===norm(school)&&t.id!==editId))return fail('이 종별에 이미 신청한 학교예요. 내 신청 확인에서 수정하세요.');
+  if(!old&&(divClosed(div)||deadlinePassed()))return fail('이 종별은 신청이 마감되었어요.');
+  if(old&&old.div!==div&&divClosed(div))return fail('옮기려는 종별은 대진표가 이미 만들어졌어요.');
+  if(SERVER&&!ui.admin){err.textContent='보내는 중…';const team={div,school,teacher,phone,players};
+    try{if(old){const r=await api('teamUpdate',{id:old.id,pw:ui.minePw,team,newPw:pw||undefined});if(pw)ui.minePw=pw;ui.mineFull=r.team;Object.assign(old,r.team);ui.editId=null;ui.editPre=null;toast('수정했어요');render();return}
+      await api('teamCreate',{code:ui.applyCode||'',team,pw})}catch(x){return fail(x.message)}
+    ui.div=div;ui.prefill=null;toast(`${school} 신청 완료! 비밀번호를 꼭 기억해 두세요.`);await pollNow();go('status');return}
+  if(SERVER&&ui.admin&&old){Object.assign(old,{div,school,teacher,phone,players,updated:Date.now()});if(pw)old.newPw=pw;save();ui.editId=null;ui.editPre=null;toast('수정했어요');render();return}
+  if(old){Object.assign(old,{div,school,teacher,phone,players,updated:Date.now()});if(pw){old.salt=uid();old.pwHash=await hashPw(pw,old.salt)}save();ui.editId=null;ui.editPre=null;toast('수정했어요');render();return}
+  const salt=uid();
+  S.teams.push({id:uid(),div,school,teacher,phone,players,salt,pwHash:await hashPw(pw,salt),created:Date.now(),agreed:Date.now()});
+  save();ui.div=div;ui.prefill=null;toast(`${school} 신청 완료! 비밀번호를 꼭 기억해 두세요.`);go('status');
+}
+
+/* ---------- example data ---------- */
+// 예시 진행: 주어진 시각까지 앞 경기들은 끝나고, 코트마다 1경기씩 진행 중
+function simulateDemo(simNow){
+  const avg=schedCfg().avg*60000;
+  const pair=(t)=>{if(Math.random()<.2){const k=t-1+Math.floor(Math.random()*3);return[k+2,k]}return[t,Math.floor(t*.35)+Math.floor(Math.random()*Math.floor(t*.55))]};
+  const mkSets=()=>{const three=Math.random()<.35,W=()=>pair(21),L=()=>pair(21).reverse();
+    if(!three)return Math.random()<.5?[W(),W()]:[L(),L()];
+    const aw=Math.random()<.5,f=pair(15);return aw?[W(),L(),f]:[L(),W(),f.slice().reverse()]};
+  for(let g=0;g<80;g++){
+    scheduleAll();
+    let pick=null;for(const br of Object.values(S.brackets))for(const m of br.matches)if(!m.actStart&&!m.winner&&!m.wo&&!m.dead&&m.a&&m.b&&(!pick||m.est<pick.est))pick=m;
+    if(!pick||pick.est>=simNow)break;
+    pick.actStart=pick.est;
+    const dur=avg+(Math.floor(Math.random()*13)-8)*60000;
+    if(pick.est+avg<=simNow||pick.est+dur<=simNow){const st=mkSets();pick.sets=st;pick.sa=st.filter(x=>x[0]>x[1]).length;pick.sb=st.length-pick.sa;pick.winner=pick.sa>pick.sb?pick.a:pick.b;pick.actEnd=Math.min(pick.est+dur,simNow-60000)}
+  }
+}
+async function seed(){
+  S=defaultState();S.demo=true;S.settings.deadline='2026-10-10T18:00';
+  S.settings.applySalt=uid();S.settings.applyHash=await hashPw('2026',S.settings.applySalt);
+  S.settings.refSalt=uid();S.settings.refHash=await hashPw('ref2026',S.settings.refSalt);
+  S.settings.notice='신청 마감은 10월 10일 오후 6시입니다. 대회는 10월 17일(토)~18일(일) 이틀간, 1·2코트에서 진행합니다.';
+  S.settings.sched={days:['2026-10-17','2026-10-18'],start:'08:30',end:'',lunchFrom:'',lunchTo:'',avg:40,gap:10};
+  const base=['한빛','푸른','바다','노을','별빛','오름','가람','솔내','미르','새봄','하늘','누리','다솜','이룸','해솔','마루','아라','초록','은빛','다온','라온','한결','늘봄','도담','온새'];
+  const cnt={MM:12,MF:19,HM:14,HF:13};
+  const schools={};for(const[d,n]of Object.entries(cnt)){const suf=d[0]==='M'?'중':'고',off=d==='MF'?0:d==='MM'?5:d==='HF'?3:8;schools[d]=Array.from({length:n},(_,i)=>base[(i+off)%base.length]+suf)}
+  const fam='김이박최정강조윤장임한오서신권황안송류홍'.split(''),giv=['서연','민준','지우','하은','도윤','예린','시우','수아','지호','유나','현우','채원','준서','다인','은호','서진'];
+  const nm=()=>fam[Math.floor(Math.random()*fam.length)]+giv[Math.floor(Math.random()*giv.length)];
+  let t0=Date.parse('2026-09-21T09:10:00');
+  for(const d of['MF','MM','HF','HM'])for(const sc of schools[d]){
+    const salt=uid(),n=8+Math.floor(Math.random()*5);
+    const players=Array.from({length:n},(_,i)=>({name:nm(),grade:String(1+Math.floor(Math.random()*3)),num:String(i+1)}));
+    t0+=Math.floor(Math.random()*5+2)*3600000;
+    S.teams.push({id:uid(),div:d,school:sc,teacher:nm(),phone:'010-0000-'+String(1000+Math.floor(Math.random()*8999)),players,salt,pwHash:await hashPw('test1234',salt),created:t0,agreed:t0,newPw:SERVER?'test1234':undefined});
+  }
+  const P=(name,kind,roles,extra)=>({id:uid(),name,phone:'010-0000-'+String(1000+Math.floor(Math.random()*8999)),school:'',kind,roles,divs:[],from:'',to:'',memo:'',exclude:[],max:0,approved:true,off:false,blocks:[],created:Date.now(),...(extra||{})});
+  S.staff=[
+    P('강민수','심판',['main','sub'],{memo:'2급 심판'}),P('이서연','심판',['main','sub','line']),P('박지훈','심판',['sub','line'],{school:'한빛중',memo:'한빛중 교사'}),
+    P('최유나','심판',['main','sub']),P('정하늘','심판',['line'],{divs:['MF','HF']}),P('오세준','심판',['line'],{from:'09:30'}),
+    P('윤다은','심판',['line','scorer']),P('임재원','심판',['line']),P('한소희','운영진',['scorer']),P('서동현','운영진',['scorer','staff']),
+    P('신예린','운영진',['staff']),P('권태호','운영진',['staff','line'],{max:6}),P('조민혁','심판',['main','sub']),P('장수빈','심판',['main','sub'],{school:'푸른중'}),
+    P('배준영','심판',['sub','line']),P('노지아','심판',['line']),P('문성호','심판',['line'],{to:'15:00'}),P('유하린','심판',['line']),
+    P('전은서','운영진',['scorer']),P('홍기찬','운영진',['staff']),P('남궁솔','운영진',['scorer','staff']),
+    P('고은비','심판',['main','sub']),P('백승우','심판',['line']),P('송지현','운영진',['scorer','staff']),
+    P('황지민','심판',['main','sub','line'],{approved:false,memo:'신청 대기 예시'})
+  ];
+  for(const d of['MF','MM','HF','HM']){S.brackets[d]=genBracket(d,0,0,COURTS,'post');S.brackets[d].confirmed=true}
+  buildPlan();
+  S.staff[3].exclude=['MF-3'];
+  autoAssign('all','all');
+  simulateDemo(Date.parse('2026-10-17T11:15:00'));
+  scheduleAll();
+  for(const b of conflicts())refArr(b.m,b.r)[b.k]='';autoAssign('all','empty');
+  ui.div='MF';ui.bdiv='MF';
+}
+
+(async function init(){
+  if(SERVER&&!/^https:\/\/script\.google\.com\/|^http:\/\/localhost/.test(window.VB_API)){S=defaultState();$('#main').innerHTML='<section class="panel"><h2>서버 주소가 아직 없어요</h2><p>GitHub의 <b>config.js</b> 파일에 앱스 스크립트 웹 앱 주소(https://script.google.com/macros/s/.../exec)를 넣어 주세요.</p></section>';return}
+  if(SERVER){S=defaultState();const h=(location.hash||'').slice(1);if(TABS.some(([k])=>k===h))ui.tab=h;render();await startServer();
+    let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(ui.tab==='bracket'&&$('#modal').hidden)render()},200)});
+    setInterval(()=>{if(ui.tab==='board'&&$('#modal').hidden)render();else{const c=$('#clock');if(c)c.textContent=fmtT(Date.now())}},30000);return}
+  S=load();
+  if(!S){await seed();
+    for(const k of['vb-cup-draft-v6','vb-cup-draft-v5','vb-cup-draft-v4','vb-cup-draft-v3','vb-cup-draft-v2']){try{const o=JSON.parse(localStorage.getItem(k));if(o&&o.settings&&o.settings.adminHash){S.settings.adminHash=o.settings.adminHash;S.settings.adminSalt=o.settings.adminSalt;break}}catch(e){}}
+    save()}
+  const h=(location.hash||'').slice(1);if(TABS.some(([k])=>k===h))ui.tab=h;
+  render();
+  initDb();
+  let rz;window.addEventListener&&window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(ui.tab==='bracket'&&$('#modal').hidden)render()},200)});
+  setInterval(()=>{if(ui.tab==='board'&&$('#modal').hidden)render();else{const c=$('#clock');if(c)c.textContent=fmtT(Date.now())}},30000);
+})();
+</script>
+
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
+</body>
+</html>
