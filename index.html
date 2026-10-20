@@ -457,8 +457,39 @@ function snapAdmin(){SV.core=JSON.stringify(coreOf());SV.teams={};SV.staff={};fo
 function applyCore(c){S.v=c.v||2;S.demo=!!c.demo;S.settings=Object.assign(defaultState().settings,c.settings||{});S.brackets=c.brackets||{};S.plan=c.plan||null}
 function adminLoad(o){applyCore(o.core);S.teams=o.teams.sort((a,b)=>(a.created||0)-(b.created||0));S.staff=o.staff.sort((a,b)=>(a.created||0)-(b.created||0));SV.rev=o.rev;snapAdmin()}
 // 다른 사람이 바꾼 내용 합치기: 내가 아직 저장하지 않은 것은 그대로 둠
+
+// 여러 관리자가 동시에 결과를 넣어도 서로 덮어쓰지 않도록, 바뀐 '경기 칸'만 골라서 보냄
+const DERIVED={est:1,estEnd:1};
+const jeq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+function coreDiff(a,b){
+  if(!a)return{full:b};const p={};let n=0;
+  for(const k of['settings','plan','demo','v'])if(!jeq(a[k],b[k])){p[k]=b[k]===undefined?null:b[k];n++}
+  const br={},A=a.brackets||{},B=b.brackets||{};
+  for(const d of new Set([...Object.keys(A),...Object.keys(B)])){const x=A[d],y=B[d];
+    if(!y){if(x){br[d]={full:null};n++}continue}
+    if(!x||x.matches.map(m=>m.id).join()!==y.matches.map(m=>m.id).join()){br[d]={full:y};n++;continue}
+    const e={};let en=0;
+    for(const k of new Set([...Object.keys(x),...Object.keys(y)])){if(k==='matches')continue;if(!jeq(x[k],y[k])){(e.props=e.props||{})[k]=k in y?y[k]:'__DEL__';en++}}
+    y.matches.forEach((m,i)=>{const o=x.matches[i],f={};let fn=0;
+      for(const k of new Set([...Object.keys(o),...Object.keys(m)])){if(DERIVED[k])continue;if(!jeq(o[k],m[k])){f[k]=k in m&&m[k]!==undefined?m[k]:'__DEL__';fn++}}
+      if(fn){(e.m=e.m||{})[m.id]=f;en++}});
+    if(en){br[d]=e;n++}}
+  if(Object.keys(br).length)p.br=br;
+  return n?p:null}
+function applyCorePatch(core,p){
+  if(p.full!==undefined)return p.full;
+  core=core||{v:2,demo:false,settings:{},brackets:{},plan:null};core.brackets=core.brackets||{};
+  for(const k of['settings','plan','demo','v'])if(k in p)core[k]=p[k];
+  for(const d in p.br||{}){const e=p.br[d];
+    if('full' in e){if(e.full===null)delete core.brackets[d];else core.brackets[d]=e.full;continue}
+    const x=core.brackets[d];if(!x)continue;
+    for(const k in e.props||{}){if(e.props[k]==='__DEL__')delete x[k];else x[k]=e.props[k]}
+    for(const id in e.m||{}){const m=x.matches.find(z=>z.id===id);if(!m)continue;const f=e.m[id];for(const k in f){if(f[k]==='__DEL__')delete m[k];else m[k]=f[k]}}}
+  return core}
 function adminMerge(o){
-  if(JSON.stringify(coreOf())===SV.core){applyCore(o.core);SV.core=JSON.stringify(coreOf())}
+  {const pend=SV.core?coreDiff(JSON.parse(SV.core),JSON.parse(JSON.stringify(coreOf()))):null;
+   applyCore(o.core);SV.core=JSON.stringify(coreOf());
+   if(pend&&pend.full===undefined)applyCore(applyCorePatch(JSON.parse(SV.core),pend))}
   for(const kind of['teams','staff']){const srv={};for(const d of o[kind])srv[d.id]=d;
     S[kind]=S[kind].filter(x=>{if(srv[x.id]||!(x.id in SV[kind]))return true;if(JSON.stringify(x)===SV[kind][x.id]){delete SV[kind][x.id];return false}return true});
     for(const id in srv){const j=JSON.stringify(srv[id]),i=S[kind].findIndex(x=>x.id===id);
@@ -470,7 +501,7 @@ function adminPush(){clearTimeout(pushT);pushT=setTimeout(()=>{pushT=null;doPush
 async function doPush(){
   if(pushing){pushAgain=true;return}
   const body={token:SV.token},snap={teams:{},staff:{}};let n=0;
-  const c=JSON.stringify(coreOf());if(c!==SV.core){body.core=JSON.parse(c);snap.core=c;n++}
+  const c=JSON.stringify(coreOf());if(c!==SV.core){const p=coreDiff(SV.core?JSON.parse(SV.core):null,JSON.parse(c));if(p){body.patch=p;n++}snap.core=c;if(!p)SV.core=c}
   for(const kind of['teams','staff']){body[kind]={};const seen=new Set();
     for(const x of S[kind]){seen.add(x.id);const j=JSON.stringify(x);if(SV[kind][x.id]!==j){body[kind][x.id]=JSON.parse(j);snap[kind][x.id]=j;n++}}
     for(const id of Object.keys(SV[kind]))if(!seen.has(id)){body[kind][id]=null;snap[kind][id]=null;n++}}
@@ -480,7 +511,7 @@ async function doPush(){
     if(snap.core)SV.core=snap.core;
     for(const kind of['teams','staff'])for(const id in snap[kind]){if(snap[kind][id]===null)delete SV[kind][id];else SV[kind][id]=snap[kind][id]}
     for(const t of S.teams)if(t.newPw){delete t.newPw;if(SV.teams[t.id])SV.teams[t.id]=JSON.stringify(t)}
-    SV.rev=r.rev;setSync('')}
+    SV.rev=0;setSync('');setTimeout(pollNow,400)}  // 그 사이 다른 관리자가 바꾼 내용도 바로 받아오기
   catch(x){setSync('');if(x.code==='auth'){adminExpired();return}toast('저장하지 못했어요: '+x.message+' 5초 뒤 다시 저장해요.');setTimeout(adminPush,5000)}
   finally{pushing=false;if(pushAgain){pushAgain=false;adminPush()}}
 }
