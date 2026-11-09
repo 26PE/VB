@@ -904,12 +904,16 @@ function vStatus(){
 function gradeOpts(div,sel){const max=3;let h='';for(let g=1;g<=max;g++)h+=`<option value="${g}"${String(sel)===String(g)?' selected':''}>${g}${narrow()?'':'학년'}</option>`;return h}
 const narrow=()=>typeof window!=='undefined'&&window.innerWidth>0&&window.innerWidth<=640;
 function prow(div,p,idx){p=p||{};return `<div class="prow"><span class="pno">${idx+1}</span><input type="text" class="p-name" id="pn${idx}" placeholder="이름" value="${esc(p.name)}" maxlength="20" aria-label="선수 이름"><select class="p-grade" id="pg${idx}" aria-label="학년">${gradeOpts(div,p.grade)}</select><input type="text" class="p-num" id="pu${idx}" inputmode="numeric" placeholder="${narrow()?'번호':'등번호'}" value="${esc(p.num)}" maxlength="3" aria-label="등번호"><button type="button" class="icon-btn" data-act="prow-del" aria-label="이 줄 지우기" title="이 줄 지우기">×</button></div>`}
+function prefillNote(p,edit){const ps=p.players||[],miss=[];
+  if(!p.school)miss.push('학교명');if(!p.teacher)miss.push('담당 교사');if(!p.phone)miss.push('연락처');
+  if(ps.some(q=>q.ng))miss.push('학년');if(ps.some(q=>!q.num))miss.push('배번');if(ps.length<6)miss.push(`선수(지금 ${ps.length}명, 6명 이상)`);
+  return `<div class="banner">📄 엑셀에서 <b>${DN[p.div]}</b> ${esc(p.school||'')} · 선수 ${ps.length}명을 불러와 칸을 채웠어요.${miss.length?`<br>✍️ 직접 입력할 칸: <b>${miss.join(', ')}</b>`:''}<br>${edit?'확인 후 [수정 저장]':'비밀번호를 정하고 [참가 신청하기]'}를 누르면 끝이에요.</div>`}
 function formHtml(t0,pre){
   const edit=!!t0;const t=pre?{...(t0||{}),...pre}:t0;const div=t?t.div:ui.div;
   const players=t?t.players:[];const n=18;
   let rows='';for(let i=0;i<n;i++)rows+=prow(div,players[i],i);
   const opts=DIVS.map(([k,nm])=>`<option value="${k}"${k===div?' selected':''}${!edit&&divClosed(k)&&k!==div?' disabled':''}>${nm}${divClosed(k)?' (대진 확정, 신청 불가)':''}</option>`).join('');
-  return `${edit?`<div class="xl-box"><div><b>엑셀 신청서에서 명단 불러오기</b><p class="sub" style="margin:0">작성한 참가신청서(.xls, .xlsx)를 고르면 ${DN[t0.div]} 시트의 학교·감독·선수 명단으로 아래 칸을 채워요. 확인 후 [수정 저장]을 눌러야 반영됩니다.</p></div><label class="btn small">파일 고르기<input type="file" id="xl-edit" accept=".xls,.xlsx" hidden></label></div>`:''}${pre?`<div class="banner">엑셀에서 불러온 내용이에요. 확인하고 고친 뒤 저장하세요.</div>`:''}<form class="grid" id="apply-form" data-edit="${edit?t0.id:''}">
+  return `${edit?`<div class="xl-box"><div><b>엑셀 신청서에서 명단 불러오기</b><p class="sub" style="margin:0">작성한 참가신청서(.xls, .xlsx)를 고르면 ${DN[t0.div]} 시트의 학교·감독·선수 명단으로 아래 칸을 채워요. 확인 후 [수정 저장]을 눌러야 반영됩니다.</p></div><label class="btn small">파일 고르기<input type="file" id="xl-edit" accept=".xls,.xlsx" hidden></label></div>`:''}${pre?prefillNote(pre,edit):''}<form class="grid" id="apply-form" data-edit="${edit?t0.id:''}">
     <div class="fields">
       <label class="f">종별<select id="f-div"${edit&&divClosed(t0.div)?' disabled':''}>${opts}</select></label>
       <label class="f">학교명<input type="text" id="f-school" maxlength="30" placeholder="예: 한빛중학교" value="${esc(t?.school)}" required></label>
@@ -959,15 +963,19 @@ function parseForm(X,wb){
     const find=re=>{for(let r=0;r<rows.length;r++)for(let c=0;c<(rows[r]||[]).length;c++)if(re.test(key(r,c)))return[r,c];return null};
     const after=(r,c,stop)=>{for(let k=c+1;k<c+8;k++){const v=cell(r,k);if(!v)continue;if(stop.test(v.replace(/\s/g,'')))return '';return v}return ''};
     let school='',teacher='',phone='';
-    const sL=find(/^학교$/);if(sL){const v=after(sL[0],sL[1],/^(소속|교장|연락처)$/);if(v&&v.replace(/\s/g,'')!=='학교')school=v}
-    const tL=find(/^감독$/);
-    if(tL){teacher=after(tL[0],tL[1],/^(사무실|휴대폰|코치)$/);
-      for(let c=0;c<(rows[tL[0]]||[]).length;c++)if(key(tL[0],c)==='휴대폰'){phone=fixPhone(after(tL[0],c,/^$/));break}}
+    const LBL=/^(소속|교장|연락처|휴대폰|사무실|코치|종목|종별|참가선수수|지도교사|감독|담당교사|성명|학년|배번|순서|학교|명)$/;
+    const sL=find(/^(학교|학교명)$/);if(sL)school=after(sL[0],sL[1],LBL);
+    const tL=find(/^(감독|지도교사|담당교사|지도자)$/);
+    if(tL){teacher=after(tL[0],tL[1],LBL);
+      for(let c=0;c<(rows[tL[0]]||[]).length;c++)if(/^(휴대폰|연락처|전화번호|휴대전화)$/.test(key(tL[0],c))){phone=fixPhone(after(tL[0],c,LBL));break}}
+    if(!phone){const pL=find(/^(휴대폰|연락처|휴대전화)$/);if(pL)phone=fixPhone(after(pL[0],pL[1],LBL))}
+    if(!/\d{3}/.test(phone))phone='';
     const h=find(/^성명$/),players=[];
     if(h){const hr=h[0],row=rows[hr]||[];let gc=-1,nc=-1;for(let c=0;c<row.length;c++){const k=key(hr,c);if(k==='학년')gc=c;if(k==='배번'||k==='등번호')nc=c}
       for(let r=hr+1;r<rows.length;r++){const name=cell(r,h[1]);if(!name||/^(성명|감독|코치)$/.test(name))continue;
-        const g=(cell(r,gc).match(/[1-3]/)||[''])[0],num=(cell(r,nc).match(/\d+/)||[''])[0];players.push({name:name.slice(0,20),grade:g||'1',num})}}
-    if(school||teacher||players.length)out.push({div,sheet:nm,school:school.slice(0,30),teacher:teacher.slice(0,20),phone,players});
+        if(/^\d+$/.test(name)||name.length>20||/신청합니다|학교장/.test(name))continue;
+        const g=(cell(r,gc).match(/[1-3]/)||[''])[0],num=(cell(r,nc).match(/\d+/)||[''])[0];players.push({name,grade:g||'1',num,ng:!g})}}
+    if(players.length||school)out.push({div,sheet:nm,school:school.slice(0,30),teacher:teacher.slice(0,20),phone,players});
   });
   return out;
 }
@@ -1039,7 +1047,8 @@ async function readWorkbook(file){
   try{return parseForm(X,X.read(buf,{type:'array'}))}catch(e){throw new Error('엑셀 파일을 읽지 못했어요. 참가신청서 서식(.xls, .xlsx)인지 확인하세요.')}
 }
 async function handleImport(file){
-  ui.impErr='';try{const r=await readWorkbook(file);ui.imp=r||[];if(!ui.imp.length)ui.impErr='작성된 시트를 찾지 못했어요.'}catch(e){ui.imp=null;ui.impErr=e.message}
+  ui.impErr='';try{const r=await readWorkbook(file);ui.imp=r||[];if(!ui.imp.length)ui.impErr='작성된 시트를 찾지 못했어요. 학교 이름이나 선수 명단을 적은 시트가 있는지 확인하세요.';
+      else if(ui.imp.length===1){const x=ui.imp[0];ui.imp=null;ui.prefill={div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players};setTimeout(()=>{const f=$('#apply-form');if(f)f.scrollIntoView({behavior:'smooth',block:'start'})},60)}}catch(e){ui.imp=null;ui.impErr=e.message}
   render();
 }
 /* 엑셀 내려받기 */
