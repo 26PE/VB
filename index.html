@@ -75,6 +75,11 @@ h3{font-size:16px;margin:0;font-weight:800}
 .btn.primary{background:var(--court);color:var(--on-court);border-color:var(--court)}
 .btn.warn{color:var(--live);border-color:var(--live)}
 .btn.small{padding:5px 10px;font-size:13px}
+.imp-row{display:grid;grid-template-columns:auto auto 1fr auto auto;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:var(--surface)}
+.imp-row.bad{border-color:#f0c36d;background:#fffaf0}.imp-row input{width:18px;height:18px;margin:0}
+.ir-sc{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}.ir-n{font-size:13px;color:var(--muted);white-space:nowrap}.ir-st{font-size:15px}
+.ir-iss{grid-column:1/-1;font-size:12px;color:#b45309;line-height:1.3}
+.imp-pw{grid-template-columns:1fr 1fr!important;gap:8px}
 .forms-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0 10px;padding:8px 10px;border-radius:10px;background:var(--ball-soft)}.forms-bar>span{font-weight:800;font-size:13px}.forms-bar a{text-decoration:none;color:inherit;white-space:nowrap}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -999,17 +1004,15 @@ function importHtml(){
   const im=ui.imp;
   let body='';
   if(im){
-    const cards=im.map((x,i)=>{const iss=importIssues(x);return `<div class="imp-card${iss.length?' bad':''}">
-      <div class="row" style="justify-content:space-between"><div class="row"><span class="tag">${DN[x.div]}</span><b>${esc(x.school)||'(학교 이름 없음)'}</b><span class="sub" style="margin:0">${x.ocr?'사진에서 읽음':esc(x.sheet)+' 시트'}</span></div>
-        ${iss.length?'<span class="pill draft">고칠 곳 있음</span>':`<label class="row" style="font-weight:700"><input type="checkbox" class="imp-pick" data-i="${i}" checked> 신청에 포함</label>`}</div>
-      <div class="meta"><span>감독 <b>${esc(x.teacher)||'-'}</b></span><span>휴대폰 <b>${esc(x.phone)||'-'}</b></span><span>선수 <b>${x.players.length}명</b></span></div>
-      ${x.ocr?`<div class="row"><label class="f" style="max-width:180px">종별 (사진에서 읽은 값, 확인하세요)<select class="imp-div" data-i="${i}">${DIVS.map(([k,n])=>`<option value="${k}"${k===x.div?' selected':''}>${n}</option>`).join('')}</select></label><span class="sub" style="margin:0">사진에서 읽은 내용은 틀릴 수 있어요. 이름과 배번을 꼭 확인하고, 틀리면 아래 입력칸으로 불러와서 고치세요.</span></div>`:''}
-      <div class="sub" style="margin:0">${x.players.map(q=>`${esc(q.name)}(${esc(q.grade)}·${esc(q.num)||'-'})`).join(', ')||'선수 없음'}</div>
-      ${iss.length?`<p class="err" style="margin:0">${iss.map(esc).join(' · ')}</p>`:''}
-      <div><button class="btn small" data-act="imp-edit" data-i="${i}">아래 입력칸으로 불러와서 고치기</button></div></div>`}).join('');
+    const short=t=>t.replace(/이 비어 있어요|을 확인하세요|를 확인하세요/g,'').replace('감독 이름','감독').replace('감독 휴대폰 번호','연락처').replace('학교 이름','학교명');
+    const cards=im.map((x,i)=>{const iss=importIssues(x);return `<div class="imp-row${iss.length?' bad':''}">
+      ${iss.length?'<span class="ir-st">⚠️</span>':`<input type="checkbox" class="imp-pick" data-i="${i}" checked aria-label="신청에 포함">`}
+      <span class="tag">${DN[x.div]}</span><b class="ir-sc">${esc(x.school)||'학교명 없음'}</b><span class="ir-n">${x.players.length}명</span>
+      <button class="btn small" data-act="imp-edit" data-i="${i}">${iss.length?'고치기':'열기'}</button>
+      ${iss.length?`<div class="ir-iss">빈 곳: ${iss.map(t=>esc(short(t))).join(' · ')}</div>`:''}</div>`}).join('');
     const ok=im.filter(x=>!importIssues(x).length).length;
     body=`<div class="imp-list">${cards||'<div class="empty">시트에서 학교·감독·선수 정보를 찾지 못했어요. 서식을 바꾸지 않고 작성했는지 확인하세요.</div>'}</div>
-      ${ok?`<form class="grid" id="imp-form"><div class="fields"><label class="f">비밀번호 (6자 이상, 이번에 신청하는 모든 종별에 같이 쓰여요)<input type="password" id="i-pw" autocomplete="new-password"></label><label class="f">비밀번호 확인<input type="password" id="i-pw2" autocomplete="new-password"></label></div>
+      ${ok?`<p class="sub" style="margin:0">✅ 표시한 종별을 한 번에 신청해요. ⚠️ 종별은 [고치기]로 아래 입력칸에서 따로 신청하세요.</p><form class="grid" id="imp-form"><div class="fields imp-pw"><label class="f">비밀번호 (모든 종별 공통)<input type="password" id="i-pw" autocomplete="new-password"></label><label class="f">비밀번호 확인<input type="password" id="i-pw2" autocomplete="new-password"></label></div>
       <div class="consent"><b>개인정보 수집·이용 동의</b><span>수집 항목: 감독 이름·휴대폰, 학생 이름·학년·배번 / 목적: 대회 참가 확인과 운영 / 보유 기간: 대회 종료 후 1개월 내 파기</span><label class="row"><input type="checkbox" id="i-agree"> 위 내용에 동의하며, 학생·보호자 동의를 받았습니다.</label></div>
       <p class="err" id="i-err"></p><div class="row"><button type="button" class="btn" data-act="imp-clear">다시 고르기</button><button class="btn primary">고른 종별 신청하기</button></div></form>`:'<div class="row"><button class="btn" data-act="imp-clear">다시 고르기</button></div>'}`;
   }
