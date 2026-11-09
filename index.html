@@ -75,6 +75,7 @@ h3{font-size:16px;margin:0;font-weight:800}
 .btn.primary{background:var(--court);color:var(--on-court);border-color:var(--court)}
 .btn.warn{color:var(--live);border-color:var(--live)}
 .btn.small{padding:5px 10px;font-size:13px}
+.forms-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0 10px;padding:8px 10px;border-radius:10px;background:var(--ball-soft)}.forms-bar>span{font-weight:800;font-size:13px}.forms-bar a{text-decoration:none;color:inherit;white-space:nowrap}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
@@ -264,6 +265,7 @@ main.wide{max-width:none}
 .slot.md-s,.vsl.md-s{background:#e6eaf0!important;color:#3f4a5a!important;font-weight:800}
 .slot.md-b,.vsl.md-b{background:#f6dfcc!important;color:#6e3d14!important;font-weight:800}
 @media (max-width:640px){.podium{grid-template-columns:1fr;gap:6px}.pod{padding:8px 12px}.pod-e{font-size:24px}.pod b{font-size:17px}.pod b span{display:inline}.pod b span+span::before{content:' · '}}
+@media (max-width:640px){.podium{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.pod{flex-direction:column;align-items:stretch;gap:1px;padding:5px 6px;border-width:1.5px;border-radius:9px;text-align:center}.pod-e{display:none}.pod-n{font-size:11px}.pod b{font-size:13.5px;line-height:1.2}.pod b span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pod b span+span::before{content:''}.pod-n::before{margin-right:2px}.pod.md-g .pod-n::before{content:'🥇'}.pod.md-s .pod-n::before{content:'🥈'}.pod.md-b .pod-n::before{content:'🥉'}}
 
 /* court timetable */
 .tt{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
@@ -387,6 +389,22 @@ details.team[open] summary{margin-bottom:10px}
 .vlegend span{display:inline-flex;gap:4px;align-items:center}
 .sw{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid var(--line)}
 .sw.c0{background:var(--court-soft)}.sw.c1{background:var(--ball-soft)}.sw.fin{border:2px solid var(--ball)}
+.tbx{position:absolute;height:24px;border:1px solid var(--line);border-radius:6px;background:var(--surface);display:flex;align-items:center;justify-content:center;padding:0 2px;font-size:10.5px;font-weight:700;cursor:pointer;overflow:hidden;text-align:center;letter-spacing:-.3px}
+.tbx .nm{overflow:hidden;white-space:nowrap;max-width:100%}
+.tbx.two .nm{white-space:normal;word-break:break-all;line-height:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tbx.win{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.tbx.lose{opacity:.45}
+.tbx.tbd{border-style:dashed;color:var(--muted);font-weight:500}
+.tbx.fin{border:2px solid var(--ball)}
+.tbx.md-g{background:#ffefb0;color:#6b4c00;font-weight:900;opacity:1}.tbx.md-s{background:#e6eaf0;color:#3f4a5a;opacity:1}.tbx.md-b{background:#f6dfcc;color:#6e3d14;opacity:1}
+.tbx.pick{background:var(--court-soft)}.tbx.sel{background:var(--ball-soft);outline:2px solid var(--ball);outline-offset:-2px}
+.trail{position:absolute;left:0;width:20px;transform:translateY(-50%);font-size:9.5px;font-weight:800;color:var(--muted);text-align:center;white-space:nowrap;letter-spacing:-.5px}
+.tleg span:last-child{display:inline-flex!important}
+.tleg{flex-wrap:nowrap;gap:4px 7px;font-size:10.5px;letter-spacing:-.3px;white-space:nowrap;overflow:hidden}
+.tpill{position:absolute;transform:translate(-50%,-50%);height:15px;padding:0 4px;border-radius:999px;font-size:9px;font-weight:700;display:flex;gap:3px;align-items:center;white-space:nowrap;border:1px solid var(--line);cursor:pointer;z-index:1}
+.tpill.c0{background:var(--court-soft);color:var(--court)}.tpill.c1{background:var(--ball-soft);color:var(--ball-ink)}
+.tpill.live{border:1.5px solid var(--live)}.tpill.ready{border:1.5px solid var(--ball)}.tpill.done{color:var(--muted)}
+.tpill .vn{font-size:8px;opacity:.75}.tpill .dl{font-size:7px}
 </style>
 
 <header class="top">
@@ -912,9 +930,14 @@ function formHtml(t0,pre){
     <div class="row">${edit?'<button type="button" class="btn" data-act="edit-cancel">취소</button>':''}<button class="btn primary">${edit?'수정 저장':'참가 신청하기'}</button></div>
   </form>`;
 }
+function formLinks(){return String(S.settings.forms||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{let[n,h]=l.includes('|')?l.split('|').map(x=>x.trim()):[null,l];
+  if(!h)return null;const web=/^https?:\/\//i.test(h);if(!web&&/[:\\]/.test(h))return null;const base=h.split('/').pop().split('?')[0];
+  if(!n)n=decodeURIComponent(base).replace(/\.[^.]+$/,'');return{n,href:web?h:h.split('/').map(encodeURIComponent).join('/'),web,file:decodeURIComponent(base)}}).filter(Boolean)}
+function formsHtml(){const L=formLinks();if(!L.length)return'';
+  return `<div class="forms-bar"><span>📎 서식</span>${L.map(l=>`<a class="btn small" href="${esc(l.href)}"${l.web?' target="_blank" rel="noopener"':` download="${esc(l.file)}"`}>📥 ${esc(l.n)}</a>`).join('')}</div>`}
 function vApply(){
   if(S.settings.applyHash&&!ui.applyOk&&!ui.admin){const locked=Date.now()<ui.lockUntil;
-    return topBanners()+`<section class="panel" style="max-width:480px"><h2>참가 신청</h2><p class="sub">참가 신청은 대회 안내 공문에 적힌 <b>신청 코드</b>를 입력해야 열려요.</p>
+    return topBanners()+`<section class="panel" style="max-width:480px"><h2>참가 신청</h2><p class="sub">참가 신청은 대회 안내 공문에 적힌 <b>신청 코드</b>를 입력해야 열려요.</p>${formsHtml()}
       <form class="grid" id="code-form"><label class="f">신청 코드<input type="password" id="c-code" autocomplete="off"></label><p class="err" id="c-err">${locked?'여러 번 틀려 1분 동안 잠겼어요.':''}</p><div><button class="btn primary"${locked?' disabled':''}>확인</button></div></form>
       <p class="sub">이미 신청했다면 <button class="btn small" data-act="tab" data-k="mine">신청 확인</button>에서 명단을 보고 고칠 수 있어요.</p></section>`}
   if(deadlinePassed())return topBanners()+`<section class="panel"><h2>참가 신청</h2><div class="empty">신청이 마감되었어요. 문의는 대회 관리자에게 해 주세요.</div></section>`;
@@ -978,7 +1001,7 @@ function importHtml(){
       <div class="consent"><b>개인정보 수집·이용 동의</b><span>수집 항목: 감독 이름·휴대폰, 학생 이름·학년·배번 / 목적: 대회 참가 확인과 운영 / 보유 기간: 대회 종료 후 1개월 내 파기</span><label class="row"><input type="checkbox" id="i-agree"> 위 내용에 동의하며, 학생·보호자 동의를 받았습니다.</label></div>
       <p class="err" id="i-err"></p><div class="row"><button type="button" class="btn" data-act="imp-clear">다시 고르기</button><button class="btn primary">고른 종별 신청하기</button></div></form>`:'<div class="row"><button class="btn" data-act="imp-clear">다시 고르기</button></div>'}`;
   }
-  return `<section class="panel"><div class="sec-head"><div><h2>엑셀 신청서로 신청</h2><p class="sub">대회 참가신청서 서식을 작성해서 올리면 학교명, 감독, 감독 휴대폰, 선수 이름·학년·배번을 자동으로 읽어요. 시트 순서대로 여중부, 남중부, 여고부, 남고부이며, 작성한 시트만 신청됩니다.${SAMPLE?' 작성한 신청서를 찍은 사진이나 스크린샷도 올릴 수 있어요.':''}</p></div></div>
+  return `<section class="panel"><div class="sec-head"><div><h2>엑셀 신청서로 신청</h2><p class="sub">대회 참가신청서 서식을 작성해서 올리면 학교명, 감독, 감독 휴대폰, 선수 이름·학년·배번을 자동으로 읽어요. 시트 순서대로 여중부, 남중부, 여고부, 남고부이며, 작성한 시트만 신청됩니다.${SAMPLE?' 작성한 신청서를 찍은 사진이나 스크린샷도 올릴 수 있어요.':''}</p></div></div>${formsHtml()}
     ${im||ui.ocrBusy?'':`<div class="drops"><label class="drop" id="xl-drop"><input type="file" id="xl-file" accept=".xls,.xlsx" hidden><b>📄 엑셀 파일로 올리기</b><span class="sub" style="margin:0">.xls 또는 .xlsx · 여기로 끌어다 놓아도 돼요</span></label>
       ${SAMPLE?`<label class="drop photo" id="ocr-drop"><input type="file" id="ocr-file" accept="${esc(ui.ocrTypes||'image/*')}" multiple hidden><b>📷 스크린샷·사진으로 올리기</b><span class="sub" style="margin:0">작성한 신청서를 찍은 사진이나 화면 캡처 · 최대 ${ui.ocrMax}장 · Claude가 읽어요</span></label>`:''}</div>`}
     ${ui.ocrBusy?`<div class="hint"><span><span class="dot" style="color:var(--court)"></span> 사진에서 신청서를 읽는 중이에요. 보통 30초~1분 걸려요.</span><button class="btn small" data-act="ocr-stop">멈추기</button></div>`:''}
@@ -1177,7 +1200,7 @@ function vMine(){
 function schoolOpts(div,sel){const ts=S.teams.filter(t=>t.div===div);return ts.length?ts.map(t=>`<option value="${t.id}"${t.id===sel?' selected':''}>${esc(t.school)}</option>`).join(''):'<option value="">신청한 학교 없음</option>'}
 
 function bracketHtml(br,div){
-  ui.layout='vertical';return bracketVHtml(br,div);
+  ui.layout='vertical';return bracketTHtml(br,div);
   const{P,rows,cols,mirror}=place(br,ui.layout);const R=br.rounds;
   const BW=mirror?150:190,G=mirror?16:30,W=cols*BW+(cols-1)*G,H=rows*PITCH;
   const X=m=>P[m.id].col*(BW+G),CY=m=>(P[m.id].y+.5)*PITCH;
@@ -1208,6 +1231,63 @@ function bracketHtml(br,div){
   const champ=podiumHtml(br);
   const lg=`<div class="bk-legend"><span><i style="border:2px solid var(--live)"></i>경기 중</span><span><i style="border:2px solid var(--court)"></i>예정</span><span><i style="border:1.5px dashed var(--court)"></i>상대 미정</span><span><i style="border:1px solid var(--line);opacity:.5"></i>종료</span><span><i style="border:2px solid var(--ball)"></i>결승</span></div>`;
   return champ+lg+`<div class="bracket-wrap"><div style="width:${W}px;margin:0 auto"><div class="bk-heads" style="gap:${G}px">${heads}</div><div class="bk${mirror?' mir':''}" style="width:${W}px;height:${H}px"><svg width="${W}" height="${H}" aria-hidden="true">${lines}</svg>${boxes}</div></div></div>`;
+}
+// 학교 1칸 대진표: 학교마다 칸 하나, 선으로 이어지고 가운데 작은 표(경기 번호·시간)를 누르면 자세히
+function bracketTHtml(br,div){
+  const{P,cols}=place(br,'mirror');const R=br.rounds;
+  const fin=br.matches.find(m=>!m.next)||br.matches.reduce((x,y)=>y.r>x.r?y:x);
+  const mir=P[fin.id].side==='C';
+  // 촘촘한 나무 배치: 같은 줄(라운드)에서만 칸이 겹치지 않게 붙여서 폭을 줄임
+  const IN=[],CU={},u={L:0,R:0};
+  const lay=m=>{const L=P[m.id].col,parts=['a','b'].map(s=>{const f=byId(br,m['f'+s]);
+      if(f){const t=lay(f);t.items.push({m,s,x:t.out});const c=t.cont[L];t.cont[L]=c?[Math.min(c[0],t.out),Math.max(c[1],t.out)]:[t.out,t.out];t.inx=t.out;return t}
+      return{items:[{m,s,x:0}],ms:[],cont:{[L]:[0,0]},out:0,inx:0}});
+    const[A,B]=parts;let sh=1;for(const l in B.cont)if(A.cont[l])sh=Math.max(sh,A.cont[l][1]-B.cont[l][0]+1);
+    for(const it of B.items)it.x+=sh;for(const q of B.ms)q.x+=sh;
+    const cont={...A.cont};for(const l in B.cont){const b=[B.cont[l][0]+sh,B.cont[l][1]+sh];cont[l]=cont[l]?[Math.min(cont[l][0],b[0]),Math.max(cont[l][1],b[1])]:b}
+    const out=(A.inx+B.inx+sh)/2;return{items:A.items.concat(B.items),ms:A.ms.concat(B.ms,[{m,x:out}]),cont,out}};
+  const half=(m,S)=>{const t=lay(m);let lo=Infinity,hi=-Infinity;for(const l in t.cont){lo=Math.min(lo,t.cont[l][0]);hi=Math.max(hi,t.cont[l][1])}
+    for(const it of t.items)IN.push({m:it.m,s:it.s,u:it.x-lo,S});for(const q of t.ms)CU[q.m.id]=q.x-lo;u[S]=hi-lo+1};
+  if(mir){half(byId(br,fin.fa),'L');half(byId(br,fin.fb),'R')}else half(fin,'L');
+  const rows=Math.max(1,u.L,u.R),off={L:(rows-u.L)/2,R:(rows-u.R)/2};
+  const cw=Math.min((document.documentElement&&document.documentElement.clientWidth)||400,1200);
+  const mw=Math.min(($('#main')&&$('#main').clientWidth)||cw,cw);
+  const RAIL=22,G=3,TH=24,VG=28,JD=10,LH=TH+VG;
+  const TW=Math.max(30,Math.min(120,Math.floor((mw-44-RAIL-(rows-1)*G)/rows)));
+  const W=RAIL+rows*TW+(rows-1)*G,H=cols*TH+(cols-1)*VG;
+  const UX=(x,S)=>RAIL+(x+off[S])*(TW+G)+TW/2;
+  const CX=m=>UX(CU[m.id],P[m.id].side==='R'?'R':'L');
+  const lvl=m=>P[m.id].col,dn=m=>P[m.id].side!=='R';
+  const c0=RAIL+(rows*(TW+G)-G)/2,FG=78,FW=Math.min(100,Math.max(TW,Math.floor((W-RAIL-FG)/2)-6));
+  const finX=s=>s==='a'?c0-FG/2-FW/2:c0+FG/2+FW/2;
+  let lines='',boxes='',pills='',rail='';
+  const SN={'1라운드':'1R','2라운드':'2R','준결승':'4강'};
+  for(let c=0;c<cols;c++){const nm=roundName(br,c<R?c:cols-1-c).split(' · ')[0].replace(/\s/g,'');rail+=`<div class="trail" style="top:${c*LH+TH/2}px">${esc(SN[nm]||nm)}</div>`}
+  const box=(m,s,cx,y,w,fin)=>{const L=slotLabel(br,m,s),id=m[s],win=m.winner&&m.winner===id,lose=m.winner&&id&&!win;
+    const md=medalOf(br,m,id);const pick=ui.swap&&ui.admin&&m['t'+s]&&!started(m);const sel=ui.sel&&ui.sel.mid===m.id&&ui.sel.side===s;
+    const txt=L.tbd&&L.txt!=='기권'?'':(fin&&md?MEDAL[md].e+' ':'')+L.txt;
+    const act=pick?` data-act="swap" data-mid="${m.id}" data-side="${s}" role="button" tabindex="0"`:!ui.swap?` data-act="open-m" data-div="${div}" data-mid="${m.id}" role="button" tabindex="0"`:'';
+    return `<div class="tbx${win?' win':''}${lose?' lose':''}${md?' md-'+md:''}${L.tbd?' tbd':''}${fin?' fin':''}${pick?' pick':''}${sel?' sel':''}" style="left:${cx-w/2}px;top:${y}px;width:${w}px"${act} title="${esc(L.txt)}"><span class="nm">${esc(txt)}</span></div>`};
+  const pill=(m,x,y)=>{const live=isLive(m),ci=Math.max(0,COURTS.indexOf(m.court))%2;
+    const t=m.wo&&!m.winner?'기권승':live?`<span class="dot" style="color:var(--live)"></span>${tLabel(m.actStart)}`:m.winner?tLabel(m.actEnd):tLabel(m.est);
+    const st=m.winner?' done':live?' live':isReady(m)?' ready':'';
+    return `<div class="tpill c${ci}${st}" style="left:${x}px;top:${y}px"${ui.swap?'':` data-act="open-m" data-div="${div}" data-mid="${m.id}" role="button" tabindex="0"`} title="${m.no}경기 · ${esc(m.court)} · ${esc(roundName(br,m.r))}"><span class="vn">${m.no}</span>${t}</div>`};
+  for(const m of br.matches){
+    if(mir&&m.id===fin.id)continue;
+    const y0=lvl(m)*LH,d=dn(m),cx=CX(m),yj=d?y0+TH+JD:y0-JD,ye=d?y0+TH:y0,par=byId(br,m.next);
+    for(const s of['a','b']){const it=IN.find(q=>q.m===m&&q.s===s);const bx=UX(it.u,it.S);const w=m.winner&&m.winner===m[s]?' win':'';
+      lines+=`<path class="ln${w}" d="M${bx} ${ye}V${yj}H${cx}"/>`;boxes+=box(m,s,bx,y0,TW)}
+    if(par){const w=m.winner?' win':'',py=lvl(par)*LH;
+      if(mir&&par.id===fin.id){const s=par.fa===m.id?'a':'b',fx=finX(s),ty=d?py:py+TH,mid=d?py-VG/2:py+TH+VG/2;
+        lines+=`<path class="ln${w}" d="M${cx} ${yj}V${mid}H${fx}V${ty}"/>`}
+      else lines+=`<path class="ln${w}" d="M${cx} ${yj}V${d?py:py+TH}"/>`}
+    pills+=pill(m,cx,yj);
+  }
+  if(mir){const y=lvl(fin)*LH;for(const s of['a','b'])boxes+=box(fin,s,finX(s),y,FW,true);
+    lines+=`<path class="ln${fin.winner?' win':''}" d="M${finX('a')+FW/2} ${y+TH/2}H${finX('b')-FW/2}"/>`;pills+=pill(fin,c0,y+TH/2)}
+  const champ=podiumHtml(br);
+  const legend=`<div class="vlegend tleg"><span><i class="sw c0"></i>1코트</span><span><i class="sw c1"></i>2코트</span><span><i class="sw" style="border:1.5px solid var(--live)"></i>경기 중</span><span><i class="sw" style="background:var(--ok-soft);border-color:var(--ok)"></i>이긴 학교</span><span>표 누르면 점수</span></div>`;
+  return champ+legend+`<div class="bracket-wrap vwrap"><div class="vb" style="width:${W}px;height:${H}px"><svg width="${W}" height="${H}" aria-hidden="true" style="position:absolute;inset:0;overflow:visible">${lines}</svg>${rail}${boxes}${pills}</div></div>`;
 }
 // 모바일: 위 절반은 아래로, 아래 절반은 위로 모여 가운데 결승
 function bracketVHtml(br,div){
@@ -1433,6 +1513,7 @@ function vAdmin(){
       <label class="f">신청 마감<input type="datetime-local" id="s-deadline" value="${esc(st.deadline)}"></label>
       <label class="f">경기 방식<select id="s-bestof"><option value="3"${st.bestOf==3?' selected':''}>3세트 2선승</option><option value="5"${st.bestOf==5?' selected':''}>5세트 3선승</option></select></label>
       <label class="f span-all">공지 (모든 화면 위에 표시)<textarea id="s-notice" maxlength="400" style="min-height:56px">${esc(st.notice)}</textarea></label>
+      <label class="f span-all">참가신청서 서식 파일 (GitHub에 올린 파일 이름 · 한 줄에 하나 · 예: <code>참가신청서 | 신청서.xls</code>)<textarea id="s-forms" maxlength="600" style="min-height:44px" placeholder="참가신청서 | 신청서.xls">${esc(st.forms||'')}</textarea></label>
     </div>
     <div class="set-grid">
       <label class="f">세트 점수<input type="number" id="s-pts" min="5" max="50" value="${rules().pts}"></label>
@@ -1473,6 +1554,9 @@ function fitBrackets(){
   // 세로 대진표: 학교 이름이 잘리는 칸만 세트별 점수를 숨겨서 이름이 보이게 (세트 스코어는 그대로)
   for(const box of document.querySelectorAll('.vbox')){box.classList.remove('nopts');
     if([...box.querySelectorAll('.vsl .nm')].some(n=>n.scrollWidth>n.clientWidth+1))box.classList.add('nopts')}
+  for(const b of document.querySelectorAll('.tbx')){const n=b.firstElementChild;if(!n)continue;b.classList.remove('two');b.style.fontSize='';let f=10.5;
+    while(n.scrollWidth>n.clientWidth+1&&f>8.5){f-=.5;b.style.fontSize=f+'px'}
+    if(n.scrollWidth>n.clientWidth+1){b.classList.add('two');b.style.fontSize='9px'}}
   for(const w of document.querySelectorAll('.bracket-wrap:not(.vwrap)')){const inner=w.firstElementChild;if(!inner)continue;inner.style.zoom='';const need=inner.scrollWidth,have=w.clientWidth;inner.style.zoom=need>have?String(Math.max(.8,(have-2)/need)):''}}
 window.addEventListener('resize',()=>{clearTimeout(window.__fitT);window.__fitT=setTimeout(fitBrackets,120)});
 function go(tab){ui.tab=tab;if(tab!=='bracket'){ui.swap=false;ui.sel=null}try{history.replaceState(null,'','#'+tab)}catch(e){}render();window.scrollTo(0,0)}
@@ -1859,7 +1943,7 @@ document.addEventListener('submit',async e=>{
     if(await hashPw($('#r-code').value.trim(),S.settings.refSalt)!==S.settings.refHash){ui.fails++;if(ui.fails>=5){ui.lockUntil=Date.now()+60000;ui.fails=0;render();return}err.textContent=`비밀번호가 맞지 않아요. (${ui.fails}/5)`;return}
     ui.fails=0;ui.refOk=true;render();return}
   if(f.id==='unav-form')return submitUnav(f);
-  if(f.id==='set-form'){const s=S.settings;s.title=$('#s-title').value.trim()||s.title;s.notice=$('#s-notice').value.trim();s.deadline=$('#s-deadline').value;s.bestOf=Number($('#s-bestof').value);
+  if(f.id==='set-form'){const s=S.settings;s.title=$('#s-title').value.trim()||s.title;s.notice=$('#s-notice').value.trim();s.forms=$('#s-forms').value.trim();s.deadline=$('#s-deadline').value;s.bestOf=Number($('#s-bestof').value);
     {const n=id=>Math.max(0,Number($(id).value)||0),pts=n('#s-pts')||21,cap=n('#s-cap'),fpts=n('#s-fpts')||15,fcap=n('#s-fcap');if((cap&&cap<=pts)||(fcap&&fcap<=fpts)){toast('듀스 최대 점수는 세트 점수보다 커야 해요');return}s.rules={pts,cap,fpts,fcap}}s.avoidOwnSchool=$('#s-own').checked;s.showHelp=$('#s-help').checked;s.autoStart=$('#s-auto').checked;
     if(SERVER){const sec={};const nc=$('#s-code').value.trim(),rc=$('#s-rcode').value.trim(),ap=$('#s-apw').value;
       if(nc){if(nc.length<4){toast('신청 코드는 4자 이상으로 정해 주세요');return}sec.applyCode=nc}else if($('#s-code-off')&&$('#s-code-off').checked)sec.applyCode='';
