@@ -877,6 +877,8 @@ function chips(cur,act,all){
   return h+'</div>';
 }
 const deadlinePassed=()=>S.settings.deadline&&Date.now()>Date.parse(S.settings.deadline);
+const notOpenYet=()=>!!S.settings.applyStart&&Date.now()<Date.parse(S.settings.applyStart);
+const periodTxt=()=>{const a=S.settings.applyStart,b=S.settings.deadline;return a||b?`${a?fmtDT(Date.parse(a)):''} ~ ${b?fmtDT(Date.parse(b)):''}`:''};
 const divClosed=d=>!!S.brackets[d];
 function topBanners(){
   let h='';
@@ -890,12 +892,12 @@ function adminHint(what){return ui.admin?'':`<div class="hint only-desk"><span>$
 function vStatus(){
   const teams=S.teams.filter(t=>t.div===ui.div).sort((a,b)=>a.created-b.created);
   const br=S.brackets[ui.div];
-  const state=br?(br.confirmed?'<span class="pill ok">대진 확정</span>':'<span class="pill draft">대진 임시</span>'):(deadlinePassed()?'<span class="pill wait">신청 마감</span>':'<span class="pill ok">신청 받는 중</span>');
+  const state=br?(br.confirmed?'<span class="pill ok">대진 확정</span>':'<span class="pill draft">대진 임시</span>'):(deadlinePassed()?'<span class="pill wait">신청 마감</span>':notOpenYet()?'<span class="pill wait">신청 전</span>':'<span class="pill ok">신청 받는 중</span>');
   const first=br?Math.min(...br.matches.filter(m=>!m.wo&&!m.dead).map(m=>m.est)):null;
   const items=teams.map((t,i)=>`<div class="sch"><span class="i">${i+1}</span><b>${esc(t.school)}</b><span class="n">${t.players.length}명</span></div>`).join('');
   return topBanners()+`<section class="panel">
     <div class="sec-head"><div><h2>참가 현황</h2><p class="sub">누구나 볼 수 있어요. 학생 명단은 신청 확인에서 비밀번호로 봅니다.</p></div>
-    <div class="row">${S.settings.deadline?`<div class="meta">신청 마감 <b class="t-big" style="font-size:17px">${fmtDT(Date.parse(S.settings.deadline))}</b></div>`:''}${ui.admin?'<button class="btn small" data-act="xl-status">📊 참가 현황 엑셀</button><button class="btn small" data-act="xl-all">📊 참가 명단 엑셀</button>':''}</div></div>
+    <div class="row">${periodTxt()?`<div class="meta">신청 기간 <b class="t-big" style="font-size:15px">${periodTxt()}</b></div>`:''}${ui.admin?'<button class="btn small" data-act="xl-status">📊 참가 현황 엑셀</button><button class="btn small" data-act="xl-all">📊 참가 명단 엑셀</button>':''}</div></div>
     ${chips(ui.div,'div')}
     <div class="row"><h3>${DN[ui.div]} · ${teams.length}팀</h3>${state}${first&&isFinite(first)?`<span class="meta">첫 경기 <b class="t-big">${dayName(first)} ${fmtT(first)}</b></span>`:''}</div>
     ${teams.length?`<div class="sch-grid"${teams.length<3?` style="grid-template-columns:repeat(${teams.length},minmax(0,1fr));max-width:${teams.length*240}px"`:''}>${'<div class="sch hd"><span class="i">#</span><b>학교</b><span class="n">인원</span></div>'.repeat(Math.min(3,teams.length))}${items}</div>`:`<div class="empty">아직 ${DN[ui.div]} 신청이 없어요.</div>`}
@@ -904,27 +906,28 @@ function vStatus(){
 function gradeOpts(div,sel){const max=3;let h='';for(let g=1;g<=max;g++)h+=`<option value="${g}"${String(sel)===String(g)?' selected':''}>${g}${narrow()?'':'학년'}</option>`;return h}
 const narrow=()=>typeof window!=='undefined'&&window.innerWidth>0&&window.innerWidth<=640;
 function prow(div,p,idx){p=p||{};return `<div class="prow"><span class="pno">${idx+1}</span><input type="text" class="p-name" id="pn${idx}" placeholder="이름" value="${esc(p.name)}" maxlength="20" aria-label="선수 이름"><select class="p-grade" id="pg${idx}" aria-label="학년">${gradeOpts(div,p.grade)}</select><input type="text" class="p-num" id="pu${idx}" inputmode="numeric" placeholder="${narrow()?'번호':'등번호'}" value="${esc(p.num)}" maxlength="3" aria-label="등번호"><button type="button" class="icon-btn" data-act="prow-del" aria-label="이 줄 지우기" title="이 줄 지우기">×</button></div>`}
+const PMIN=12,PMAX=15;
 function prefillNote(p,edit){const ps=p.players||[],miss=[];
   if(!p.school)miss.push('학교명');if(!p.teacher)miss.push('담당 교사');if(!p.phone)miss.push('연락처');
-  if(ps.some(q=>q.ng))miss.push('학년');if(ps.some(q=>!q.num))miss.push('배번');if(ps.length<6)miss.push(`선수(지금 ${ps.length}명, 6명 이상)`);
+  if(ps.some(q=>q.ng))miss.push('학년');if(ps.some(q=>!q.num))miss.push('배번');if(ps.length<PMIN)miss.push(`선수(지금 ${ps.length}명, ${PMIN}~${PMAX}명)`);if(ps.length>PMAX)miss.push(`선수 ${PMAX}명까지(지금 ${ps.length}명)`);
   return `<div class="banner">📄 엑셀에서 <b>${DN[p.div]}</b> ${esc(p.school||'')} · 선수 ${ps.length}명을 불러와 칸을 채웠어요.${miss.length?`<br>✍️ 직접 입력할 칸: <b>${miss.join(', ')}</b>`:''}<br>${edit?'확인 후 [수정 저장]':'비밀번호를 정하고 [참가 신청하기]'}를 누르면 끝이에요.</div>`}
 function formHtml(t0,pre){
   const edit=!!t0;const t=pre?{...(t0||{}),...pre}:t0;const div=t?t.div:ui.div;
-  const players=t?t.players:[];const n=18;
+  const players=t?t.players:[];const n=Math.max(PMAX,players.length);
   let rows='';for(let i=0;i<n;i++)rows+=prow(div,players[i],i);
   const opts=DIVS.map(([k,nm])=>`<option value="${k}"${k===div?' selected':''}${!edit&&divClosed(k)&&k!==div?' disabled':''}>${nm}${divClosed(k)?' (대진 확정, 신청 불가)':''}</option>`).join('');
   return `${edit?`<div class="xl-box"><div><b>엑셀 신청서에서 명단 불러오기</b><p class="sub" style="margin:0">작성한 참가신청서(.xls, .xlsx)를 고르면 ${DN[t0.div]} 시트의 학교·감독·선수 명단으로 아래 칸을 채워요. 확인 후 [수정 저장]을 눌러야 반영됩니다.</p></div><label class="btn small">파일 고르기<input type="file" id="xl-edit" accept=".xls,.xlsx" hidden></label></div>`:''}${pre?prefillNote(pre,edit):''}<form class="grid" id="apply-form" data-edit="${edit?t0.id:''}">
     <div class="fields">
       <label class="f">종별<select id="f-div"${edit&&divClosed(t0.div)?' disabled':''}>${opts}</select></label>
-      <label class="f">학교명<input type="text" id="f-school" maxlength="30" placeholder="예: 한빛중학교" value="${esc(t?.school)}" required></label>
-      <label class="f">담당 교사<input type="text" id="f-teacher" maxlength="20" value="${esc(t?.teacher)}" required></label>
+      <label class="f">학교명<input type="text" id="f-school" autocomplete="off" maxlength="30" placeholder="예: 한빛중학교" value="${esc(t?.school)}" required></label>
+      <label class="f">담당 교사<input type="text" id="f-teacher" autocomplete="off" maxlength="20" value="${esc(t?.teacher)}" required></label>
       <label class="f">연락처<input type="tel" id="f-phone" maxlength="20" placeholder="010-0000-0000" value="${esc(t?.phone)}" required></label>
     </div>
     <div class="fields">
       <label class="f">${edit?'새 비밀번호 (바꿀 때만)':'비밀번호 (6자 이상)'}<input type="password" id="f-pw" autocomplete="new-password" ${edit?'':'required'}></label>
       <label class="f">비밀번호 확인<input type="password" id="f-pw2" autocomplete="new-password"></label>
     </div>
-    <div class="players"><div class="row" style="justify-content:space-between"><h3>선수 명단</h3><span class="sub">6~18명 · 이름이 빈 줄은 저장되지 않아요</span></div>
+    <div class="players"><div class="row" style="justify-content:space-between"><h3>선수 명단</h3><span class="sub">12~15명 · 이름이 빈 줄은 저장되지 않아요</span></div>
       <div id="prows" class="players">${rows}</div>
 </div>
     <div class="consent"><b>개인정보 수집·이용 동의</b>
@@ -944,7 +947,8 @@ function vApply(){
     return topBanners()+`<section class="panel" style="max-width:480px"><h2>참가 신청</h2><p class="sub">참가 신청은 대회 안내 공문에 적힌 <b>신청 코드</b>를 입력해야 열려요.</p>${formsHtml()}
       <form class="grid" id="code-form"><label class="f">신청 코드<input type="password" id="c-code" autocomplete="off"></label><p class="err" id="c-err">${locked?'여러 번 틀려 1분 동안 잠겼어요.':''}</p><div><button class="btn primary"${locked?' disabled':''}>확인</button></div></form>
       <p class="sub">이미 신청했다면 <button class="btn small" data-act="tab" data-k="mine">신청 확인</button>에서 명단을 보고 고칠 수 있어요.</p></section>`}
-  if(deadlinePassed())return topBanners()+`<section class="panel"><h2>참가 신청</h2><div class="empty">신청이 마감되었어요. 문의는 대회 관리자에게 해 주세요.</div></section>`;
+  if(deadlinePassed()&&!ui.admin)return topBanners()+`<section class="panel"><h2>참가 신청</h2>${formsHtml()}<div class="empty">신청이 마감되었어요.${periodTxt()?`<br>신청 기간: ${periodTxt()}`:''}<br>문의는 대회 관리자에게 해 주세요.</div></section>`;
+  if(notOpenYet()&&!ui.admin)return topBanners()+`<section class="panel"><h2>참가 신청</h2>${formsHtml()}<div class="empty">아직 신청 기간이 아니에요.<br><b>신청 기간: ${periodTxt()}</b><br>위 서식을 미리 받아 작성해 두세요.</div></section>`;
   return topBanners()+importHtml()+`<section class="panel"><div class="sec-head"><div><h2>직접 입력해서 신청</h2><p class="sub">회원가입 없이 신청합니다. 정한 비밀번호로 나중에 명단을 확인하고 고칠 수 있어요.</p></div></div>${formHtml(null,ui.prefill)}</section>`;
 }
 /* ---------- 엑셀 신청서 ---------- */
@@ -984,8 +988,8 @@ function importIssues(x){
   if(!x.school)p.push('학교 이름이 비어 있어요');
   if(!x.teacher)p.push('감독 이름이 비어 있어요');
   if(!/^[0-9\-\s]{9,20}$/.test(x.phone||''))p.push('감독 휴대폰 번호를 확인하세요');
-  if(x.players.length<6)p.push(`선수가 ${x.players.length}명이에요 (6명 이상)`);
-  if(x.players.length>18)p.push('선수는 18명까지예요');
+  if(x.players.length<PMIN)p.push(`선수가 ${x.players.length}명이에요 (${PMIN}명 이상)`);
+  if(x.players.length>PMAX)p.push(`선수는 ${PMAX}명까지예요`);
   const nums=x.players.map(q=>q.num).filter(Boolean);if(new Set(nums).size!==nums.length)p.push('배번이 겹쳐요');
   if(divClosed(x.div))p.push('대진표가 만들어져 신청이 마감된 종별이에요');
   if(S.teams.some(t=>t.div===x.div&&norm(t.school)===norm(x.school)))p.push('이미 신청한 학교예요. 내 신청 확인에서 수정하세요');
@@ -1047,7 +1051,7 @@ async function readWorkbook(file){
   try{return parseForm(X,X.read(buf,{type:'array'}))}catch(e){throw new Error('엑셀 파일을 읽지 못했어요. 참가신청서 서식(.xls, .xlsx)인지 확인하세요.')}
 }
 async function handleImport(file){
-  ui.impErr='';try{const r=await readWorkbook(file);ui.imp=r||[];if(!ui.imp.length)ui.impErr='작성된 시트를 찾지 못했어요. 학교 이름이나 선수 명단을 적은 시트가 있는지 확인하세요.';
+  ui.impErr='';ui.prefill=null;try{const r=await readWorkbook(file);ui.imp=r||[];if(!ui.imp.length)ui.impErr='작성된 시트를 찾지 못했어요. 학교 이름이나 선수 명단을 적은 시트가 있는지 확인하세요.';
       else if(ui.imp.length===1){const x=ui.imp[0];ui.imp=null;ui.prefill={div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players};setTimeout(()=>{const f=$('#apply-form');if(f)f.scrollIntoView({behavior:'smooth',block:'start'})},60)}}catch(e){ui.imp=null;ui.impErr=e.message}
   render();
 }
@@ -1519,6 +1523,7 @@ function vAdmin(){
   <section class="panel tight"><h3>대회 설정</h3><form class="grid" id="set-form" style="gap:12px">
     <div class="set-grid">
       <label class="f span2">대회 이름<input type="text" id="s-title" maxlength="60" value="${esc(st.title)}"></label>
+      <label class="f">신청 시작<input type="datetime-local" id="s-start" value="${esc(st.applyStart||'')}"></label>
       <label class="f">신청 마감<input type="datetime-local" id="s-deadline" value="${esc(st.deadline)}"></label>
       <label class="f">경기 방식<select id="s-bestof"><option value="3"${st.bestOf==3?' selected':''}>3세트 2선승</option><option value="5"${st.bestOf==5?' selected':''}>5세트 3선승</option></select></label>
       <label class="f span-all">공지 (모든 화면 위에 표시)<textarea id="s-notice" maxlength="400" style="min-height:56px">${esc(st.notice)}</textarea></label>
@@ -1749,7 +1754,7 @@ const ACT={
     ${ui.admin?'<button data-act="logout"><b>↩ 로그아웃</b><span>관리자 모드 끝내기</span></button>':''}</div>`),
   notice:()=>{ui.noticeOpen=!ui.noticeOpen;render()},
   'confirm-ok':()=>{const f=confirmFn;confirmFn=null;closeModal();f&&f()},
-  'prow-add':()=>{const box=$('#prows');const n=$$('.prow',box).length;if(n>=18){toast('최대 18명까지 입력할 수 있어요');return}box.insertAdjacentHTML('beforeend',prow($('#f-div').value,null,n));renumber()},
+  'prow-add':()=>{const box=$('#prows');const n=$$('.prow',box).length;if(n>=PMAX){toast(`최대 ${PMAX}명까지 입력할 수 있어요`);return}box.insertAdjacentHTML('beforeend',prow($('#f-div').value,null,n));renumber()},
   'prow-del':t=>{const r=t.closest('.prow');r.querySelector('.p-name').value='';r.querySelector('.p-num').value='';r.querySelector('.p-grade').selectedIndex=0},
   'mine-edit':()=>{ui.editId=ui.mineId;ui.editPre=null;render()},
   'edit-cancel':()=>{ui.editId=null;ui.editPre=null;render()},
@@ -1957,7 +1962,7 @@ document.addEventListener('submit',async e=>{
     if(await hashPw($('#r-code').value.trim(),S.settings.refSalt)!==S.settings.refHash){ui.fails++;if(ui.fails>=5){ui.lockUntil=Date.now()+60000;ui.fails=0;render();return}err.textContent=`비밀번호가 맞지 않아요. (${ui.fails}/5)`;return}
     ui.fails=0;ui.refOk=true;render();return}
   if(f.id==='unav-form')return submitUnav(f);
-  if(f.id==='set-form'){const s=S.settings;s.title=$('#s-title').value.trim()||s.title;s.notice=$('#s-notice').value.trim();s.forms=$('#s-forms').value.trim();s.deadline=$('#s-deadline').value;s.bestOf=Number($('#s-bestof').value);
+  if(f.id==='set-form'){const s=S.settings;s.title=$('#s-title').value.trim()||s.title;s.notice=$('#s-notice').value.trim();s.forms=$('#s-forms').value.trim();s.applyStart=$('#s-start').value;s.deadline=$('#s-deadline').value;if(s.applyStart&&s.deadline&&Date.parse(s.applyStart)>=Date.parse(s.deadline)){toast('신청 시작이 마감보다 늦어요. 날짜를 확인하세요.');return}s.bestOf=Number($('#s-bestof').value);
     {const n=id=>Math.max(0,Number($(id).value)||0),pts=n('#s-pts')||21,cap=n('#s-cap'),fpts=n('#s-fpts')||15,fcap=n('#s-fcap');if((cap&&cap<=pts)||(fcap&&fcap<=fpts)){toast('듀스 최대 점수는 세트 점수보다 커야 해요');return}s.rules={pts,cap,fpts,fcap}}s.avoidOwnSchool=$('#s-own').checked;s.showHelp=$('#s-help').checked;s.autoStart=$('#s-auto').checked;
     if(SERVER){const sec={};const nc=$('#s-code').value.trim(),rc=$('#s-rcode').value.trim(),ap=$('#s-apw').value;
       if(nc){if(nc.length<4){toast('신청 코드는 4자 이상으로 정해 주세요');return}sec.applyCode=nc}else if($('#s-code-off')&&$('#s-code-off').checked)sec.applyCode='';
@@ -2006,10 +2011,10 @@ async function submitImport(f){
   {const w=weakPw(pw);if(w){err.textContent=w;return}}
   if(pw!==$('#i-pw2').value){err.textContent='비밀번호 확인이 달라요.';return}
   if(!$('#i-agree').checked){err.textContent='개인정보 수집·이용에 동의해야 신청할 수 있어요.';return}
-  if(deadlinePassed()){err.textContent='신청이 마감되었어요.';return}
+  if(!ui.admin&&deadlinePassed()){err.textContent='신청이 마감되었어요.';return}if(!ui.admin&&notOpenYet()){err.textContent='아직 신청 기간이 아니에요.';return}
   if(SERVER&&!ui.admin){err.textContent='보내는 중…';try{await api('teamCreate',{code:ui.applyCode||'',pw,teams:picks.map(x=>({div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players,via:'excel'}))})}catch(x){err.textContent=x.message;return}
     ui.imp=null;ui.div=picks[0].div;toast(`${picks.map(x=>DN[x.div]).join(', ')} ${picks.length}개 종별 신청 완료! 비밀번호를 꼭 기억해 두세요.`);await pollNow();go('status');return}
-  for(const x of picks){const salt=uid();S.teams.push({id:uid(),div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players,salt,pwHash:await hashPw(pw,salt),created:Date.now(),agreed:Date.now(),via:'excel'})}
+  for(const x of picks){const salt=uid();S.teams.push({id:uid(),div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players,salt,pwHash:await hashPw(pw,salt),created:Date.now(),agreed:Date.now(),via:'excel',newPw:SERVER?pw:undefined})}
   save();ui.imp=null;ui.div=picks[0].div;toast(`${picks.map(x=>DN[x.div]).join(', ')} ${picks.length}개 종별 신청 완료! 비밀번호를 꼭 기억해 두세요.`);go('status');
 }
 async function submitApply(f){
@@ -2022,12 +2027,13 @@ async function submitApply(f){
   if(!school||!teacher||!phone)return fail('학교명, 담당 교사, 연락처를 모두 입력하세요.');
   if(!/^[0-9\-\s]{9,20}$/.test(phone))return fail('연락처는 숫자와 - 만 써 주세요.');
   if(!old||pw){const w=weakPw(pw);if(w)return fail(w);if(pw!==pw2)return fail('비밀번호 확인이 달라요.')}
-  if(players.length<6)return fail(`선수는 6명 이상이어야 해요. (지금 ${players.length}명)`);
-  if(players.length>18)return fail('선수는 18명까지 등록할 수 있어요.');
+  if(players.length<PMIN)return fail(`선수는 ${PMIN}명 이상이어야 해요. (지금 ${players.length}명)`);
+  if(players.length>PMAX)return fail(`선수는 ${PMAX}명까지 등록할 수 있어요. (지금 ${players.length}명)`);
   const nums=players.map(p=>p.num).filter(Boolean);if(new Set(nums).size!==nums.length)return fail('등번호가 겹치는 선수가 있어요.');
   if(!$('#f-agree').checked)return fail('개인정보 수집·이용에 동의해야 신청할 수 있어요.');
   if(S.teams.some(t=>t.div===div&&norm(t.school)===norm(school)&&t.id!==editId))return fail('이 종별에 이미 신청한 학교예요. 내 신청 확인에서 수정하세요.');
-  if(!old&&(divClosed(div)||deadlinePassed()))return fail('이 종별은 신청이 마감되었어요.');
+  if(!old&&(divClosed(div)||(!ui.admin&&deadlinePassed())))return fail('이 종별은 신청이 마감되었어요.');
+  if(!old&&!ui.admin&&notOpenYet())return fail('아직 신청 기간이 아니에요.');
   if(old&&old.div!==div&&divClosed(div))return fail('옮기려는 종별은 대진표가 이미 만들어졌어요.');
   if(SERVER&&!ui.admin){err.textContent='보내는 중…';const team={div,school,teacher,phone,players};
     try{if(old){const r=await api('teamUpdate',{id:old.id,pw:ui.minePw,team,newPw:pw||undefined});if(pw)ui.minePw=pw;ui.mineFull=r.team;Object.assign(old,r.team);ui.editId=null;ui.editPre=null;toast('수정했어요');render();return}
@@ -2036,7 +2042,7 @@ async function submitApply(f){
   if(SERVER&&ui.admin&&old){Object.assign(old,{div,school,teacher,phone,players,updated:Date.now()});if(pw)old.newPw=pw;save();ui.editId=null;ui.editPre=null;toast('수정했어요');render();return}
   if(old){Object.assign(old,{div,school,teacher,phone,players,updated:Date.now()});if(pw){old.salt=uid();old.pwHash=await hashPw(pw,old.salt)}save();ui.editId=null;ui.editPre=null;toast('수정했어요');render();return}
   const salt=uid();
-  S.teams.push({id:uid(),div,school,teacher,phone,players,salt,pwHash:await hashPw(pw,salt),created:Date.now(),agreed:Date.now()});
+  S.teams.push({id:uid(),div,school,teacher,phone,players,salt,pwHash:await hashPw(pw,salt),created:Date.now(),agreed:Date.now(),newPw:SERVER?pw:undefined});
   save();ui.div=div;ui.prefill=null;toast(`${school} 신청 완료! 비밀번호를 꼭 기억해 두세요.`);go('status');
 }
 
