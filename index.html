@@ -43,7 +43,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .num{font-variant-numeric:tabular-nums;font-weight:700}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--court);color:var(--on-court);border-bottom:4px solid var(--ball)}
 .top-in{max-width:1160px;margin:0 auto;padding:14px 16px 0}
-.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;min-width:0}
+.home-ball{flex:none;display:flex;border-radius:50%;transition:transform .4s}.home-ball:active{transform:rotate(-200deg) scale(.9)}.home-ball svg{display:block}
+@media (max-width:640px){.home-ball svg{width:28px;height:28px}.brand{gap:7px}}
 .brand h1{font-weight:800;font-size:clamp(19px,3vw,25px);margin:0;letter-spacing:-.01em;text-wrap:balance}
 .brand small{opacity:.85;font-size:13px}
 .tabs{display:flex;gap:2px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
@@ -414,7 +416,7 @@ details.team[open] summary{margin-bottom:10px}
 
 <header class="top">
   <div class="top-in">
-    <div class="brand"><h1 id="title">배구대회</h1></div>
+    <div class="brand"><a class="home-ball" href="./" title="처음 화면으로 (새로고침)" aria-label="처음 화면으로 새로고침"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="34" height="34" aria-hidden="true"><defs><clipPath id="vb0"><path d="M18.5 21.5 Q20.84 30.17 16.87 37.73 A18 18 0 0 1 5.26 9.68 Q10.04 18.21 18.5 21.5Z"/></clipPath><clipPath id="vb1"><path d="M18.5 21.5 Q10.04 18.21 5.26 9.68 A18 18 0 0 1 37.73 16.87 Q27.56 16.04 18.5 21.5Z"/></clipPath><clipPath id="vb2"><path d="M18.5 21.5 Q27.56 16.04 37.73 16.87 A18 18 0 0 1 16.87 37.73 Q20.84 30.17 18.5 21.5Z"/></clipPath><radialGradient id="vbs" cx="35%" cy="30%" r="75%"><stop offset="55%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".28"/></radialGradient></defs><circle cx="20" cy="20" r="18" fill="#FBFBF8"/><g clip-path="url(#vb0)"><circle cx="-19.85" cy="16.51" r="60" fill="#F2C21B" stroke="#0f1d3a" stroke-width=".9"/><circle cx="-19.85" cy="16.51" r="33.5" fill="#1F4FB5" stroke="#0f1d3a" stroke-width=".9"/><circle cx="-19.85" cy="16.51" r="28" fill="#F2C21B" stroke="#0f1d3a" stroke-width=".9"/></g><g clip-path="url(#vb1)"><circle cx="30.35" cy="-18.64" r="60" fill="#1F4FB5" stroke="#0f1d3a" stroke-width=".9"/><circle cx="30.35" cy="-18.64" r="32" fill="#FBFBF8" stroke="#0f1d3a" stroke-width=".9"/><circle cx="30.35" cy="-18.64" r="24" fill="#1F4FB5" stroke="#0f1d3a" stroke-width=".9"/></g><g clip-path="url(#vb2)"><circle cx="30.35" cy="58.64" r="60" fill="#FBFBF8" stroke="#0f1d3a" stroke-width=".9"/><circle cx="30.35" cy="58.64" r="32.5" fill="#F2C21B" stroke="#0f1d3a" stroke-width=".9"/><circle cx="30.35" cy="58.64" r="24.5" fill="#FBFBF8" stroke="#0f1d3a" stroke-width=".9"/></g><path d="M18.5 21.5 Q20.84 30.17 16.87 37.73" fill="none" stroke="#0f1d3a" stroke-width="1.3"/><path d="M18.5 21.5 Q10.04 18.21 5.26 9.68" fill="none" stroke="#0f1d3a" stroke-width="1.3"/><path d="M18.5 21.5 Q27.56 16.04 37.73 16.87" fill="none" stroke="#0f1d3a" stroke-width="1.3"/><circle cx="20" cy="20" r="18" fill="url(#vbs)"/><circle cx="20" cy="20" r="18" fill="none" stroke="#0f1d3a" stroke-width="1.6"/></svg></a><h1 id="title">배구대회</h1></div>
     <nav class="tabs" id="tabs" aria-label="메뉴"></nav>
   </div>
 </header>
