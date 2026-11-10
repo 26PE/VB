@@ -82,6 +82,8 @@ h3{font-size:16px;margin:0;font-weight:800}
 .ir-sc{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}.ir-n{font-size:13px;color:var(--muted);white-space:nowrap}.ir-st{font-size:15px}
 .ir-iss{grid-column:1/-1;font-size:12px;color:#b45309;line-height:1.3}
 .imp-pw{grid-template-columns:1fr 1fr!important;gap:8px}
+.cs-list{margin:6px 0;padding-left:18px;font-size:13px;line-height:1.5}.cs-list li{margin:1px 0}
+.cs-pick{display:flex;gap:14px;flex-wrap:wrap;margin-top:4px;font-weight:700}.cs-pick label{display:flex;align-items:center;gap:5px;cursor:pointer}.cs-pick input{width:18px;height:18px;margin:0}
 .forms-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0 10px;padding:8px 10px;border-radius:10px;background:var(--ball-soft)}.forms-bar>span{font-weight:800;font-size:13px}.forms-bar a{text-decoration:none;color:inherit;white-space:nowrap}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -914,6 +916,9 @@ function gradeOpts(div,sel){const max=3;let h='';for(let g=1;g<=max;g++)h+=`<opt
 const narrow=()=>typeof window!=='undefined'&&window.innerWidth>0&&window.innerWidth<=640;
 function prow(div,p,idx){p=p||{};return `<div class="prow"><span class="pno">${idx+1}</span><input type="text" class="p-name" id="pn${idx}" placeholder="이름" value="${esc(p.name)}" maxlength="20" aria-label="선수 이름"><select class="p-grade" id="pg${idx}" aria-label="학년">${gradeOpts(div,p.grade)}</select><input type="text" class="p-num" id="pu${idx}" inputmode="numeric" placeholder="${narrow()?'번호':'등번호'}" value="${esc(p.num)}" maxlength="3" aria-label="등번호"><button type="button" class="icon-btn" data-act="prow-del" aria-label="이 줄 지우기" title="이 줄 지우기">×</button></div>`}
 const PMIN=12,PMAX=15;
+function consentHtml(id,on){return `<div class="consent"><b>개인정보 수집·이용 동의 (필수)</b>
+  <ol class="cs-list"><li><b>수집 목적:</b> 2026학년도 중등체육교과교육연구회장배 참가에 따른 개인정보 수집</li><li><b>수집 항목:</b> 학생의 학년 및 이름, 선생님의 이름 및 연락처</li><li><b>이용 및 보유 기간:</b> 사업 종료 후 1주일 이내 폐기</li><li><b>동의 거부권 및 거부에 따른 불이익:</b> 개인정보 제공을 거부할 수 있으며, 미동의 시 참가 불가</li></ol>
+  <div class="cs-pick"><label><input type="radio" name="${id}" id="${id}"${on?' checked':''}> 동의합니다</label><label><input type="radio" name="${id}" id="${id}-no"> 동의하지 않습니다</label></div></div>`}
 function prefillNote(p,edit){const ps=p.players||[],miss=[];
   if(!p.school)miss.push('학교명');if(!p.teacher)miss.push('담당 교사');if(!p.phone)miss.push('연락처');
   if(ps.some(q=>q.ng))miss.push('학년');if(ps.some(q=>!q.num))miss.push('배번');if(ps.length<PMIN)miss.push(`선수(지금 ${ps.length}명, ${PMIN}~${PMAX}명)`);if(ps.length>PMAX)miss.push(`선수 ${PMAX}명까지(지금 ${ps.length}명)`);
@@ -937,9 +942,7 @@ function formHtml(t0,pre){
     <div class="players"><div class="row" style="justify-content:space-between"><h3>선수 명단</h3><span class="sub">12~15명 · 이름이 빈 줄은 저장되지 않아요</span></div>
       <div id="prows" class="players">${rows}</div>
 </div>
-    <div class="consent"><b>개인정보 수집·이용 동의</b>
-      <span>수집 항목: 담당 교사 이름·연락처, 학생 이름·학년·등번호 / 목적: 대회 참가 확인과 운영 / 보유 기간: 대회 종료 후 1개월 내 파기</span>
-      <label class="row"><input type="checkbox" id="f-agree" ${edit?'checked':''}> 위 내용에 동의하며, 학생·보호자 동의를 받았습니다.</label></div>
+    ${consentHtml('f-agree',edit)}
     <p class="err" id="f-err"></p>
     <div class="row">${edit?'<button type="button" class="btn" data-act="edit-cancel">취소</button>':''}<button class="btn primary">${edit?'수정 저장':'참가 신청하기'}</button></div>
   </form>`;
@@ -1015,7 +1018,7 @@ function importHtml(){
     const ok=im.filter(x=>!importIssues(x).length).length;
     body=`<div class="imp-list">${cards||'<div class="empty">시트에서 학교·감독·선수 정보를 찾지 못했어요. 서식을 바꾸지 않고 작성했는지 확인하세요.</div>'}</div>
       ${ok?`<p class="sub" style="margin:0">✅ 표시한 종별을 한 번에 신청해요. ⚠️ 종별은 [고치기]로 아래 입력칸에서 따로 신청하세요.</p><form class="grid" id="imp-form"><div class="fields imp-pw"><label class="f">비밀번호 (모든 종별 공통)<input type="password" id="i-pw" autocomplete="new-password"></label><label class="f">비밀번호 확인<input type="password" id="i-pw2" autocomplete="new-password"></label></div>
-      <div class="consent"><b>개인정보 수집·이용 동의</b><span>수집 항목: 감독 이름·휴대폰, 학생 이름·학년·배번 / 목적: 대회 참가 확인과 운영 / 보유 기간: 대회 종료 후 1개월 내 파기</span><label class="row"><input type="checkbox" id="i-agree"> 위 내용에 동의하며, 학생·보호자 동의를 받았습니다.</label></div>
+      ${consentHtml('i-agree',false)}
       <p class="err" id="i-err"></p><div class="row"><button type="button" class="btn" data-act="imp-clear">다시 고르기</button><button class="btn primary">고른 종별 신청하기</button></div></form>`:'<div class="row"><button class="btn" data-act="imp-clear">다시 고르기</button></div>'}`;
   }
   return `<section class="panel"><div class="sec-head"><div><h2>엑셀 신청서로 신청</h2><p class="sub">대회 참가신청서 서식을 작성해서 올리면 학교명, 감독, 감독 휴대폰, 선수 이름·학년·배번을 자동으로 읽어요. 시트 순서대로 여중부, 남중부, 여고부, 남고부이며, 작성한 시트만 신청됩니다.${SAMPLE?' 작성한 신청서를 찍은 사진이나 스크린샷도 올릴 수 있어요.':''}</p></div></div>${formsHtml()}
@@ -2015,7 +2018,7 @@ async function submitImport(f){
   if(!picks.length){err.textContent='신청할 종별을 하나 이상 고르세요.';return}
   {const w=weakPw(pw);if(w){err.textContent=w;return}}
   if(pw!==$('#i-pw2').value){err.textContent='비밀번호 확인이 달라요.';return}
-  if(!$('#i-agree').checked){err.textContent='개인정보 수집·이용에 동의해야 신청할 수 있어요.';return}
+  if(!$('#i-agree').checked){err.textContent=(($('#i-agree-no')||{}).checked?'개인정보 수집·이용에 동의하지 않으면 참가 신청을 할 수 없어요.':'개인정보 수집·이용 동의 여부를 선택해 주세요. 동의해야 신청할 수 있어요.');return}
   if(!ui.admin&&deadlinePassed()){err.textContent='신청이 마감되었어요.';return}if(!ui.admin&&notOpenYet()){err.textContent='아직 신청 기간이 아니에요.';return}
   if(SERVER&&!ui.admin){err.textContent='보내는 중…';try{await api('teamCreate',{code:ui.applyCode||'',pw,teams:picks.map(x=>({div:x.div,school:x.school,teacher:x.teacher,phone:x.phone,players:x.players,via:'excel'}))})}catch(x){err.textContent=x.message;return}
     ui.imp=null;ui.div=picks[0].div;toast(`${picks.map(x=>DN[x.div]).join(', ')} ${picks.length}개 종별 신청 완료! 비밀번호를 꼭 기억해 두세요.`);await pollNow();go('status');return}
@@ -2035,7 +2038,7 @@ async function submitApply(f){
   if(players.length<PMIN)return fail(`선수는 ${PMIN}명 이상이어야 해요. (지금 ${players.length}명)`);
   if(players.length>PMAX)return fail(`선수는 ${PMAX}명까지 등록할 수 있어요. (지금 ${players.length}명)`);
   const nums=players.map(p=>p.num).filter(Boolean);if(new Set(nums).size!==nums.length)return fail('등번호가 겹치는 선수가 있어요.');
-  if(!$('#f-agree').checked)return fail('개인정보 수집·이용에 동의해야 신청할 수 있어요.');
+  if(!$('#f-agree').checked)return fail((($('#f-agree-no')||{}).checked?'개인정보 수집·이용에 동의하지 않으면 참가 신청을 할 수 없어요.':'개인정보 수집·이용 동의 여부를 선택해 주세요. 동의해야 신청할 수 있어요.'));
   if(S.teams.some(t=>t.div===div&&norm(t.school)===norm(school)&&t.id!==editId))return fail('이 종별에 이미 신청한 학교예요. 내 신청 확인에서 수정하세요.');
   if(!old&&(divClosed(div)||(!ui.admin&&deadlinePassed())))return fail('이 종별은 신청이 마감되었어요.');
   if(!old&&!ui.admin&&notOpenYet())return fail('아직 신청 기간이 아니에요.');
